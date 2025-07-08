@@ -183,8 +183,8 @@
 
 <script lang="ts">
 import { defineComponent, ref, reactive, computed, onMounted } from 'vue';
-import { fetchUsersMock, saveUserMock, deleteUserMock } from '../../mocks/api';
-import type { User, Role } from '../../mocks/user';
+import { fetchUsersMock, saveUserMock, deleteUserMock } from '../../mocks/admin/api';
+import type { User, Role } from '../../mocks/admin/user';
 
 export default defineComponent({
   name: 'AdminUsers',

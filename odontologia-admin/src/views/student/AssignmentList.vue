@@ -55,7 +55,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { fetchAssignmentsMock } from '../../mocks/api';
+import { fetchAssignmentsMock } from '../../mocks/admin/api';
 import type { Assignment } from '../../mocks/student/assignments';
 
 const assignments = ref<Assignment[]>([]);

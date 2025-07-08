@@ -16,8 +16,8 @@
 
 <script lang="ts">
 import { defineComponent, onMounted, reactive } from 'vue';
-import { fetchUsersMock } from '../../mocks/api';
-import type { User } from '../../mocks/user';
+import { fetchUsersMock } from '../../mocks/admin/api';
+import type { User } from '../../mocks/admin/user';
 
 interface Stats { pacientes: number; estudiantes: number; profesores: number; }
 interface Card  { title: string; key: keyof Stats; icon: string; bg: string; }

@@ -52,7 +52,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { loginMock } from '../mocks/api';
+import { loginMock } from '../mocks/admin/api';
 
 const email = ref('');
 const password = ref('');
