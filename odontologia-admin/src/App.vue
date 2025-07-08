@@ -13,8 +13,8 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import Header  from './components/Header.vue';
-import Sidebar from './components/Sidebar.vue';
+import Header  from './components/common/Header.vue';
+import Sidebar from './components/common/Sidebar.vue';
 
 export default defineComponent({
   name: 'App',

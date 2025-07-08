@@ -32,3 +32,4 @@ export const deleteUserMock = async (id: number): Promise<void> => {
   const i = users.findIndex(x => x.id === id);
   if (i >= 0) users.splice(i, 1);
 };
+export { fetchAssignmentsMock } from './student/assignments';
