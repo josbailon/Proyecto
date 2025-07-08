@@ -1,11 +1,9 @@
-export type Role = 'admin' | 'estudiante' | 'secretario' | 'paciente'| 'profesor';
+export type Role = 'admin' | 'estudiante' | 'profesor' | 'secretario';
 
 export interface User {
-  id?: number;
+  id: number;
   nombre: string;
   email: string;
-  password?: string;
   role: Role;
-  especialidad?: string;
-  historial?: string;
+  password?: string;
 }

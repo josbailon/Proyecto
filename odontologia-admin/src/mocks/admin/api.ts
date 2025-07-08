@@ -1,35 +1,37 @@
+import { delay } from '../utils';
 import type { User } from './user';
-import { users } from '../users';
+import { initialUsers } from './users';
 
-const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+let users = [...initialUsers];
 
-export const loginMock = async (email: string, password: string): Promise<User> => {
-  await delay(300);
-  const u = users.find(x => x.email === email && password === 'password');
-  if (!u) throw new Error('Credenciales inválidas');
-  return { ...u };
-};
-
-export const fetchUsersMock = async (): Promise<User[]> => {
-  await delay(300);
-  return [...users];
-};
-
-export const saveUserMock = async (user: User): Promise<User> => {
-  await delay(300);
-  if (user.id) {
-    const i = users.findIndex(x => x.id === user.id);
-    users[i] = { ...user };
-  } else {
-    user.id = users.length + 1;
-    users.push(user);
+export async function loginMock(email: string, password: string): Promise<User> {
+  await delay();
+  const user = users.find(u => u.email === email);
+  if (!user || password !== 'password') {
+    throw new Error('Credenciales inválidas');
   }
+  // retornamos copia para evitar mutaciones externas
   return { ...user };
-};
+}
 
-export const deleteUserMock = async (id: number): Promise<void> => {
-  await delay(300);
-  const i = users.findIndex(x => x.id === id);
-  if (i >= 0) users.splice(i, 1);
-};
-export { fetchAssignmentsMock } from '../student/assignments';
+export async function fetchUsersMock(): Promise<User[]> {
+  await delay();
+  return users.map(u => ({ ...u }));
+}
+
+export async function saveUserMock(u: User): Promise<void> {
+  await delay();
+  if (u.id) {
+    // actualizar usuario existente
+    users = users.map(x => x.id === u.id ? { ...u } : x);
+  } else {
+    // crear nuevo usuario
+    const nextId = Math.max(0, ...users.map(x => x.id)) + 1;
+    users.push({ ...u, id: nextId });
+  }
+}
+
+export async function deleteUserMock(id: number): Promise<void> {
+  await delay();
+  users = users.filter(u => u.id !== id);
+}
