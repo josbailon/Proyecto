@@ -2,6 +2,7 @@
 import { createApp } from 'vue';
 import App from './App.vue';
 import router from './router';
+import { pinia } from './store';
 
 // Bootstrap 5 CSS & JS
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -23,3 +24,5 @@ app.use(router);
 
 // Mount the app
 app.mount('#app');
+app.use(pinia);
+
