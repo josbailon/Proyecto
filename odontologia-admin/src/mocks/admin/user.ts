@@ -1,4 +1,5 @@
-export type Role = 'admin' | 'estudiante' | 'profesor' | 'secretario';
+// src/mocks/admin/user.ts
+export type Role = 'admin' | 'estudiante' | 'profesor' | 'secretario' | 'paciente';
 
 export interface User {
   id: number;

@@ -1,47 +1,60 @@
+<!-- src/views/admin/HomeAdmin.vue -->
 <template>
-  <div class="row g-3">
-    <div class="col-md-4" v-for="card in cards" :key="card.key">
-      <div :class="['card text-white h-100 shadow-sm', card.bg]">
-        <div class="card-body d-flex align-items-center">
-          <i :class="[card.icon, 'fa-2x me-3']"></i>
-          <div>
-            <h5 class="card-title mb-1">{{ card.title }}</h5>
-            <p class="card-text display-6">{{ stats[card.key] }}</p>
-          </div>
-        </div>
-      </div>
+  <section class="home-admin container py-4">
+    <!-- Sprint 1 – 2025-07-10 – Estadísticas globales -->
+    <div class="row g-3 mb-4">
+      <CardStats
+        icon="fas fa-user-injured"
+        label="Pacientes"
+        :value="counts.pacientes"
+        bg="success"
+      />
+      <CardStats
+        icon="fas fa-user-graduate"
+        label="Estudiantes"
+        :value="counts.estudiantes"
+        bg="primary"
+      />
+      <CardStats
+        icon="fas fa-chalkboard-teacher"
+        label="Profesores"
+        :value="counts.profesores"
+        bg="warning"
+      />
+      <CardStats
+        icon="fas fa-calendar-check"
+        label="Citas"
+        :value="counts.citas"
+        bg="info"
+      />
     </div>
-  </div>
+  </section>
 </template>
 
-<script lang="ts">
-import { defineComponent, onMounted, reactive } from 'vue';
-import { fetchUsersMock } from '../../mocks/admin/api';
+<script setup lang="ts">
+// Sprint 1 – 2025-07-10 – Carga de estadísticas
+import { onMounted, computed } from 'vue';
+import { useAdminStore } from '../../store/admin';
+import { useSecretaryStore } from '../../store/secretary';
+
+import CardStats from '../../components/common/CardStats.vue';
+
 import type { User } from '../../mocks/admin/user';
 
-interface Stats { pacientes: number; estudiantes: number; profesores: number; }
-interface Card  { title: string; key: keyof Stats; icon: string; bg: string; }
+const adminStore = useAdminStore();
+const secStore   = useSecretaryStore();
 
-export default defineComponent({
-  name: 'HomeAdmin',
-  setup() {
-    const stats = reactive<Stats>({ pacientes: 0, estudiantes: 0, profesores: 0 });
-    const cards: Card[] = [
-      { title: 'Pacientes',   key: 'pacientes',   icon: 'fas fa-user-injured', bg: 'bg-success' },
-      { title: 'Estudiantes', key: 'estudiantes', icon: 'fas fa-user-graduate', bg: 'bg-primary' },
-      { title: 'Secretarios', key: 'profesores',  icon: 'fas fa-user-tie',      bg: 'bg-warning' }
-    ];
-
-    onMounted(async () => {
-      const users: User[] = await fetchUsersMock();
-      stats.pacientes   = users.filter(u => u.role === 'paciente').length;
-      stats.estudiantes = users.filter(u => u.role === 'estudiante').length;
-      stats.profesores  = users.filter(u => u.role === 'secretario').length;
-    });
-
-    return { stats, cards };
-  }
+onMounted(async () => {
+  await adminStore.fetchUsers();
+  await secStore.loadAppointments();
 });
+
+const counts = computed(() => ({
+  pacientes:   adminStore.users.filter((u: User) => u.role === 'paciente').length,
+  estudiantes: adminStore.users.filter((u: User) => u.role === 'estudiante').length,
+  profesores:  adminStore.users.filter((u: User) => u.role === 'profesor').length,
+  citas:       secStore.appointments.length
+}));
 </script>
 
 <style src="../../assets/css/pages/admin/HomeAdmin.css" scoped></style>
