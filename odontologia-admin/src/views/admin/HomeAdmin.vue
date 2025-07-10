@@ -1,4 +1,3 @@
-<!-- src/views/admin/HomeAdmin.vue -->
 <template>
   <section class="home-admin container py-4">
     <!-- Sprint 1 – 2025-07-10 – Estadísticas globales -->
@@ -32,14 +31,11 @@
 </template>
 
 <script setup lang="ts">
-// Sprint 1 – 2025-07-10 – Carga de estadísticas
 import { onMounted, computed } from 'vue';
 import { useAdminStore } from '../../store/admin';
 import { useSecretaryStore } from '../../store/secretary';
-
-import CardStats from '../../components/common/CardStats.vue';
-
 import type { User } from '../../mocks/admin/user';
+import CardStats from '../../components/common/CardStats.vue';
 
 const adminStore = useAdminStore();
 const secStore   = useSecretaryStore();

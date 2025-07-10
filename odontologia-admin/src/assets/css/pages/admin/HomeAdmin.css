@@ -1,6 +1,37 @@
-.row.g-3 { margin-top: var(--spacing-md); }
-.card {
-  border: none;
-  border-radius: 0.5rem;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+/* HomeAdmin.css */
+/* Contenedor general de estadísticas */
+.home-admin {
+  margin-top: calc(var(--header-height) + var(--spacer));
+}
+
+/* Ajustes de fila de cards */
+.home-admin .row {
+  gap: var(--spacer);
+}
+
+/* Override de colores de Bootstrap según paleta */
+.bg-success {
+  background-color: var(--color-success) !important;
+}
+.bg-primary {
+  background-color: var(--color-primary) !important;
+}
+.bg-warning {
+  background-color: var(--color-warning) !important;
+}
+.bg-info {
+  background-color: var(--color-info) !important;
+}
+
+/* Iconos dentro de las tarjetas */
+.home-admin .card-body i {
+  opacity: 0.85;
+}
+
+/* Texto y espaciado de las tarjetas */
+.home-admin .fs-4 {
+  font-weight: 600;
+}
+.home-admin small {
+  opacity: 0.85;
 }

@@ -1,0 +1,23 @@
+/* AdminSettings.css */
+/* Contenedor general */
+.admin-settings {
+  margin-top: calc(var(--header-height) + var(--spacer));
+}
+
+/* Títulos y párrafos */
+.admin-settings h2 {
+  color: var(--color-dark);
+  margin-bottom: var(--spacer);
+}
+.admin-settings p {
+  margin-bottom: var(--spacer-sm);
+}
+
+/* Lista de ajustes */
+.admin-settings ul {
+  margin-left: var(--spacer-lg);
+  list-style: disc;
+}
+.admin-settings li {
+  margin-bottom: var(--spacer-sm);
+}
