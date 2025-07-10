@@ -1,0 +1,23 @@
+/* src/assets/css/pages/student/ClinicalCasesView.css */
+
+.clinical-cases .card {
+  border-radius: var(--radius);
+}
+
+.clinical-cases .card-header {
+  background: var(--color-success);
+  color: var(--color-white);
+  font-weight: 600;
+}
+
+.clinical-cases .nav-link {
+  color: var(--color-white);
+}
+.clinical-cases .nav-link.active {
+  background: var(--color-info);
+  color: var(--color-white);
+}
+
+.clinical-cases .card-body {
+  padding: 1.5rem;
+}

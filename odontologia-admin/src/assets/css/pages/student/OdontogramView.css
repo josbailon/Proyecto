@@ -1,0 +1,25 @@
+/* src/assets/css/pages/student/OdontogramView.css */
+
+.odontogram .card {
+  border-radius: var(--radius);
+}
+
+.odontogram .card-header {
+  background: var(--color-info);
+  color: var(--color-white);
+  font-weight: 600;
+}
+
+.odontogram-form {
+  margin-top: 1rem;
+}
+
+/* Estilos de inputs y botones para odontograma */
+.odontogram-form .form-control,
+.odontogram-form .form-select {
+  border-radius: var(--radius-sm);
+}
+
+.odontogram-form .btn {
+  min-width: 80px;
+}

@@ -1,0 +1,23 @@
+/* src/assets/css/pages/student/ClinicalHistoryView.css */
+
+.clinical-histories .card {
+  border-radius: var(--radius);
+}
+
+.clinical-histories .card-header {
+  background: var(--color-primary);
+  color: var(--color-white);
+  font-weight: 600;
+}
+
+.clinical-histories .nav-link {
+  color: var(--color-white);
+}
+.clinical-histories .nav-link.active {
+  background: var(--color-info);
+  color: var(--color-white);
+}
+
+.clinical-histories .card-body {
+  padding: 1.5rem;
+}

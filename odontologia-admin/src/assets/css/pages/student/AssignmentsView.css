@@ -1,0 +1,23 @@
+/* src/assets/css/pages/student/AssignmentsView.css */
+
+.assignments .card {
+  border-radius: var(--radius);
+}
+
+.assignments .card-header {
+  background: var(--color-warning);
+  color: var(--color-white);
+  font-weight: 600;
+}
+
+.assignments .nav-link {
+  color: var(--color-white);
+}
+.assignments .nav-link.active {
+  background: var(--color-info);
+  color: var(--color-white);
+}
+
+.assignments .card-body {
+  padding: 1.5rem;
+}
