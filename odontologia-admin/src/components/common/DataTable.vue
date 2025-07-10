@@ -1,6 +1,6 @@
 <template>
   <div class="table-responsive">
-    <table class="table table-striped align-middle">
+    <table class="table table-hover align-middle">
       <thead class="table-light">
         <tr>
           <th v-for="col in columns" :key="col.key">{{ col.label }}</th>
@@ -11,7 +11,7 @@
         <tr v-for="row in pagedRows" :key="row.id">
           <td v-for="col in columns" :key="col.key">{{ row[col.key] }}</td>
           <td class="text-end">
-            <button class="btn btn-sm btn-outline-primary me-1" @click="emit('edit', row)">
+            <button class="btn btn-sm btn-outline-primary me-2" @click="emit('edit', row)">
               <i class="fas fa-edit"></i>
             </button>
             <button class="btn btn-sm btn-outline-danger" @click="emit('delete', row.id)">
@@ -28,7 +28,7 @@
     </table>
 
     <nav v-if="totalPages > 1" aria-label="Paginación">
-      <ul class="pagination justify-content-center">
+      <ul class="pagination justify-content-center mb-0">
         <li :class="['page-item', { disabled: page <= 1 }]">
           <a class="page-link" href="#" @click.prevent="changePage(page - 1)">‹</a>
         </li>
@@ -50,7 +50,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-const { columns, rows, page, perPage } = defineProps<{
+const props = defineProps<{
   columns: { key: string; label: string }[];
   rows: Record<string, any>[];
   page: number;
@@ -60,15 +60,12 @@ const { columns, rows, page, perPage } = defineProps<{
 const emit = defineEmits<{
   (e: 'edit', row: Record<string, any>): void;
   (e: 'delete', id: number): void;
-  (e: 'update:page', newPage: number): void;
+  (e: 'update:page', page: number): void;
 }>();
 
-const totalPages = computed(() =>
-  Math.ceil(rows.length / perPage)
-);
-
-const pagedRows = computed(() =>
-  rows.slice((page - 1) * perPage, page * perPage)
+const totalPages = computed(() => Math.ceil(props.rows.length / props.perPage));
+const pagedRows   = computed(() =>
+  props.rows.slice((props.page - 1) * props.perPage, props.page * props.perPage)
 );
 
 function changePage(p: number) {
@@ -79,6 +76,7 @@ function changePage(p: number) {
 
 <style scoped>
 .table-responsive {
-  overflow-x: auto;
+  max-height: calc(100vh - var(--header-height) - var(--footer-height) - 200px);
+  overflow-y: auto;
 }
 </style>

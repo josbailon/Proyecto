@@ -29,7 +29,9 @@ export {
 } from './student/assignments';
 export {
   fetchOdontogramMock,
-  saveOdontogramMock
+  saveOdontogramEntryMock,
+  deleteOdontogramEntryMock,
+  saveFullOdontogramMock
 } from './student/odontogram';
 export {
   fetchMessagesMock,

@@ -23,10 +23,14 @@ export async function fetchHistoriesMock(): Promise<ClinicalHistory[]> {
 }
 
 /** Crea o actualiza una historia clínica. */
-export async function saveHistoryMock(h: Partial<ClinicalHistory> & Omit<ClinicalHistory, 'id'|'createdAt'|'updatedAt'> & { id?: number }): Promise<void> {
+export async function saveHistoryMock(
+  h: Partial<ClinicalHistory> & Omit<ClinicalHistory, 'id'|'createdAt'|'updatedAt'> & { id?: number }
+): Promise<void> {
   await delay();
   if (h.id != null) {
-    histories = histories.map(x => x.id === h.id ? { ...x, ...h, updatedAt: new Date().toISOString() } : x);
+    histories = histories.map(x =>
+      x.id === h.id ? { ...x, ...h, updatedAt: new Date().toISOString() } : x
+    );
   } else {
     const next = histories.length ? Math.max(...histories.map(x => x.id)) + 1 : 1;
     histories.push({

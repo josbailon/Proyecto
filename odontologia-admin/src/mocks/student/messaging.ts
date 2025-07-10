@@ -10,7 +10,7 @@ export interface Message {
 
 let msgs: Message[] = [];
 
-/** Obtiene mensajes entre el usuario y otro contacto. */
+/** Obtiene los mensajes entre el usuario y otro contacto. */
 export async function fetchMessagesMock(withUser: string): Promise<Message[]> {
   await delay();
   return msgs
@@ -19,7 +19,9 @@ export async function fetchMessagesMock(withUser: string): Promise<Message[]> {
 }
 
 /** Envía un nuevo mensaje. */
-export async function sendMessageMock(m: Omit<Message, 'id' | 'timestamp'>): Promise<void> {
+export async function sendMessageMock(
+  m: Omit<Message, 'id' | 'timestamp'>
+): Promise<void> {
   await delay();
   const next = msgs.length ? Math.max(...msgs.map(x => x.id)) + 1 : 1;
   msgs.push({ id: next, ...m, timestamp: new Date().toISOString() });

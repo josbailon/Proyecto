@@ -3,7 +3,7 @@ import { delay } from '../utils';
 export interface Assignment {
   id: number;
   title: string;
-  dueDate: string;     // ISO
+  dueDate: string;     // ISO timestamp
   status: 'pendiente' | 'entregado' | 'corregido';
 }
 
@@ -15,11 +15,13 @@ export async function fetchAssignmentsMock(): Promise<Assignment[]> {
   return tasks.map(t => ({ ...t }));
 }
 
-/** Crea o actualiza una tarea (nueva versión). */
-export async function saveAssignmentMock(a: Partial<Assignment> & Omit<Assignment, 'id'> & { id?: number }): Promise<void> {
+/** Crea o actualiza una tarea (nueva o existente). */
+export async function saveAssignmentMock(
+  a: Partial<Assignment> & Omit<Assignment, 'id'> & { id?: number }
+): Promise<void> {
   await delay();
   if (a.id != null) {
-    tasks = tasks.map(x => x.id === a.id ? { ...x, ...a } : x);
+    tasks = tasks.map(x => (x.id === a.id ? { ...x, ...a } : x));
   } else {
     const next = tasks.length ? Math.max(...tasks.map(x => x.id)) + 1 : 1;
     tasks.push({ id: next, ...a } as Assignment);

@@ -22,10 +22,14 @@ export async function fetchCasesMock(): Promise<ClinicalCase[]> {
 }
 
 /** Crea o actualiza un caso clínico. */
-export async function saveCaseMock(c: Partial<ClinicalCase> & Omit<ClinicalCase, 'id'|'createdAt'|'updatedAt'> & { id?: number }): Promise<void> {
+export async function saveCaseMock(
+  c: Partial<ClinicalCase> & Omit<ClinicalCase, 'id'|'createdAt'|'updatedAt'> & { id?: number }
+): Promise<void> {
   await delay();
   if (c.id != null) {
-    cases = cases.map(x => x.id === c.id ? { ...x, ...c, updatedAt: new Date().toISOString() } : x);
+    cases = cases.map(x =>
+      x.id === c.id ? { ...x, ...c, updatedAt: new Date().toISOString() } : x
+    );
   } else {
     const next = cases.length ? Math.max(...cases.map(x => x.id)) + 1 : 1;
     cases.push({

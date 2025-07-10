@@ -4,18 +4,14 @@
     <p><strong>Etapa:</strong> {{ caseData.stage }}</p>
     <p><strong>Descripción:</strong></p>
     <p>{{ caseData.description }}</p>
-    <p>
-      <small class="text-muted">
-        Última actualización: {{ formatDate(caseData.updatedAt) }}
-      </small>
-    </p>
+    <p><small class="text-muted">Última actualización: {{ formatDate(caseData.updatedAt) }}</small></p>
   </div>
 </template>
 
 <script setup lang="ts">
 import type { ClinicalCase } from '../../mocks/student/clinicalCases';
 
-// Desestructuramos la única prop que necesitamos
+// Importante: coincide el nombre con el template
 const { caseData } = defineProps<{ caseData: ClinicalCase }>();
 
 function formatDate(iso: string) {

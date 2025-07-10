@@ -1,6 +1,6 @@
 <template>
   <div class="col-12 col-sm-6 col-lg-3">
-    <div :class="['card text-white', `bg-${bg}`, 'shadow-sm']">
+    <div :class="['card text-white', `bg-${bg}`, 'shadow-sm mb-3']">
       <div class="card-body d-flex align-items-center">
         <i :class="[icon, 'fa-2x', 'me-3']"></i>
         <div>
@@ -22,5 +22,7 @@ defineProps<{
 </script>
 
 <style scoped>
-/* ajustes menores si los necesitas */
+.card {
+  border-radius: var(--radius-lg);
+}
 </style>

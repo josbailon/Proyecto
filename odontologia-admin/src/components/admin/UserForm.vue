@@ -21,13 +21,13 @@
     </div>
 
     <!-- Solo estudiantes -->
-    <div v-if="local.role==='estudiante'" class="col-12 col-md-6">
+    <div v-if="local.role === 'estudiante'" class="col-12 col-md-6">
       <label class="form-label">Especialidad</label>
       <input v-model="local.especialidad" type="text" class="form-control" />
     </div>
 
     <!-- Solo pacientes -->
-    <div v-if="local.role==='paciente'" class="col-12">
+    <div v-if="local.role === 'paciente'" class="col-12">
       <label class="form-label">Historial Médico</label>
       <textarea v-model="local.historial" class="form-control"></textarea>
     </div>
@@ -47,7 +47,7 @@
 import { ref, watch } from 'vue';
 import type { User } from '../../mocks/admin/user';
 
-// Extendemos User con los campos opcionales de formulario
+// Extiende User con posibles campos extra
 interface FormUser extends Partial<User> {
   especialidad?: string;
   historial?: string;
