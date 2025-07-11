@@ -1,25 +1,26 @@
 <!-- src/App.vue -->
 <template>
-  <!-- El único propósito de App.vue es servir de contenedor al router -->
   <div id="app">
     <router-view/>
   </div>
 </template>
 
 <script setup lang="ts">
-// No hace falta lógica adicional aquí:
-// todo el renderizado se gestiona a través de los layouts y las vistas hijas.
+// Sin lógica aquí: todo se monta vía layout / vistas hijas
 </script>
 
 <style>
-/* Importa aquí tus estilos globales (si prefieres hacerlo en App.vue) */
+/* Reset y variables CSS reales */
 @import "@/assets/css/globals/reset.css";
 @import "@/assets/css/globals/variables.css";
-@import "@/assets/css/layout.css"; /* estilos comunes de layout */
 
-/* Bootstrap ya se importa en main.ts, así que no es necesario repetirlo aquí */
+/* Carga Bootstrap en main.ts, no es necesario repetirlo aquí */
 
-/* Puedes añadir aquí reglas globales adicionales */
+/* Si tienes reglas globales extra, añádelas bajo este comentario */
+html, body {
+  height: 100%;
+  margin: 0;
+}
 #app {
   min-height: 100vh;
   display: flex;
