@@ -1,37 +1,56 @@
-import { delay } from '../utils';
-import type { User } from './user';
-import { initialUsers } from './users';
+// src/mocks/admin/api.ts
 
-let users = [...initialUsers];
+import type { User } from './user'
+import {
+  users as _usersDB,
+  fetchUsersMock as _fetchUsersDB,
+  saveUserMock as _saveUserDB,
+  deleteUserMock as _deleteUserDB
+} from './users'
 
-export async function loginMock(email: string, password: string): Promise<User> {
-  await delay();
-  const user = users.find(u => u.email === email);
-  if (!user || password !== 'password') {
-    throw new Error('Credenciales inválidas');
-  }
-  // retornamos copia para evitar mutaciones externas
-  return { ...user };
+/** Retardo auxiliar para simular latencia de red */
+function delay(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms))
 }
 
+/**
+ * Simula un login en el sistema.
+ * Busca un usuario por email y contraseña en el mock de usuarios.
+ * @throws Error si no encuentra credenciales válidas.
+ */
+export async function loginMock(
+  email: string,
+  password: string
+): Promise<User> {
+  await delay(300)
+  const user = _usersDB.find((u: User) => u.email === email && u.password === password)
+  if (!user) {
+    throw new Error('Email o contraseña incorrectos')
+  }
+  // Devolvemos copia para evitar mutaciones externas
+  return { ...user }
+}
+
+/**
+ * Recupera la lista completa de usuarios registrados.
+ */
 export async function fetchUsersMock(): Promise<User[]> {
-  await delay();
-  return users.map(u => ({ ...u }));
+  await delay(200)
+  return _fetchUsersDB()
 }
 
-export async function saveUserMock(u: User): Promise<void> {
-  await delay();
-  if (u.id) {
-    // actualizar usuario existente
-    users = users.map(x => x.id === u.id ? { ...u } : x);
-  } else {
-    // crear nuevo usuario
-    const nextId = Math.max(0, ...users.map(x => x.id)) + 1;
-    users.push({ ...u, id: nextId });
-  }
+/**
+ * Crea un nuevo usuario o actualiza uno existente.
+ */
+export async function saveUserMock(user: User): Promise<User> {
+  await delay(200)
+  return _saveUserDB(user)
 }
 
+/**
+ * Elimina un usuario por su identificador.
+ */
 export async function deleteUserMock(id: number): Promise<void> {
-  await delay();
-  users = users.filter(u => u.id !== id);
+  await delay(200)
+  return _deleteUserDB(id)
 }
