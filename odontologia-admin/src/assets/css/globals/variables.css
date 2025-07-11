@@ -1,58 +1,19 @@
 /* src/assets/css/globals/variables.css */
-/* CSS Custom Properties for theming and layout */
-
 :root {
-  /* Base colors */
-  --color-primary:    #007bff; /* blue */
-  --color-secondary:  #6c757d; /* gray */
-  --color-success:    #28a745; /* green */
-  --color-danger:     #dc3545; /* red */
-  --color-warning:    #ffc107; /* yellow */
-  --color-info:       #17a2b8; /* teal */
-  --color-light:      #f8f9fa; /* light gray */
-  --color-dark:       #343a40; /* dark gray */
+  --color-primary:   #1e40af;
+  --color-secondary: #10b981;
+  --color-info:      #0ea5e9;
+  --color-success:   #14b8a6;
+  --color-warning:   #eab308;
+  --color-danger:    #dc2626;
+  --color-gray-100:  #f3f4f6;
+  --color-white:     #ffffff;
 
-  /* Neutrals */
-  --color-white:      #ffffff;
-  --color-black:      #000000;
-  --color-muted:      #6c757d;
-  --color-gray-100:   #f1f3f5;
-  --color-gray-200:   #e9ecef;
-  --color-gray-300:   #dee2e6;
-  --color-gray-400:   #ced4da;
-  --color-gray-500:   #adb5bd;
-  --color-gray-600:   #868e96;
-  --color-gray-700:   #495057;
-  --color-gray-800:   #343a40;
-  --color-gray-900:   #212529;
+  --radius-sm:  0.25rem;
+  --radius:     0.375rem;
+  --radius-lg:  0.5rem;
 
-  /* Accents */
-  --color-accent1:    #ff6f61; /* coral */
-  --color-accent2:    #6fbf73; /* mint green */
-  --color-accent3:    #ffd54f; /* mustard */
-  --color-accent4:    #5c6bc0; /* indigo */
-
-  /* Typography */
-  --font-family-sans:  -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-family-mono:  "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-
-  /* Spacing */
-  --spacer:           1rem;
-  --spacer-sm:        0.5rem;
-  --spacer-lg:        1.5rem;
-
-  /* Border radius */
-  --radius-sm:        0.25rem;
-  --radius:           0.375rem;
-  --radius-lg:        0.5rem;
-
-  /* Shadows */
-  --shadow-light:     rgba(0, 0, 0, 0.05);
-  --shadow-regular:   rgba(0, 0, 0, 0.1);
-  --shadow-strong:    rgba(0, 0, 0, 0.2);
-
-  /* Layout */
-  --header-height:    56px;
-  --sidebar-width:    220px;
-  --sidebar-collapsed-width: 64px;
+  --spacer-sm:  0.5rem;
+  --spacer:     1rem;
+  --spacer-lg:  1.5rem;
 }

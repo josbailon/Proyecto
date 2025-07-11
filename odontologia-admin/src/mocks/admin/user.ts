@@ -1,10 +1,13 @@
 // src/mocks/admin/user.ts
-export type Role = 'admin' | 'estudiante' | 'profesor' | 'secretario' | 'paciente';
+
+export type Role = 'admin' | 'estudiante' | 'secretario' | 'paciente' | 'profesor';
 
 export interface User {
   id: number;
   nombre: string;
   email: string;
+  password: string;
   role: Role;
-  password?: string;
+  // Agregamos esta propiedad opcional para los profesores
+  especialidad?: string;
 }

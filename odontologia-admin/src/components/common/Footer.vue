@@ -1,12 +1,13 @@
 <template>
-  <footer class="footer">
-    <span>&copy; 2025 DentApp. Todos los derechos reservados.</span>
+  <footer class="app-footer mt-auto py-3">
+    <div class="container text-center">
+      <small>© 2025 OdontoEdu. Todos los derechos reservados.</small>
+    </div>
   </footer>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
-export default defineComponent({ name: 'Footer' });
+<script setup lang="ts">
+// Sin lógica adicional
 </script>
 
-<style src="../assets/css/components/Footer.css" scoped></style>
+<style src="@/assets/css/components/Footer.css" scoped></style>
