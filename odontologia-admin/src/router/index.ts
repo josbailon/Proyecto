@@ -1,43 +1,46 @@
 // src/router/index.ts
-import { createRouter, createWebHistory } from 'vue-router';
-import type { RouteRecordRaw } from 'vue-router';
+import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 
-// Public views
-import Login from '../views/Login.vue';
+// PUBLIC VIEWS
+import Login from '@/views/Login.vue'
 
-// Layouts
-import AdminLayout     from '../components/layouts/AdminLayout.vue';
-import StudentLayout   from '../components/layouts/StudentLayout.vue';
-import ProfessorLayout from '../components/layouts/ProfessorLayout.vue';
-import SecretaryLayout from '../components/layouts/SecretaryLayout.vue';
+// LAYOUTS
+import AdminLayout from '@/components/layouts/AdminLayout.vue'
+import ProfessorLayout from '@/components/layouts/ProfessorLayout.vue'
+import SecretaryLayout from '@/components/layouts/SecretaryLayout.vue'
+import StudentLayout from '@/components/layouts/StudentLayout.vue'
 
-// Admin pages
-import HomeAdmin    from '../views/admin/HomeAdmin.vue';
-import AdminUsers   from '../views/admin/AdminUsers.vue';
-import AdminSettings from '../views/admin/AdminSettings.vue';
+// ADMIN VIEWS
+import HomeAdmin from '@/views/admin/HomeAdmin.vue'
+import AdminUsers from '@/views/admin/AdminUsers.vue'
+import AdminSettings from '@/views/admin/AdminSettings.vue'
 
-// Student pages
-import DashboardView        from '../views/student/DashboardView.vue';
-import ClinicalHistoryView  from '../views/student/ClinicalHistoryView.vue';
-import ClinicalCasesView    from '../views/student/ClinicalCasesView.vue';
-import AssignmentsView      from '../views/student/AssignmentsView.vue';
-import OdontogramView       from '../views/student/OdontogramView.vue';
-import CommunicationView    from '../views/student/CommunicationView.vue';
+// PROFESSOR VIEWS
+import ProfessorDashboardView from '@/views/professor/ProfessorDashboardView.vue'
+import AssignmentsManagementView from '@/views/professor/AssignmentsManagementView.vue'
+import ProfileView from '@/views/professor/ProfileView.vue'
+import StudentProgressView from '@/views/professor/StudentProgressView.vue'
 
-// Professor pages
-import ProfessorDashboardView     from '../views/professor/ProfessorDashboardView.vue';
-import AssignmentsManagementView  from '../views/professor/AssignmentsManagementView.vue';
-import StudentProgressView        from '../views/professor/StudentProgressView.vue';
-import ProfileView                from '../views/professor/ProfileView.vue';
+// SECRETARY VIEWS
+import SecretaryDashboardView from '@/views/secretary/SecretaryDashboardView.vue'
+import PatientAssignmentView from '@/views/secretary/PatientAssignmentView.vue'
+import WeeklyScheduleView from '@/views/secretary/WeeklyScheduleView.vue'
 
-// Secretary pages
-import SecretaryDashboardView  from '../views/secretary/SecretaryDashboardView.vue';
-import PatientAssignmentView   from '../views/secretary/PatientAssignmentView.vue';
-import WeeklyScheduleView      from '../views/secretary/WeeklyScheduleView.vue';
+// STUDENT VIEWS
+import DashboardView from '@/views/student/DashboardView.vue'
+import ClinicalHistoryView from '@/views/student/ClinicalHistoryView.vue'
+import ClinicalCasesView from '@/views/student/ClinicalCasesView.vue'
+import AssignmentsView from '@/views/student/AssignmentsView.vue'
+import CommunicationView from '@/views/student/CommunicationView.vue'
+import OdontogramView from '@/views/student/OdontogramView.vue'
 
 const routes: RouteRecordRaw[] = [
   // Public
-  { path: '/login', name: 'Login', component: Login },
+  {
+    path: '/login',
+    name: 'Login',
+    component: Login
+  },
 
   // Admin
   {
@@ -45,24 +48,9 @@ const routes: RouteRecordRaw[] = [
     component: AdminLayout,
     meta: { requiresAuth: true, roles: ['admin'] },
     children: [
-      { path: '',         name: 'HomeAdmin',     component: HomeAdmin     },
-      { path: 'users',    name: 'AdminUsers',    component: AdminUsers    },
+      { path: '', name: 'AdminHome', component: HomeAdmin },
+      { path: 'users', name: 'AdminUsers', component: AdminUsers },
       { path: 'settings', name: 'AdminSettings', component: AdminSettings }
-    ]
-  },
-
-  // Student
-  {
-    path: '/student',
-    component: StudentLayout,
-    meta: { requiresAuth: true, roles: ['estudiante'] },
-    children: [
-      { path: 'dashboard',   name: 'StudentDashboard',   component: DashboardView       },
-      { path: 'histories',   name: 'StudentHistories',   component: ClinicalHistoryView },
-      { path: 'cases',       name: 'StudentCases',       component: ClinicalCasesView   },
-      { path: 'assignments', name: 'StudentAssignments', component: AssignmentsView     },
-      { path: 'odontogram',  name: 'StudentOdontogram',  component: OdontogramView      },
-      { path: 'messages',    name: 'StudentMessages',    component: CommunicationView   }
     ]
   },
 
@@ -72,10 +60,10 @@ const routes: RouteRecordRaw[] = [
     component: ProfessorLayout,
     meta: { requiresAuth: true, roles: ['profesor'] },
     children: [
-      { path: 'dashboard',   name: 'ProfessorDashboard',        component: ProfessorDashboardView    },
-      { path: 'assignments', name: 'ProfessorAssignments',      component: AssignmentsManagementView },
-      { path: 'progress',    name: 'ProfessorProgress',         component: StudentProgressView       },
-      { path: 'profile',     name: 'ProfessorProfile',          component: ProfileView               }
+      { path: '', name: 'ProfessorDashboard', component: ProfessorDashboardView },
+      { path: 'assignments', name: 'ProfessorAssignments', component: AssignmentsManagementView },
+      { path: 'profile', name: 'ProfessorProfile', component: ProfileView },
+      { path: 'progress', name: 'StudentProgress', component: StudentProgressView }
     ]
   },
 
@@ -85,36 +73,49 @@ const routes: RouteRecordRaw[] = [
     component: SecretaryLayout,
     meta: { requiresAuth: true, roles: ['secretario'] },
     children: [
-      { path: 'dashboard',       name: 'SecretaryDashboard',       component: SecretaryDashboardView   },
-      { path: 'assign-patients', name: 'PatientAssignment',        component: PatientAssignmentView    },
-      { path: 'schedule',        name: 'WeeklySchedule',           component: WeeklyScheduleView       }
+      { path: '', name: 'SecretaryDashboard', component: SecretaryDashboardView },
+      { path: 'patients', name: 'PatientAssignment', component: PatientAssignmentView },
+      { path: 'schedule', name: 'WeeklySchedule', component: WeeklyScheduleView }
+    ]
+  },
+
+  // Student
+  {
+    path: '/student',
+    component: StudentLayout,
+    meta: { requiresAuth: true, roles: ['estudiante'] },
+    children: [
+      { path: '', name: 'StudentDashboard', component: DashboardView },
+      { path: 'history', name: 'ClinicalHistory', component: ClinicalHistoryView },
+      { path: 'cases', name: 'ClinicalCases', component: ClinicalCasesView },
+      { path: 'assignments', name: 'Assignments', component: AssignmentsView },
+      { path: 'communication', name: 'Communication', component: CommunicationView },
+      { path: 'odontogram', name: 'Odontogram', component: OdontogramView }
     ]
   },
 
   // Fallback
   { path: '/:pathMatch(.*)*', redirect: '/login' }
-];
+]
 
 const router = createRouter({
   history: createWebHistory(),
   routes
-});
+})
 
-// Global guard: authentication & role check
+// Global guard: auth + role check
 router.beforeEach((to, _from, next) => {
-  const userJson = localStorage.getItem('user');
-  const user = userJson ? JSON.parse(userJson) as { role?: string } : null;
-
+  const user = JSON.parse(localStorage.getItem('user') || 'null')
   if (to.meta.requiresAuth) {
     if (!user) {
-      return next({ name: 'Login' });
+      return next({ name: 'Login' })
     }
-    const allowed = to.meta.roles as string[] | undefined;
-    if (allowed && !allowed.includes(user.role ?? '')) {
-      return next({ name: 'Login' });
+    const allowedRoles = (to.meta.roles || []) as string[]
+    if (!allowedRoles.includes(user.role)) {
+      return next({ name: 'Login' })
     }
   }
-  next();
-});
+  next()
+})
 
-export default router;
+export default router

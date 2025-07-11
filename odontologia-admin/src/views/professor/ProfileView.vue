@@ -1,103 +1,119 @@
 <!-- src/views/professor/ProfileView.vue -->
 <template>
   <section class="professor-profile container py-4">
-    <!-- Sprint 3 – 2025-07-20 – Vista de Perfil de Profesor -->
-    <h2 class="mb-4">Perfil del Profesor</h2>
+    <!-- Sprint 6 – 2025-07-25 – Perfil de Profesor -->
+    <h2 class="mb-4">Perfil de Profesor</h2>
 
-    <div class="card shadow-sm mb-4">
-      <div class="card-body">
-        <div class="row align-items-center">
-          <div class="col-md-3 text-center">
-            <img
-              src="@/assets/img/profesor.jpg"
-              alt="Avatar Profesor"
-              class="rounded-circle profile-avatar mb-2"
-            />
+    <div class="row mb-5">
+      <!-- Datos personales -->
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header">Información Personal</div>
+          <div class="card-body">
+            <p><strong>Nombre:</strong> {{ user.nombre }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+            <p><strong>Rol:</strong> {{ user.role }}</p>
           </div>
-          <div class="col-md-9">
-            <h4>{{ professor.nombre }}</h4>
-            <p><strong>Email:</strong> {{ professor.email }}</p>
-            <!-- Ahora TypeScript reconoce `.especialidad` -->
-            <p v-if="professor.especialidad">
-              <strong>Especialidad:</strong> {{ professor.especialidad }}
-            </p>
+        </div>
+      </div>
+
+      <!-- Estadísticas rápidas -->
+      <div class="col-md-6">
+        <div class="row g-4">
+          <div class="col-6">
+            <div class="card text-white bg-primary h-100">
+              <div class="card-body">
+                <h5 class="card-title">Asignaciones</h5>
+                <p class="card-text fs-2">{{ assignments.length }}</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="card text-white bg-success h-100">
+              <div class="card-body">
+                <h5 class="card-title">Cursos</h5>
+                <p class="card-text fs-2">{{ courses.length }}</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="row mb-4">
-      <div class="col-md-6">
-        <div class="card text-center">
-          <div class="card-body">
-            <h5>Tareas Asignadas</h5>
-            <h3>{{ assignmentsCount }}</h3>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-6">
-        <div class="card text-center">
-          <div class="card-body">
-            <h5>Estudiantes a Cargo</h5>
-            <h3>{{ studentsCount }}</h3>
-          </div>
-        </div>
+    <!-- Últimas asignaciones -->
+    <div class="card">
+      <div class="card-header">Últimas Asignaciones</div>
+      <div class="table-responsive">
+        <table class="table mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Título</th>
+              <th>Curso</th>
+              <th>Fecha de Entrega</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="a in assignments.slice(0, 5)" :key="a.id">
+              <td>{{ a.title }}</td>
+              <td>{{ a.course }}</td>
+              <td>{{ a.dueDate }}</td>
+            </tr>
+            <tr v-if="assignments.length === 0">
+              <td colspan="3" class="text-center text-muted">
+                No hay asignaciones disponibles.
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
-// Importamos el User corregido con `especialidad?`
-import type { User } from '../../mocks/admin/user';
-import { fetchUsersMock } from '../../mocks/api';
+import { ref, onMounted } from 'vue'
+import type { User } from '../../mocks/admin/user'
+import { fetchUsersMock } from '../../mocks/api'
+import type { Assignment } from '../../mocks/professor/assignments'
+import { fetchAssignmentsMock } from '../../mocks/professor/assignments'
+import { fetchCoursesMock } from '../../mocks/professor/studentsByCourse'
 
-import type { ProfessorAssignment } from '../../mocks/professor/assignments';
-import { fetchProfessorAssignmentsMock } from '../../mocks/professor/assignments';
-
-import type { StudentInfo } from '../../mocks/professor/studentsByCourse';
-import { fetchStudentsByCourseMock } from '../../mocks/professor/studentsByCourse';
-
-const professor   = ref<User>({ id: 0, nombre: '', email: '', password: '', role: 'profesor' });
-const assignments = ref<ProfessorAssignment[]>([]);
-const students    = ref<StudentInfo[]>([]);
+// Estado reactivo
+const user = ref<User>({
+  id: 0,
+  nombre: '',
+  email: '',
+  role: 'profesor'
+})
+const assignments = ref<Assignment[]>([])
+const courses = ref<string[]>([])
 
 onMounted(async () => {
-  const users = await fetchUsersMock();
-  const prof  = users.find((u: User) => u.role === 'profesor');
-  if (prof) {
-    professor.value   = prof;
-    assignments.value = await fetchProfessorAssignmentsMock();
-    if (prof.especialidad) {
-      students.value = await fetchStudentsByCourseMock(prof.especialidad);
-    }
-  }
-});
+  // 1) Obtener todos los usuarios y seleccionar al que tenga rol 'profesor'
+  const users = await fetchUsersMock()
+  const prof = users.find(u => u.role === 'profesor')
+  if (prof) user.value = prof
 
-const assignmentsCount = computed(() => assignments.value.length);
-const studentsCount    = computed(() => students.value.length);
+  // 2) Obtener datos del dashboard
+  assignments.value = await fetchAssignmentsMock()
+  courses.value = await fetchCoursesMock()
+})
 </script>
 
 <style scoped>
-.professor-profile .profile-avatar {
-  width: 120px;
-  height: 120px;
-  object-fit: cover;
-  border: 3px solid var(--color-primary);
-}
 .professor-profile h2 {
-  color: var(--color-primary);
-  font-weight: 600;
+  color: var(--bs-primary);
 }
-.professor-profile .card {
-  border-radius: var(--radius);
+.card {
+  margin-bottom: 1.5rem;
 }
-.professor-profile .card-body h5 {
+.card-title {
   margin-bottom: 0.5rem;
 }
-.professor-profile .card-body h3 {
-  color: var(--color-info);
-  font-size: 2rem;
+.card-text {
+  margin: 0;
+}
+.table {
+  margin-bottom: 0;
 }
 </style>

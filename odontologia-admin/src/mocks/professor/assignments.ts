@@ -1,35 +1,63 @@
-import { delay } from '../utils';
+// src/mocks/professor/assignments.ts
 
-export interface ProfessorAssignment {
-  id: number;
-  title: string;
-  description: string;
-  course: string;
-  dueDate: string;
-  createdAt: string;
+/** Representa una tarea académica asignada */
+export interface Assignment {
+  id: number
+  title: string
+  description: string
+  course: string
+  dueDate: string       // YYYY-MM-DD
+  createdAt: string     // ISO timestamp
 }
 
-let assignments: ProfessorAssignment[] = [
-  { id: 1, title: 'Informe Caso 1', description: 'Analizar radiografía', course: 'Odontología General', dueDate: '2025-07-20', createdAt: '2025-06-30T10:00:00Z' },
-  { id: 2, title: 'Presentación Seminario', description: 'Definir plan de tratamiento', course: 'Endodoncia', dueDate: '2025-07-25', createdAt: '2025-07-01T11:00:00Z' }
-];
-
-export async function fetchProfessorAssignmentsMock(): Promise<ProfessorAssignment[]> {
-  await delay();
-  return assignments.map(a => ({ ...a }));
-}
-
-export async function saveProfessorAssignmentMock(a: ProfessorAssignment): Promise<void> {
-  await delay();
-  if (a.id) {
-    assignments = assignments.map(x => x.id === a.id ? { ...a } : x);
-  } else {
-    const next = assignments.length ? Math.max(...assignments.map(x => x.id)) + 1 : 1;
-    assignments.push({ ...a, id: next, createdAt: new Date().toISOString() });
+/** Base de datos mock de assignments */
+const assignmentsDB: Assignment[] = [
+  {
+    id: 1,
+    title: 'Caso Clínico #1',
+    description: 'Descripción del caso clínico inicial...',
+    course: 'Anatomía Dental',
+    dueDate: '2025-08-01',
+    createdAt: '2025-07-10T10:00:00Z'
+  },
+  {
+    id: 2,
+    title: 'Historia Clínica #2',
+    description: 'Registrar historia clínica detallada...',
+    course: 'Patología Oral',
+    dueDate: '2025-08-05',
+    createdAt: '2025-07-11T11:30:00Z'
   }
+]
+
+/** Simula latencia */
+function delay(ms: number) {
+  return new Promise<void>(resolve => setTimeout(resolve, ms))
 }
 
-export async function deleteProfessorAssignmentMock(id: number): Promise<void> {
-  await delay();
-  assignments = assignments.filter(a => a.id !== id);
+/** Trae todas las asignaciones */
+export async function fetchAssignmentsMock(): Promise<Assignment[]> {
+  await delay(200)
+  return assignmentsDB.map(a => ({ ...a }))
+}
+
+/** Crea o actualiza una asignación */
+export async function saveAssignmentMock(a: Assignment): Promise<Assignment> {
+  await delay(200)
+  const idx = assignmentsDB.findIndex(x => x.id === a.id)
+  if (idx >= 0) {
+    assignmentsDB[idx] = { ...a }
+  } else {
+    const nextId = Math.max(0, ...assignmentsDB.map(x => x.id)) + 1
+    a.id = nextId
+    assignmentsDB.push({ ...a })
+  }
+  return { ...a }
+}
+
+/** Elimina una asignación por ID */
+export async function deleteAssignmentMock(id: number): Promise<void> {
+  await delay(200)
+  const idx = assignmentsDB.findIndex(x => x.id === id)
+  if (idx >= 0) assignmentsDB.splice(idx, 1)
 }

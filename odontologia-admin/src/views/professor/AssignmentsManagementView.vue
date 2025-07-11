@@ -1,116 +1,144 @@
 <!-- src/views/professor/AssignmentsManagementView.vue -->
 <template>
   <section class="assignments-management container py-4">
-    <!-- Sprint 4 – 2025-07-18 – Gestión de Tareas Académicas -->
-    <h2 class="mb-4">Gestión de Tareas</h2>
+    <!-- Sprint 6 – 2025-07-24 – Gestión de Asignaciones Académicas -->
+    <h2 class="mb-4">Gestión de Asignaciones Académicas</h2>
 
-    <div class="card shadow-sm">
-      <div class="card-header d-flex align-items-center">
-        <ul class="nav nav-tabs card-header-tabs flex-grow-1">
-          <li class="nav-item">
-            <a
-              href="#"
-              class="nav-link"
-              :class="{ active: tab === 'list' }"
-              @click.prevent="tab = 'list'"
-            >
-              Listado
-            </a>
-          </li>
-          <li class="nav-item">
-            <a
-              href="#"
-              class="nav-link"
-              :class="{ active: tab === 'form' }"
-              @click.prevent="prepareNew()"
-            >
-              {{ editMode ? 'Editar' : 'Crear' }}
-            </a>
-          </li>
-        </ul>
-      </div>
-      <div class="card-body">
-        <!-- LISTADO -->
-        <div v-if="tab === 'list'">
-          <DataTable
-            :columns="columns"
-            :rows="assignments"
-            :page="page"
-            :per-page="perPage"
-            @edit="onEdit"
-            @delete="onDelete"
-            @update:page="(val: number) => (page = val)"
-          />
+    <!-- Pestañas Listado / Formulario -->
+    <b-tabs v-model="activeTab" pills card>
+      <!-- Pestaña Listado -->
+      <b-tab title="Listado">
+        <div class="table-responsive">
+          <table class="table table-striped align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Título</th>
+                <th>Curso</th>
+                <th>Fecha Entrega</th>
+                <th>Creado</th>
+                <th class="text-center">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="a in assignments" :key="a.id">
+                <td>{{ a.title }}</td>
+                <td>{{ a.course }}</td>
+                <td>{{ a.dueDate }}</td>
+                <td>{{ formatDate(a.createdAt) }}</td>
+                <td class="text-center">
+                  <button
+                    class="btn btn-sm btn-outline-primary me-2"
+                    @click="onEdit(a)"
+                    title="Editar"
+                  >
+                    <i class="bi bi-pencil-fill"></i>
+                  </button>
+                  <button
+                    class="btn btn-sm btn-outline-danger"
+                    @click="onDelete(a.id)"
+                    title="Eliminar"
+                  >
+                    <i class="bi bi-trash-fill"></i>
+                  </button>
+                </td>
+              </tr>
+              <tr v-if="assignments.length === 0">
+                <td colspan="5" class="text-center text-muted">
+                  No hay asignaciones registradas.
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-        <!-- FORMULARIO -->
-        <div v-else>
-          <AssignTaskForm
-            :model-value="formModel"
-            :edit-mode="editMode"
-            @save="onSave"
-            @cancel="() => (tab = 'list')"
-          />
-        </div>
-      </div>
-    </div>
+        <button class="btn btn-success mt-3" @click="onNew">
+          <i class="bi bi-plus-lg"></i> Nueva Asignación
+        </button>
+      </b-tab>
+
+      <!-- Pestaña Crear / Editar -->
+      <b-tab :title="editMode ? 'Editar' : 'Crear'">
+        <AssignTaskForm
+          :modelValue="currentAssignment"
+          :editMode="editMode"
+          @save="onSave"
+          @cancel="onCancel"
+        />
+      </b-tab>
+    </b-tabs>
   </section>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-
-// Componentes
-import DataTable      from '../../components/common/DataTable.vue';
-import AssignTaskForm from '../../components/professor/AssignTaskForm.vue';
-
-// Tipos y mocks (rutas relativas)
-import type { ProfessorAssignment } from '../../mocks/professor/assignments';
+import { ref, onMounted } from 'vue'
+import type { Assignment } from '../../mocks/professor/assignments'
 import {
-  fetchProfessorAssignmentsMock,
-  saveProfessorAssignmentMock,
-  deleteProfessorAssignmentMock
-} from '../../mocks/professor/assignments';
+  fetchAssignmentsMock,
+  saveAssignmentMock,
+  deleteAssignmentMock
+} from '../../mocks/professor/assignments'
+import AssignTaskForm from '../../components/professor/AssignTaskForm.vue'
 
-const assignments = ref<ProfessorAssignment[]>([]);
-const tab         = ref<'list' | 'form'>('list');
-const editMode    = ref(false);
-const formModel   = ref<Partial<ProfessorAssignment>>({});
-const page        = ref(1);
-const perPage     = ref(10);
+// Estado reactivo
+const assignments = ref<Assignment[]>([])
+const activeTab = ref(0)            // 0=Listado, 1=Formulario
+const editMode = ref(false)
+const currentAssignment = ref<Partial<Assignment>>({})
 
-const columns = [
-  { key: 'title',     label: 'Título' },
-  { key: 'course',    label: 'Curso' },
-  { key: 'dueDate',   label: 'Fecha Entrega' },
-  { key: 'createdAt', label: 'Creado El' }
-];
+// Carga inicial de datos
+async function load() {
+  assignments.value = await fetchAssignmentsMock()
+}
+onMounted(load)
 
-onMounted(async () => {
-  assignments.value = await fetchProfessorAssignmentsMock();
-});
-
-function prepareNew() {
-  editMode.value  = false;
-  formModel.value = {};
-  tab.value       = 'form';
+// Abrir formulario para nueva asignación
+function onNew() {
+  currentAssignment.value = {}
+  editMode.value = false
+  activeTab.value = 1
 }
 
-function onEdit(row: Record<string, any>) {
-  editMode.value  = true;
-  formModel.value = { ...(row as ProfessorAssignment) };
-  tab.value       = 'form';
+// Abrir formulario para editar asignación existente
+function onEdit(a: Assignment) {
+  currentAssignment.value = { ...a }
+  editMode.value = true
+  activeTab.value = 1
 }
 
-async function onSave(payload: ProfessorAssignment) {
-  await saveProfessorAssignmentMock(payload);
-  assignments.value = await fetchProfessorAssignmentsMock();
-  tab.value         = 'list';
+// Guardar (nuevo o editar)
+async function onSave(a: Assignment) {
+  await saveAssignmentMock(a)
+  await load()
+  activeTab.value = 0
 }
 
+// Cancelar creación/edición
+function onCancel() {
+  editMode.value = false
+  currentAssignment.value = {}
+  activeTab.value = 0
+}
+
+// Eliminar asignación
 async function onDelete(id: number) {
-  await deleteProfessorAssignmentMock(id);
-  assignments.value = await fetchProfessorAssignmentsMock();
+  if (!confirm('¿Eliminar esta asignación?')) return
+  await deleteAssignmentMock(id)
+  await load()
+}
+
+// Formateo de fecha legible
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString()
 }
 </script>
 
-<style scoped src="../../assets/css/pages/professor/ProfessorAssignments.css"></style>
+<style scoped>
+.assignments-management h2 {
+  color: var(--bs-primary);
+}
+.table thead th {
+  vertical-align: middle;
+}
+.btn i {
+  font-size: 1rem;
+}
+</style>

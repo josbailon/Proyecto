@@ -1,33 +1,28 @@
-import { delay } from '../utils';
+// src/mocks/professor/studentsByCourse.ts
 
-export interface StudentInfo {
-  studentId: number;
-  studentName: string;
-  email: string;
-  course: string;
+/**
+ * Lista de cursos disponibles en el sistema
+ */
+const courses: string[] = [
+  'Anatomía Dental',
+  'Patología Oral',
+  'Radiología Odontológica',
+  'Odontología Preventiva',
+  'Endodoncia',
+  'Periodoncia'
+]
+
+/** Retardo simulado para emular llamada a API */
+function delay(ms: number): Promise<void> {
+  return new Promise(res => setTimeout(res, ms))
 }
 
-let studentsByCourse: StudentInfo[] = [
-  { studentId: 2, studentName: 'Jostin Estudiante', email: 'jostin@uni.edu', course: 'Odontología General' },
-  { studentId: 5, studentName: 'María Pérez',       email: 'maria@uni.edu',  course: 'Endodoncia' },
-  { studentId: 6, studentName: 'Carlos Ruiz',      email: 'carlos@uni.edu', course: 'Ortodoncia' }
-];
-
-export async function fetchStudentsByCourseMock(course: string): Promise<StudentInfo[]> {
-  await delay();
-  return studentsByCourse
-    .filter(s => s.course === course)
-    .map(s => ({ ...s }));
-}
-
-export async function addStudentToCourseMock(info: StudentInfo): Promise<void> {
-  await delay();
-  studentsByCourse.push({ ...info });
-}
-
-export async function removeStudentFromCourseMock(studentId: number, course: string): Promise<void> {
-  await delay();
-  studentsByCourse = studentsByCourse.filter(
-    s => !(s.studentId === studentId && s.course === course)
-  );
+/**
+ * Devuelve la lista de cursos.
+ * @returns Promise<string[]> arreglo de nombres de cursos
+ */
+export async function fetchCoursesMock(): Promise<string[]> {
+  await delay(150)
+  // devolvemos copia para evitar mutaciones externas
+  return [...courses]
 }
