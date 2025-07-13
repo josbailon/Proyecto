@@ -1,14 +1,14 @@
 // src/mocks/api.ts
 
 // --------------------------------------------------
-// Utility: simula latencia en las llamadas (delay)
+// Utility: simulación de latencia en las llamadas
 // --------------------------------------------------
-export function delay(ms: number = 300): Promise<void> {
+export function delay(ms = 300): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 // --------------------------------------------------
-// Tipos y datos iniciales de Usuario (Admin)
+// Tipos compartidos
 // --------------------------------------------------
 export type Role = 'admin' | 'estudiante' | 'profesor' | 'secretario';
 
@@ -18,37 +18,45 @@ export interface User {
   email: string;
   password: string;
   role: Role;
-  especialidad?: string;   // sólo para roles profesor/estudiante
-  historial?: string;      // sólo para pacientes
+  especialidad?: string;   // solo para profes y estudiantes
+  historial?: string;      // solo para pacientes, si se modelan
 }
 
+// --------------------------------------------------
+// Datos iniciales: usuarios
+// --------------------------------------------------
 const initialUsers: User[] = [
-  { id: 1, nombre: 'Admin Uno',          email: 'admin@odontologia.com',        password: 'admin123', role: 'admin' },
-  { id: 2, nombre: 'Estudiante Pérez',   email: 'estudiante@uni.edu',           password: 'est123',   role: 'estudiante', especialidad: 'Ortodoncia' },
-  { id: 3, nombre: 'Profesor López',     email: 'profesor@uni.edu',             password: 'prof123',  role: 'profesor',  especialidad: 'Endodoncia' },
-  { id: 4, nombre: 'Secretario Cruz',    email: 'secretario@odontologia.com',   password: 'sec123',   role: 'secretario' },
-  { id: 5, nombre: 'Paciente González',  email: 'paciente@odontologia.com',     password: 'pac123',   role: 'estudiante', historial: 'Sin antecedentes' }
+  { id: 1, nombre: 'Admin Uno',         email: 'admin@uleam.com',      password: 'admin123',     role: 'admin'      },
+  { id: 2, nombre: 'Estudiante Pérez',  email: 'estudiante@uleam.com', password: 'est123',       role: 'estudiante', especialidad: 'Ortodoncia' },
+  { id: 3, nombre: 'Profesor López',    email: 'profesor@uleam.com',   password: 'prof123',      role: 'profesor',  especialidad: 'Endodoncia'  },
+  { id: 4, nombre: 'Secretario Cruz',   email: 'secretario@uleam.com', password: 'sec123',       role: 'secretario' },
 ];
 
 // --------------------------------------------------
-// Admin / User API mocks
+// 1) Login & gestión básica de usuarios (Admin)
 // --------------------------------------------------
 
-/** Simula login: busca usuario por email + password */
+/**
+ * Simula un login: busca usuario por email + password.
+ * Lanza error si no existe coincidencia.
+ */
 export async function loginMock(email: string, password: string): Promise<User> {
   await delay();
   const user = initialUsers.find(u => u.email === email && u.password === password);
-  if (!user) throw new Error('Credenciales inválidas');
+  if (!user) throw new Error('Usuario o contraseña inválidos');
   return { ...user };
 }
 
-/** Devuelve lista de usuarios (sin password) */
+/** Devuelve la lista de usuarios (sin la contraseña) */
 export async function fetchUsersMock(): Promise<User[]> {
   await delay();
   return initialUsers.map(u => ({ ...u, password: '' }));
 }
 
-/** Crea o edita un usuario. Si no existe id, lo añade. */
+/**
+ * Crea o actualiza un usuario.
+ * Si user.id existe, lo actualiza; si no, lo inserta con nuevo id.
+ */
 export async function saveUserMock(user: User): Promise<User> {
   await delay();
   const idx = initialUsers.findIndex(u => u.id === user.id);
@@ -61,7 +69,7 @@ export async function saveUserMock(user: User): Promise<User> {
     user.id = newId;
     initialUsers.push({ ...user });
   }
-  return { ...user };
+  return { ...user, password: '' };
 }
 
 /** Elimina un usuario por su ID */
@@ -72,9 +80,8 @@ export async function deleteUserMock(id: number): Promise<void> {
 }
 
 // --------------------------------------------------
-// Estudiante: Historias Clínicas
+// 2) Estudiante: Historias Clínicas
 // --------------------------------------------------
-
 export interface ClinicalHistory {
   id: number;
   patientId: number;
@@ -90,7 +97,7 @@ export interface ClinicalHistory {
 
 let histories: ClinicalHistory[] = [];
 
-/** Lista todas las historias clínicas */
+/** Recupera todas las historias clínicas */
 export async function fetchHistoriesMock(): Promise<ClinicalHistory[]> {
   await delay();
   return histories.map(h => ({ ...h }));
@@ -107,26 +114,20 @@ export async function saveHistoryMock(h: ClinicalHistory): Promise<ClinicalHisto
       return { ...histories[idx] };
     }
   }
-  const newEntry: ClinicalHistory = {
-    ...h,
-    id: histories.length + 1,
-    createdAt: now,
-    updatedAt: now
-  };
+  const newEntry = { ...h, id: histories.length + 1, createdAt: now, updatedAt: now };
   histories.push(newEntry);
   return { ...newEntry };
 }
 
-/** Elimina una historia clínica por ID */
+/** Elimina una historia clínica */
 export async function deleteHistoryMock(id: number): Promise<void> {
   await delay();
   histories = histories.filter(h => h.id !== id);
 }
 
 // --------------------------------------------------
-// Estudiante: Casos Clínicos
+// 3) Estudiante: Casos Clínicos
 // --------------------------------------------------
-
 export interface ClinicalCase {
   id: number;
   patientId: number;
@@ -139,7 +140,7 @@ export interface ClinicalCase {
 
 let cases: ClinicalCase[] = [];
 
-/** Lista casos clínicos */
+/** Recupera todos los casos clínicos */
 export async function fetchCasesMock(): Promise<ClinicalCase[]> {
   await delay();
   return cases.map(c => ({ ...c }));
@@ -156,12 +157,7 @@ export async function saveCaseMock(c: ClinicalCase): Promise<ClinicalCase> {
       return { ...cases[idx] };
     }
   }
-  const newCase: ClinicalCase = {
-    ...c,
-    id: cases.length + 1,
-    createdAt: now,
-    updatedAt: now
-  };
+  const newCase = { ...c, id: cases.length + 1, createdAt: now, updatedAt: now };
   cases.push(newCase);
   return { ...newCase };
 }
@@ -173,9 +169,8 @@ export async function deleteCaseMock(id: number): Promise<void> {
 }
 
 // --------------------------------------------------
-// Estudiante: Tareas Académicas
+// 4) Estudiante: Tareas Académicas
 // --------------------------------------------------
-
 export interface Assignment {
   id: number;
   studentId: number;
@@ -186,13 +181,13 @@ export interface Assignment {
 
 let assignments: Assignment[] = [];
 
-/** Lista las tareas del estudiante */
+/** Recupera todas las tareas */
 export async function fetchAssignmentsMock(): Promise<Assignment[]> {
   await delay();
   return assignments.map(a => ({ ...a }));
 }
 
-/** Crea o edita una tarea académica */
+/** Crea o actualiza una tarea académica */
 export async function saveAssignmentMock(a: Assignment): Promise<Assignment> {
   await delay();
   if (a.id) {
@@ -200,21 +195,20 @@ export async function saveAssignmentMock(a: Assignment): Promise<Assignment> {
     if (idx >= 0) assignments[idx] = { ...a };
     return { ...a };
   }
-  const newA: Assignment = { ...a, id: assignments.length + 1 };
+  const newA = { ...a, id: assignments.length + 1 };
   assignments.push(newA);
   return { ...newA };
 }
 
-/** Elimina una tarea académica */
+/** Elimina una tarea */
 export async function deleteAssignmentMock(id: number): Promise<void> {
   await delay();
   assignments = assignments.filter(a => a.id !== id);
 }
 
 // --------------------------------------------------
-// Estudiante: Mensajería
+// 5) Estudiante: Mensajería
 // --------------------------------------------------
-
 export interface Message {
   id: number;
   from: string;
@@ -225,13 +219,13 @@ export interface Message {
 
 let messages: Message[] = [];
 
-/** Recupera mensajes entre el usuario y su interlocutor */
+/** Recupera mensajes entre dos usuarios */
 export async function fetchMessagesMock(withUser: string): Promise<Message[]> {
   await delay();
   return messages.filter(m => m.from === withUser || m.to === withUser);
 }
 
-/** Envía un nuevo mensaje */
+/** Envía un mensaje nuevo */
 export async function sendMessageMock(msg: Omit<Message, 'id' | 'timestamp'>): Promise<void> {
   await delay();
   messages.push({
@@ -242,9 +236,8 @@ export async function sendMessageMock(msg: Omit<Message, 'id' | 'timestamp'>): P
 }
 
 // --------------------------------------------------
-// Estudiante: Odontograma
+// 6) Estudiante: Odontograma
 // --------------------------------------------------
-
 export type ToothStatus = 'sano' | 'caries' | 'restaurado' | 'extraido';
 
 export interface OdontogramEntry {
@@ -263,13 +256,13 @@ function genId(patientId: number, tooth: string): string {
   return `${patientId}-${tooth}-${Date.now()}`;
 }
 
-/** Recupera todos los registros del odontograma para un paciente */
+/** Recupera odontograma completo */
 export async function fetchOdontogramMock(patientId: number): Promise<OdontogramEntry[]> {
   await delay();
   return (odontograms[patientId] ?? []).map(e => ({ ...e }));
 }
 
-/** Crea o actualiza una sola entrada de odontograma */
+/** Crea/actualiza una entrada */
 export async function saveOdontogramEntryMock(
   patientId: number,
   entry: Partial<OdontogramEntry> & { tooth: string; status: ToothStatus }
@@ -277,14 +270,16 @@ export async function saveOdontogramEntryMock(
   await delay();
   const now = new Date().toISOString();
   odontograms[patientId] = odontograms[patientId] ?? [];
+
   if (entry.id) {
     const list = odontograms[patientId];
     const idx = list.findIndex(e => e.id === entry.id);
-    if (idx > -1) {
+    if (idx >= 0) {
       list[idx] = { ...list[idx], ...entry, updatedAt: now };
       return { ...list[idx] };
     }
   }
+
   const newE: OdontogramEntry = {
     id: genId(patientId, entry.tooth),
     patientId,
@@ -292,13 +287,13 @@ export async function saveOdontogramEntryMock(
     status: entry.status,
     annotations: entry.annotations,
     createdAt: now,
-    updatedAt: now
+    updatedAt: now,
   };
   odontograms[patientId].push(newE);
   return { ...newE };
 }
 
-/** Elimina una entrada de odontograma */
+/** Elimina una entrada del odontograma */
 export async function deleteOdontogramEntryMock(patientId: number, id: string): Promise<void> {
   await delay();
   odontograms[patientId] = (odontograms[patientId] ?? []).filter(e => e.id !== id);
@@ -318,14 +313,13 @@ export async function saveFullOdontogramMock(
     status: e.status,
     annotations: e.annotations,
     createdAt: now,
-    updatedAt: now
+    updatedAt: now,
   }));
 }
 
 // --------------------------------------------------
-// Profesor: Gestión de Asignaciones
+// 7) Profesor: Gestión de Asignaciones
 // --------------------------------------------------
-
 export interface ProfessorAssignment {
   id: number;
   professorId: number;
@@ -335,20 +329,18 @@ export interface ProfessorAssignment {
 
 let profAssignments: ProfessorAssignment[] = [];
 
-/** Lista las asignaciones creadas por el profesor */
+/** Recupera todas las asignaciones de profesor */
 export async function fetchProfessorAssignmentsMock(): Promise<ProfessorAssignment[]> {
   await delay();
   return profAssignments.map(a => ({ ...a }));
 }
 
-/** Crea o edita una asignación del profesor */
-export async function saveProfessorAssignmentMock(
-  a: ProfessorAssignment
-): Promise<ProfessorAssignment> {
+/** Crea/actualiza una asignación del profesor */
+export async function saveProfessorAssignmentMock(a: ProfessorAssignment): Promise<ProfessorAssignment> {
   await delay();
   if (a.id) {
     const idx = profAssignments.findIndex(x => x.id === a.id);
-    if (idx > -1) profAssignments[idx] = { ...a };
+    if (idx >= 0) profAssignments[idx] = { ...a };
     return { ...a };
   }
   const newA = { ...a, id: profAssignments.length + 1 };
@@ -356,16 +348,15 @@ export async function saveProfessorAssignmentMock(
   return { ...newA };
 }
 
-/** Elimina una asignación del profesor */
+/** Elimina una asignación de profesor */
 export async function deleteProfessorAssignmentMock(id: number): Promise<void> {
   await delay();
   profAssignments = profAssignments.filter(a => a.id !== id);
 }
 
 // --------------------------------------------------
-// Profesor: Progreso de Estudiantes
+// 8) Profesor: Progreso de Estudiantes
 // --------------------------------------------------
-
 export interface StudentProgress {
   id: number;
   studentId: number;
@@ -375,18 +366,18 @@ export interface StudentProgress {
 
 let progressRecords: StudentProgress[] = [];
 
-/** Lista registros de progreso de estudiantes */
+/** Recupera todos los registros de progreso */
 export async function fetchProgressMock(): Promise<StudentProgress[]> {
   await delay();
   return progressRecords.map(r => ({ ...r }));
 }
 
-/** Crea o actualiza un registro de progreso */
+/** Crea/actualiza un registro de progreso */
 export async function saveProgressMock(r: StudentProgress): Promise<StudentProgress> {
   await delay();
   if (r.id) {
     const idx = progressRecords.findIndex(x => x.id === r.id);
-    if (idx > -1) progressRecords[idx] = { ...r };
+    if (idx >= 0) progressRecords[idx] = { ...r };
     return { ...r };
   }
   const newR = { ...r, id: progressRecords.length + 1 };
@@ -401,9 +392,8 @@ export async function deleteProgressMock(id: number): Promise<void> {
 }
 
 // --------------------------------------------------
-// Profesor: Estudiantes por Curso
+// 9) Profesor: Estudiantes por Curso
 // --------------------------------------------------
-
 export interface StudentInfo {
   id: number;
   name: string;
@@ -412,63 +402,96 @@ export interface StudentInfo {
 
 let studentsByCourse: StudentInfo[] = [];
 
-/** Obtiene lista de estudiantes de un curso */
+/** Recupera la lista de estudiantes de un curso */
 export async function fetchStudentsByCourseMock(course: string): Promise<StudentInfo[]> {
   await delay();
   return studentsByCourse.filter(s => s.course === course);
 }
 
 /** Añade un estudiante a un curso */
-export async function addStudentToCourseMock(info: Omit<StudentInfo,'id'>): Promise<void> {
+export async function addStudentToCourseMock(info: Omit<StudentInfo, 'id'>): Promise<void> {
   await delay();
   studentsByCourse.push({ ...info, id: studentsByCourse.length + 1 });
 }
 
 /** Elimina un estudiante de un curso */
-export async function removeStudentFromCourseMock(
-  studentId: number,
-  course: string
-): Promise<void> {
+export async function removeStudentFromCourseMock(studentId: number, course: string): Promise<void> {
   await delay();
-  studentsByCourse = studentsByCourse.filter(
-    s => !(s.id === studentId && s.course === course)
-  );
+  studentsByCourse = studentsByCourse.filter(s => !(s.id === studentId && s.course === course));
 }
 
+// --------------------------------------------------
+// 10) Secretario: Asignación de Pacientes
+// --------------------------------------------------
+export interface PatientAssignment {
+  id: number;
+  studentId: number;
+  patientId: number;
+  notes?: string;
+  assignedAt?: string;
+}
 
+let patientAssignments: PatientAssignment[] = [];
+
+/** Recupera todas las asignaciones de pacientes */
+export async function fetchPatientAssignmentsMock(): Promise<PatientAssignment[]> {
+  await delay();
+  return patientAssignments.map(pa => ({ ...pa }));
+}
+
+/** Crea/actualiza una asignación de paciente */
+export async function savePatientAssignmentMock(a: PatientAssignment): Promise<PatientAssignment> {
+  await delay();
+  const now = new Date().toISOString();
+  if (a.id) {
+    const idx = patientAssignments.findIndex(x => x.id === a.id);
+    if (idx >= 0) {
+      patientAssignments[idx] = { ...a, assignedAt: a.assignedAt || now };
+      return { ...patientAssignments[idx] };
+    }
+  }
+  const newA = { ...a, id: patientAssignments.length + 1, assignedAt: now };
+  patientAssignments.push(newA);
+  return { ...newA };
+}
+
+/** Elimina una asignación de paciente */
+export async function deletePatientAssignmentMock(id: number): Promise<void> {
+  await delay();
+  patientAssignments = patientAssignments.filter(pa => pa.id !== id);
+}
 
 // --------------------------------------------------
-// Secretario: Citas
+// 11) Secretario: Citas
 // --------------------------------------------------
-
 export type AppointmentStatus = 'confirmada' | 'pendiente' | 'cancelada';
 
 export interface Appointment {
   id: number;
   studentId: number;
   patientId: number;
-  datetime: string;
+  datetime: string;        // ISO string
   status: AppointmentStatus;
   notes?: string;
 }
 
 let appointments: Appointment[] = [];
 
-/** Lista todas las citas programadas */
+/** Recupera todas las citas */
 export async function fetchAppointmentsMock(): Promise<Appointment[]> {
   await delay();
   return appointments.map(a => ({ ...a }));
 }
 
-/** Crea o actualiza una cita */
+/** Crea/actualiza una cita */
 export async function saveAppointmentMock(a: Appointment): Promise<Appointment> {
   await delay();
   if (a.id) {
     const idx = appointments.findIndex(x => x.id === a.id);
-    if (idx > -1) appointments[idx] = { ...a };
+    if (idx >= 0) appointments[idx] = { ...a };
     return { ...a };
   }
-  const newA: Appointment = { ...a, id: appointments.length + 1 };
+  const newA = { ...a, id: appointments.length + 1 };
   appointments.push(newA);
   return { ...newA };
 }

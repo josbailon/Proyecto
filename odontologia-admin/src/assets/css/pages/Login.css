@@ -1,287 +1,103 @@
-* {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+/* —— Fondo de la página —— */
+.login-page {
+  background: #F0F2F5; /* cuerpo muy suave */
+}
 
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
-            padding: 1rem;
-        }
+/* —— Tarjeta de login —— */
+.login-card {
+  max-width: 900px;
+  width: 100%;
+  min-height: 500px; /* MÁS ALARGADA */
+  border: none;
+  border-radius: 1rem;
+  overflow: hidden;
+}
 
-        /* Contenedor principal: centrado vertical y horizontalmente */
-        .login-container {
-            display: flex;
-            width: 100%;
-            max-width: 900px;
-            height: auto;
-            min-height: 550px;
-            margin: auto;
-            border-radius: 1.5rem;
-            overflow: hidden;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
+/* —— Panel izquierdo con degradado —— */
+.login-left {
+  background: linear-gradient(
+    150deg,
+    #2C3E50 0%,     /* azul oscuro */
+    #4CA1AF 100%    /* turquesa suave */
+  );
+}
 
-        .login-container:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-        }
+/* —— Logo —— */
+.login-logo {
+  width: 100px;
+  height: auto;
+  border-radius: 50%;
+  background: #FFFFFF; /* fondo blanco puro */
+  padding: 0.75rem;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
 
-        /* PANEL IZQUIERDO */
-        .login-left {
-            flex: 0 0 40%;
-            background: linear-gradient(135deg, #2c3e50 0%, #4a6588 100%);
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
-            position: relative;
-            overflow: hidden;
-        }
+/* —— Panel derecho —— */
+.login-right {
+  background: #FFFFFF; /* blanco puro para el formulario */
+}
 
-        .login-left::before {
-            content: '';
-            position: absolute;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-            top: -50%;
-            left: -50%;
-            transform: rotate(30deg);
-        }
+/* —— Iconos dentro del input —— */
+.form-icon {
+  position: absolute;
+  top: 50%;
+  left: 1rem;
+  transform: translateY(-50%);
+  font-size: 1.3rem;
+  color: #6C757D; /* gris neutro */
+}
 
-        .left-content {
-            text-align: center;
-            position: relative;
-            z-index: 1;
-            padding: 1.5rem;
-            width: 100%;
-        }
+/* —— Colores de texto de estado —— */
+.text-green { color: #28A745 !important; } /* éxito */
+.text-red   { color: #DC3545 !important; } /* error */
 
-        .logo {
-            width: 70px;
-            height: 70px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1.5rem;
-            font-size: 2rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
+/* —— Inputs —— */
+.form-control {
+  padding-left: 3rem;
+  border-radius: 0.5rem;
+  height: 3.5rem;
+  border: 1px solid #CED4DA; /* gris claro */
+  transition: border-color 0.2s;
+}
 
-        .left-content h1 {
-            font-size: 1.8rem;
-            margin-bottom: 0.75rem;
-            font-weight: 600;
-        }
+.form-control:focus {
+  outline: none;
+  border-color: #80BDFF; /* azul claro de foco */
+  box-shadow: none;
+}
 
-        .left-content p {
-            font-size: 0.95rem;
-            line-height: 1.6;
-            opacity: 0.9;
-            max-width: 300px;
-            margin: 0 auto;
-        }
+/* —— Botón de login —— */
+.btn-login {
+  background: #f05b4d; /* rojo vibrante */
+  color: #FFFFFF;      /* texto blanco */
+  border-radius: 0.5rem;
+  height: 3.5rem;
+  font-weight: 500;
+  transition: background 0.2s;
+}
 
-        /* PANEL DERECHO */
-        .login-right {
-            flex: 0 0 60%;
-            background: #ffffff;
-            padding: 3rem 2.5rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            position: relative;
-        }
+.btn-login:hover,
+.btn-login:focus {
+  background: #C92C38; /* rojo oscuro en hover/focus */
+}
 
-        .close-btn {
-            position: absolute;
-            top: 1.2rem;
-            right: 1.2rem;
-            background: transparent;
-            border: none;
-            font-size: 1.3rem;
-            color: #777;
-            cursor: pointer;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
+/* —— Botón de cerrar —— */
+.btn-close {
+  font-size: 1.2rem;
+  color: #6C757D; /* gris neutro */
+}
 
-        .close-btn:hover {
-            background: #f5f5f5;
-            color: #e74c3c;
-        }
+/* —— Enlaces (“¿Olvidaste…?”) —— */
+.text-primary {
+  color: #457B9D !important; /* azul medio para enlaces */
+}
 
-        .login-right h2 {
-            text-align: center;
-            margin-bottom: 2rem;
-            font-size: 1.8rem;
-            color: #2c3e50;
-            font-weight: 600;
-        }
+.text-muted {
+  font-size: 0.9rem;
+}
 
-        /* Formulario */
-        .login-form {
-            max-width: 380px;
-            width: 100%;
-            margin: 0 auto;
-        }
-
-        .form-group {
-            position: relative;
-            margin-bottom: 1.5rem;
-        }
-
-        .icon {
-            position: absolute;
-            top: 50%;
-            left: 1rem;
-            transform: translateY(-50%);
-            color: #7f8c8d;
-            font-size: 1.1rem;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 0.8rem 0.75rem 0.8rem 3rem;
-            border: 1px solid #e0e6ed;
-            border-radius: 0.8rem;
-            height: 3rem;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            background-color: #f9fbfd;
-        }
-
-        .form-control:focus {
-            border-color: #3498db;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
-            background-color: #fff;
-        }
-
-        /* Botón de ingreso */
-        .btn-login {
-            background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
-            color: #fff;
-            border: none;
-            padding: 0.9rem;
-            border-radius: 0.8rem;
-            font-weight: 600;
-            height: 3.2rem;
-            margin-top: 0.8rem;
-            transition: all 0.3s ease;
-            font-size: 1rem;
-            cursor: pointer;
-            letter-spacing: 0.5px;
-            box-shadow: 0 4px 15px rgba(230, 126, 34, 0.3);
-            width: 100%;
-        }
-
-        .btn-login:hover:not(:disabled) {
-            background: linear-gradient(135deg, #d35400 0%, #e67e22 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 18px rgba(230, 126, 34, 0.4);
-        }
-
-        .btn-login:active:not(:disabled) {
-            transform: translateY(0);
-        }
-
-        .btn-login:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .forgot-password {
-            text-align: right;
-            margin-top: 0.5rem;
-        }
-
-        .forgot-password a {
-            color: #3498db;
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: color 0.2s;
-        }
-
-        .forgot-password a:hover {
-            color: #2980b9;
-            text-decoration: underline;
-        }
-
-        /* Spinner */
-        .fa-spinner {
-            font-size: 0.9rem;
-            margin-right: 0.5rem;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .login-container {
-                flex-direction: column;
-                max-width: 500px;
-            }
-            
-            .login-left, .login-right {
-                flex: 1 1 100%;
-            }
-            
-            .login-left {
-                padding: 1.5rem;
-            }
-            
-            .logo {
-                width: 60px;
-                height: 60px;
-                font-size: 1.5rem;
-            }
-            
-            .left-content h1 {
-                font-size: 1.5rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .login-container {
-                border-radius: 1rem;
-            }
-            
-            .login-right {
-                padding: 2rem 1.5rem;
-            }
-            
-            .login-form {
-                max-width: 100%;
-            }
-        }
-
-        /* Mensaje de bienvenida */
-        .welcome-message {
-            text-align: center;
-            margin-top: 3rem;
-            font-size: 1.5rem;
-            color: #2c3e50;
-            font-weight: 300;
-        }
-   
+/* —— Botón deshabilitado —— */
+.btn-login:disabled {
+  background: #CCCCCC; /* gris claro */
+  cursor: not-allowed;
+}

@@ -1,0 +1,118 @@
+/* Wrapper y centrado */
+.login-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #eef2f5;
+  padding: 1rem;
+}
+
+/* Tarjeta */
+.login-card {
+  display: flex;
+  width: 100%;
+  max-width: 800px;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+}
+
+/* Paneles */
+.login-side {
+  flex: 1;
+  position: relative;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Panel izquierdo: marca */
+.login-side--brand {
+  background: #3e4a61;
+  color: #fff;
+  text-align: center;
+}
+.brand-logo {
+  width: 80px;
+  margin-bottom: 1rem;
+}
+.brand-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+.brand-subtitle {
+  margin-top: 0.5rem;
+  font-size: 0.95rem;
+  opacity: 0.85;
+}
+
+/* Botón cerrar */
+.close-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+/* Panel derecho: formulario */
+.login-side--form {
+  background: #fff;
+}
+.form-title {
+  margin-bottom: 1.5rem;
+  font-size: 1.4rem;
+  color: #333;
+}
+
+/* Grupos de campo */
+.form-group {
+  width: 100%;
+  margin-bottom: 1.2rem;
+}
+.form-group label {
+  display: block;
+  margin-bottom: 0.4rem;
+  color: #555;
+  font-size: 0.9rem;
+}
+.form-group input {
+  width: 100%;
+  padding: 0.7rem 1rem;
+  border: 1px solid #ccd0d5;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+.form-group input:focus {
+  border-color: #3e4a61;
+  outline: none;
+}
+
+/* Botón de login */
+.btn-login {
+  width: 100%;
+  padding: 0.8rem;
+  background: #f57c00;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-login:hover:not(:disabled) {
+  background: #d96d00;
+}
+.btn-login:disabled {
+  background: #fbb040;
+  cursor: not-allowed;
+}

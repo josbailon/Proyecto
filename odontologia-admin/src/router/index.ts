@@ -1,19 +1,14 @@
 // src/router/index.ts
-import { createRouter, createWebHistory } from 'vue-router'
-import type { RouteRecordRaw } from 'vue-router'
+import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import type { Role } from '../mocks/api'
 
-// ——————————————————————
 // Layouts
-// ——————————————————————
-import AdminLayout from '@/components/layouts/AdminLayout.vue'
+import AdminLayout     from '@/components/layouts/AdminLayout.vue'
 import ProfessorLayout from '@/components/layouts/ProfessorLayout.vue'
 import SecretaryLayout from '@/components/layouts/SecretaryLayout.vue'
-import StudentLayout from '@/components/layouts/StudentLayout.vue'
+import StudentLayout   from '@/components/layouts/StudentLayout.vue'
 
-// ——————————————————————
-// Lazy-loaded Views (code-split)
-// ——————————————————————
+// Lazy-loaded Views
 const Login                 = () => import('@/views/Login.vue')
 
 // Admin
@@ -40,19 +35,11 @@ const AssignmentsView       = () => import('@/views/student/AssignmentsView.vue'
 const CommunicationView     = () => import('@/views/student/CommunicationView.vue')
 const OdontogramView        = () => import('@/views/student/OdontogramView.vue')
 
-// ——————————————————————
-// Definición de rutas
-// ——————————————————————
 const routes: RouteRecordRaw[] = [
-  // redirigir raíz
-  { path: '/',   redirect: '/login' },
+  { path: '/', redirect: '/login' },
 
   // Public
-  {
-    path: '/login',
-    name: 'Login',
-    component: Login
-  },
+  { path: '/login', name: 'Login', component: Login },
 
   // Admin
   {
@@ -60,8 +47,8 @@ const routes: RouteRecordRaw[] = [
     component: AdminLayout,
     meta: { requiresAuth: true, roles: ['admin'] as Role[] },
     children: [
-      { path: '',         name: 'HomeAdmin',     component: HomeAdmin },
-      { path: 'users',    name: 'AdminUsers',    component: AdminUsers },
+      { path: '',       name: 'HomeAdmin',     component: HomeAdmin },
+      { path: 'users',  name: 'AdminUsers',    component: AdminUsers },
       { path: 'settings', name: 'AdminSettings', component: AdminSettings }
     ]
   },
@@ -72,10 +59,10 @@ const routes: RouteRecordRaw[] = [
     component: ProfessorLayout,
     meta: { requiresAuth: true, roles: ['profesor'] as Role[] },
     children: [
-      { path: '',             name: 'ProfessorDashboard',    component: ProfessorDashboard },
-      { path: 'assignments',  name: 'ProfessorAssignments',  component: AssignmentsManagement },
-      { path: 'profile',      name: 'ProfessorProfile',      component: ProfessorProfile },
-      { path: 'progress',     name: 'StudentProgress',       component: StudentProgress }
+      { path: '',           name: 'ProfessorDashboard',   component: ProfessorDashboard },
+      { path: 'assignments', name: 'ProfessorAssignments', component: AssignmentsManagement },
+      { path: 'profile',     name: 'ProfessorProfile',     component: ProfessorProfile },
+      { path: 'progress',    name: 'StudentProgress',      component: StudentProgress }
     ]
   },
 
@@ -85,9 +72,9 @@ const routes: RouteRecordRaw[] = [
     component: SecretaryLayout,
     meta: { requiresAuth: true, roles: ['secretario'] as Role[] },
     children: [
-      { path: '',           name: 'SecretaryDashboard', component: SecretaryDashboard },
-      { path: 'patients',   name: 'PatientAssignment',  component: PatientAssignment },
-      { path: 'schedule',   name: 'WeeklySchedule',     component: WeeklySchedule }
+      { path: '',         name: 'SecretaryDashboard', component: SecretaryDashboard },
+      { path: 'patients', name: 'PatientAssignment',  component: PatientAssignment },
+      { path: 'schedule', name: 'WeeklySchedule',     component: WeeklySchedule }
     ]
   },
 
@@ -97,37 +84,33 @@ const routes: RouteRecordRaw[] = [
     component: StudentLayout,
     meta: { requiresAuth: true, roles: ['estudiante'] as Role[] },
     children: [
-      { path: '',                name: 'StudentDashboard',  component: StudentDashboard },
-      { path: 'history',         name: 'ClinicalHistory',   component: ClinicalHistory },
-      { path: 'cases',           name: 'ClinicalCases',     component: ClinicalCases },
-      { path: 'assignments',     name: 'Assignments',       component: AssignmentsView },
-      { path: 'communication',   name: 'Communication',     component: CommunicationView },
-      { path: 'odontogram',      name: 'Odontogram',        component: OdontogramView }
+      { path: '',             name: 'StudentDashboard', component: StudentDashboard },
+      { path: 'history',      name: 'ClinicalHistory',  component: ClinicalHistory },
+      { path: 'cases',        name: 'ClinicalCases',    component: ClinicalCases },
+      { path: 'assignments',  name: 'Assignments',      component: AssignmentsView },
+      { path: 'communication', name: 'Communication',    component: CommunicationView },
+      { path: 'odontogram',   name: 'Odontogram',       component: OdontogramView }
     ]
   },
 
-  // Fallback: cualquier otra ruta → login
+  // Fallback
   { path: '/:pathMatch(.*)*', redirect: '/login' }
 ]
 
-// ——————————————————————
-// Creación del router y guard global
-// ——————————————————————
 const router = createRouter({
   history: createWebHistory(),
-  routes
+  routes,
+  scrollBehavior: () => ({ left: 0, top: 0 })
 })
 
 router.beforeEach((to, _from, next) => {
-  const user = JSON.parse(localStorage.getItem('user') || 'null')
+  const raw = localStorage.getItem('user')
+  const user: { role: Role } | null = raw ? JSON.parse(raw) : null
+
   if (to.meta.requiresAuth) {
-    if (!user) {
-      return next({ name: 'Login' })
-    }
+    if (!user) return next({ name: 'Login' })
     const allowed = (to.meta.roles as Role[]) || []
-    if (!allowed.includes(user.role)) {
-      return next({ name: 'Login' })
-    }
+    if (!allowed.includes(user.role)) return next({ name: 'Login' })
   }
   next()
 })
