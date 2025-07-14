@@ -1,37 +1,141 @@
-/* HomeAdmin.css */
-/* Contenedor general de estadísticas */
+/* src/views/admin/HomeAdmin.vue */
+:root {
+  --color-bg: #f8f9fa;
+  --color-primary: #1a237e;    /* azul marino */
+  --color-success: #2e7d32;    /* verde esmeralda */
+  --color-danger: #c62828;     /* rojo coral */
+  --color-info: #1565c0;       /* azul vivo */
+  --color-light: #fff;
+  --color-text: #343a40;
+  --shadow: 0 4px 8px rgba(0,0,0,0.1);
+  --radius: 0.75rem;
+  --transition: 0.3s ease;
+}
+
 .home-admin {
-  margin-top: calc(var(--header-height) + var(--spacer));
+  background: var(--color-bg);
+  min-height: 100vh;
+  padding: 2rem;
+  color: var(--color-text);
 }
 
-/* Ajustes de fila de cards */
-.home-admin .row {
-  gap: var(--spacer);
+/* Header */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--color-light);
+  padding: 1rem 2rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin-bottom: 2rem;
+}
+.header-left {
+  display: flex;
+  align-items: center;
+}
+.header-logo {
+  height: 48px;
+  margin-right: 1rem;
+}
+.header-title {
+  font-size: 1.75rem;
+  margin: 0;
+  color: var(--color-primary);
+}
+.breadcrumb ul {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+}
+.breadcrumb li + li::before {
+  content: '>';
+  margin: 0 0.5rem;
+  color: #6c757d;
+}
+.breadcrumb a {
+  text-decoration: none;
+  color: var(--color-primary);
+  font-weight: 500;
+}
+.header-right {
+  font-size: 0.9rem;
+  color: #6c757d;
 }
 
-/* Override de colores de Bootstrap según paleta */
-.bg-success {
-  background-color: var(--color-success) !important;
+/* Tarjetas estadística */
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
 }
-.bg-primary {
-  background-color: var(--color-primary) !important;
+.stat-card {
+  background: var(--color-light);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  box-shadow: var(--shadow);
+  transition: transform var(--transition), box-shadow var(--transition);
 }
-.bg-warning {
-  background-color: var(--color-warning) !important;
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.15);
 }
-.bg-info {
-  background-color: var(--color-info) !important;
+.icon-circle {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-light);
+  margin-right: 1rem;
+  font-size: 1.3rem;
+}
+.icon-circle.primary { background: var(--color-primary); }
+.icon-circle.success { background: var(--color-success); }
+.icon-circle.danger  { background: var(--color-danger); }
+.icon-circle.info    { background: var(--color-info); }
+.stat-info h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+.stat-info p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #6c757d;
 }
 
-/* Iconos dentro de las tarjetas */
-.home-admin .card-body i {
-  opacity: 0.85;
+/* Actividad reciente */
+.recent-activity h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: var(--color-primary);
 }
-
-/* Texto y espaciado de las tarjetas */
-.home-admin .fs-4 {
-  font-weight: 600;
+.recent-activity ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
-.home-admin small {
-  opacity: 0.85;
+.recent-activity li {
+  background: var(--color-light);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: var(--shadow);
+  transition: background var(--transition);
+}
+.recent-activity li:hover {
+  background: #e9ecef;
+}
+.recent-activity time {
+  font-size: 0.85rem;
+  color: #6c757d;
 }

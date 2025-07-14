@@ -1,29 +1,49 @@
-/* src/assets/css/pages/admin/AdminUsers.css */
-.admin-users h2 {
-  color: #333;
+/* === Colores base === */
+:root {
+  --bs-primary: #007bff;
+  --bs-success: #28a745;
+  --bs-danger:  #dc3545;
+  --bs-warning: #ffc107;
+  --bs-info:    #17a2b8;
+}
+
+/* Contenedor principal */
+.admin-users {
+  background: #fff;
+}
+
+/* Título */
+.admin-users h1 {
   font-weight: 600;
 }
-.admin-users .table-primary th {
-  background-color: #004085; /* Azul intenso */
-  color: #fff;
+
+/* Input de búsqueda */
+.admin-users .form-control {
+  max-width: 250px;
 }
-.admin-users .badge {
+
+/* Botón 'Añadir' */
+.admin-users .btn-success {
+  display: flex;
+  align-items: center;
+}
+
+/* Hover de filas */
+.admin-users .table-hover tbody tr:hover {
+  background-color: rgba(0, 123, 255, 0.1);
+}
+
+/* Badges según rol */
+.badge {
   text-transform: capitalize;
-  font-size: 0.85em;
 }
-.admin-users .btn-outline-primary {
-  border-color: #004085;
-  color: #004085;
+
+/* Modal fade */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
 }
-.admin-users .btn-outline-primary:hover {
-  background-color: #004085;
-  color: #fff;
-}
-.admin-users .btn-outline-danger {
-  border-color: #c82333;
-  color: #c82333;
-}
-.admin-users .btn-outline-danger:hover {
-  background-color: #c82333;
-  color: #fff;
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }

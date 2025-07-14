@@ -1,56 +1,95 @@
 // src/mocks/admin/api.ts
 
-import type { User } from './user'
-import {
-  users as _usersDB,
-  fetchUsersMock as _fetchUsersDB,
-  saveUserMock as _saveUserDB,
-  deleteUserMock as _deleteUserDB
-} from './users'
-
-/** Retardo auxiliar para simular latencia de red */
-function delay(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms))
+// --------------------------------------------------
+// Utility: simulación de latencia en las llamadas
+// --------------------------------------------------
+export function delay(ms: number = 300): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-/**
- * Simula un login en el sistema.
- * Busca un usuario por email y contraseña en el mock de usuarios.
- * @throws Error si no encuentra credenciales válidas.
- */
-export async function loginMock(
-  email: string,
-  password: string
-): Promise<User> {
-  await delay(300)
-  const user = _usersDB.find((u: User) => u.email === email && u.password === password)
-  if (!user) {
-    throw new Error('Email o contraseña incorrectos')
-  }
-  // Devolvemos copia para evitar mutaciones externas
-  return { ...user }
+// --------------------------------------------------
+// Tipos y datos iniciales de Usuario (Admin)
+// --------------------------------------------------
+export type Role = 'admin' | 'estudiante' | 'profesor' | 'secretario';
+
+export interface User {
+  id: number;
+  nombre: string;
+  email: string;
+  password: string;
+  role: Role;
+  especialidad?: string;   // solo para profes/estudiantes
+  historial?: string;       // opcional, si se modela
 }
 
-/**
- * Recupera la lista completa de usuarios registrados.
- */
+// Datos iniciales
+const initialUsers: User[] = [
+  { id: 1, nombre: 'Admin Uno',        email: 'admin@odontologia.com',    password: 'admin123', role: 'admin' },
+  { id: 2, nombre: 'Estudiante Pérez', email: 'estudiante@uni.edu',       password: 'est123',   role: 'estudiante', especialidad: 'Ortodoncia' },
+  { id: 3, nombre: 'Profesor López',   email: 'profesor@uni.edu',         password: 'prof123',  role: 'profesor',  especialidad: 'Endodoncia' },
+  { id: 4, nombre: 'Secretario Cruz',  email: 'secretario@odontologia.com', password: 'sec123', role: 'secretario' }
+];
+
+// --------------------------------------------------
+// 1) Login & gestión de usuarios
+// --------------------------------------------------
+
+/** Simula un login: busca usuario por email+password */
+export async function loginMock(email: string, password: string): Promise<User> {
+  await delay();
+  const usuario = initialUsers.find(u => u.email === email && u.password === password);
+  if (!usuario) throw new Error('Credenciales inválidas');
+  return { ...usuario };
+}
+
+/** Devuelve la lista de usuarios (sin password) */
 export async function fetchUsersMock(): Promise<User[]> {
-  await delay(200)
-  return _fetchUsersDB()
+  await delay();
+  return initialUsers.map(u => ({ ...u, password: '' }));
 }
 
 /**
- * Crea un nuevo usuario o actualiza uno existente.
+ * Crea o actualiza un usuario.
+ * Si `user.id` existe, lo actualiza; si no, lo añade con nuevo id.
  */
 export async function saveUserMock(user: User): Promise<User> {
-  await delay(200)
-  return _saveUserDB(user)
+  await delay();
+  const idx = initialUsers.findIndex(u => u.id === user.id);
+  if (idx >= 0) {
+    initialUsers[idx] = { ...user };
+  } else {
+    const newId = initialUsers.length ? Math.max(...initialUsers.map(u => u.id)) + 1 : 1;
+    user.id = newId;
+    initialUsers.push({ ...user });
+  }
+  return { ...user, password: '' };
 }
 
-/**
- * Elimina un usuario por su identificador.
- */
+/** Elimina un usuario por su ID */
 export async function deleteUserMock(id: number): Promise<void> {
-  await delay(200)
-  return _deleteUserDB(id)
+  await delay();
+  const idx = initialUsers.findIndex(u => u.id === id);
+  if (idx >= 0) initialUsers.splice(idx, 1);
+}
+
+// --------------------------------------------------
+// 2) Mock de estadísticas para HomeAdmin.vue
+// --------------------------------------------------
+
+export interface Stats {
+  users: number;
+  appointments: number;
+  patients: number;
+  messages: number;
+}
+
+/** Simula la carga de estadísticas en el dashboard admin */
+export async function fetchStatsMock(): Promise<Stats> {
+  await delay();
+  return {
+    users: initialUsers.length,
+    appointments: 58,   // valores de ejemplo
+    patients: 124,
+    messages: 37
+  };
 }
