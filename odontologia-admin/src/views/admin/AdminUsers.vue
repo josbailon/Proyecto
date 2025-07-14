@@ -1,148 +1,123 @@
 <!-- src/views/admin/AdminUsers.vue -->
 <template>
-  <section class="admin-users container py-4">
-    <!-- Sprint 2 – 2025-07-11 – CRUD usuarios -->
-    <div class="card shadow-sm">
-      <div class="card-header d-flex align-items-center">
-        <ul class="nav nav-tabs card-header-tabs flex-grow-1">
-          <li class="nav-item">
-            <a
-              href="#"
-              class="nav-link"
-              :class="{ active: activeTab === 'list' }"
-              @click.prevent="activeTab = 'list'"
-            >
-              Listado
-            </a>
-          </li>
-          <li class="nav-item">
-            <a
-              href="#"
-              class="nav-link"
-              :class="{ active: activeTab === 'form' }"
-              @click.prevent="prepareNew(); activeTab = 'form'"
-            >
-              {{ editMode ? 'Editar' : 'Crear' }}
-            </a>
-          </li>
-        </ul>
-        <button
-          class="btn btn-success btn-sm ms-3"
-          v-if="activeTab === 'list'"
-          @click="prepareNew(); activeTab = 'form'"
-        >
-          <i class="fas fa-user-plus me-1"></i> Nuevo
+  <div class="admin-users container-fluid py-4">
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start mb-4">
+      <h2 class="mb-3 mb-sm-0">Gestión de Usuarios</h2>
+      <div class="d-flex gap-2 w-100 w-sm-auto">
+        <input
+          v-model="search"
+          type="text"
+          class="form-control"
+          placeholder="Buscar usuarios..."
+        />
+        <button class="btn btn-success" @click="openAddModal">
+          <i class="fas fa-user-plus me-1"></i> Añadir usuario
         </button>
       </div>
+    </div>
 
-      <div class="card-body">
-        <!-- LISTADO -->
-        <div v-if="activeTab === 'list'">
-          <div class="d-flex mb-3">
-            <input
-              v-model="search"
-              type="text"
-              class="form-control form-control-sm w-auto me-auto"
-              placeholder="Buscar..."
-            />
-            <select v-model="perPage" class="form-select form-select-sm w-auto">
-              <option v-for="n in [5,10,25]" :key="n" :value="n">{{ n }} / pág.</option>
-            </select>
-          </div>
-          <DataTable
-            :columns="columns"
-            :rows="pagedUsers"
-            :page="page"
-            :per-page="perPage"
-            @edit="prepareEdit"
-            @delete="confirmDelete"
-            @update:page="page = $event"
-          />
-        </div>
-
-        <!-- FORMULARIO -->
-        <div v-else>
-          <UserForm
-            :model-value="form"
-            :edit-mode="editMode"
-            @save="onSubmit"
-            @cancel="cancelForm"
-          />
-        </div>
+    <div class="card shadow-sm">
+      <div class="card-body p-0">
+        <table class="table table-striped table-hover mb-0">
+          <thead class="table-primary">
+            <tr>
+              <th>ID</th><th>Nombre</th><th>Email</th><th>Rol</th><th class="text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="user in filteredUsers" :key="user.id">
+              <td>{{ user.id }}</td>
+              <td>{{ user.nombre }}</td>
+              <td>{{ user.email }}</td>
+              <td>
+                <span
+                  class="badge text-capitalize"
+                  :class="{
+                    'bg-primary':   user.role === 'admin',
+                    'bg-success':   user.role === 'profesor',
+                    'bg-info':      user.role === 'estudiante',
+                    'bg-secondary': user.role === 'secretario'
+                  }"
+                >
+                  {{ user.role }}
+                </span>
+              </td>
+              <td class="text-center">
+                <button class="btn btn-sm btn-outline-primary me-1"
+                        @click="openEditModal(user)">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger"
+                        @click="confirmDelete(user.id)">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </td>
+            </tr>
+            <tr v-if="filteredUsers.length === 0">
+              <td colspan="5" class="text-center py-3 text-muted">
+                No se encontraron usuarios.
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
-  </section>
+
+    <UserFormModal
+      v-if="showModal"
+      :user="currentUser"
+      @save="fetchUsers"
+      @close="closeModal"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import type { User } from '../../mocks/admin/user';
-import { useAdminStore } from '../../store/admin';
-import DataTable from '../../components/common/DataTable.vue';
-import UserForm from '../../components/admin/UserForm.vue';
+// 👉 Importa tipo y funciones desde tu mock
+import type { User } from '../../mocks/api';
+import { fetchUsersMock, deleteUserMock } from '../../mocks/api';
 
-const adminStore = useAdminStore();
+import UserFormModal from '@/components/admin/UserForm.vue';
 
-// Tabs & form state
-const activeTab = ref<'list' | 'form'>('list');
-const editMode  = ref(false);
+const users       = ref<User[]>([]);
+const search      = ref('');
+const showModal   = ref(false);
+const currentUser = ref<User | null>(null);
 
-// Table controls
-const search  = ref('');
-const page    = ref(1);
-const perPage = ref(10);
+const fetchUsers = async () => {
+  users.value = await fetchUsersMock();
+};
 
-// Form model
-const form = ref<Partial<User>>({});
+onMounted(fetchUsers);
 
-// Table columns
-const columns = [
-  { key: 'nombre', label: 'Nombre' },
-  { key: 'email',  label: 'Email'  },
-  { key: 'role',   label: 'Rol'    }
-];
-
-onMounted(async () => {
-  await adminStore.fetchUsers();
-});
-
-// Computed: filtered & paginated users
 const filteredUsers = computed(() =>
-  adminStore.users.filter((u: User) =>
-    u.nombre.toLowerCase().includes(search.value.toLowerCase()) ||
-    u.email.toLowerCase().includes(search.value.toLowerCase())
+  users.value.filter((u: User) =>
+    [u.nombre, u.email, u.role]
+      .some(field => field.toLowerCase().includes(search.value.toLowerCase()))
   )
 );
 
-const pagedUsers = computed(() =>
-  filteredUsers.value.slice((page.value - 1) * perPage.value, page.value * perPage.value)
-);
-
-// Handlers
-function prepareNew() {
-  editMode.value = false;
-  form.value = {};
+function openAddModal() {
+  currentUser.value = null;
+  showModal.value = true;
 }
 
-function prepareEdit(u: User) {
-  editMode.value = true;
-  form.value = { ...u };
-  activeTab.value = 'form';
+function openEditModal(user: User) {
+  currentUser.value = { ...user };
+  showModal.value = true;
 }
 
-function cancelForm() {
-  activeTab.value = 'list';
-}
-
-async function onSubmit(data: Partial<User>) {
-  await adminStore.saveUser(data as User);
-  cancelForm();
+function closeModal() {
+  showModal.value = false;
 }
 
 async function confirmDelete(id: number) {
-  if (!confirm('¿Eliminar usuario?')) return;
-  await adminStore.deleteUser(id);
+  if (confirm('¿Seguro que deseas eliminar este usuario?')) {
+    await deleteUserMock(id);
+    await fetchUsers();
+  }
 }
 </script>
 
-<style src="../../assets/css/pages/admin/AdminUsers.css" scoped></style>
+<style src="@/assets/css/pages/admin/AdminUsers.css" scoped></style>
