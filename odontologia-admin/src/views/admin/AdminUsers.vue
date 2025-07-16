@@ -3,12 +3,11 @@
     <!-- Toolbar -->
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h1 class="h3 text-primary">
-        <i class="fas fa-users me-2"></i>Gestión de Usuarios
+        <i class="fas fa-users me-2"></i> Gestión de Usuarios
       </h1>
       <div class="d-flex">
         <input
           v-model="filter"
-          @input="onFilter"
           type="text"
           class="form-control me-2"
           placeholder="🔍 Buscar..."
@@ -24,8 +23,18 @@
       </div>
     </div>
 
+    <!-- Spinner de carga -->
+    <div v-if="loading" class="text-center my-4">
+      <div class="spinner-border text-primary" role="status"></div>
+    </div>
+
+    <!-- Mensaje de error -->
+    <div v-if="error" class="alert alert-danger">
+      {{ error }}
+    </div>
+
     <!-- Tabla de usuarios -->
-    <div class="table-responsive">
+    <div v-if="!loading" class="table-responsive">
       <table class="table table-striped table-hover align-middle">
         <thead class="table-dark">
           <tr>
@@ -42,14 +51,7 @@
             <td>{{ u.nombre }}</td>
             <td>{{ u.email }}</td>
             <td>
-              <span
-                :class="{
-                  'badge bg-danger': u.role === 'admin',
-                  'badge bg-success': u.role === 'profesor',
-                  'badge bg-info text-dark': u.role === 'estudiante',
-                  'badge bg-warning text-dark': u.role === 'secretario'
-                }"
-              >
+              <span :class="roleBadgeClass(u.role)">
                 {{ u.role }}
               </span>
             </td>
@@ -57,7 +59,6 @@
               <button
                 class="btn btn-sm btn-primary me-1"
                 @click="openModal(u)"
-                data-bs-toggle="tooltip"
                 title="Editar"
               >
                 <i class="fas fa-edit"></i>
@@ -65,7 +66,6 @@
               <button
                 class="btn btn-sm btn-danger"
                 @click="onDelete(u.id)"
-                data-bs-toggle="tooltip"
                 title="Eliminar"
               >
                 <i class="fas fa-trash"></i>
@@ -102,8 +102,8 @@
               <button
                 type="button"
                 class="btn-close"
-                aria-label="Cerrar"
                 @click="closeModal"
+                aria-label="Cerrar"
               ></button>
             </div>
             <div class="modal-body">
@@ -133,16 +133,15 @@
                     class="form-select"
                     required
                   >
-                    <option
-                      v-for="r in roles"
-                      :key="r"
-                      :value="r"
-                    >{{ r }}</option>
+                    <option disabled value="">Selecciona un rol</option>
+                    <option v-for="r in roles" :key="r" :value="r">
+                      {{ r }}
+                    </option>
                   </select>
                 </div>
                 <div
                   class="mb-3"
-                  v-if="['profesor','estudiante'].includes(editingUser.role)"
+                  v-if="['profesor', 'estudiante'].includes(editingUser.role)"
                 >
                   <label class="form-label">Especialidad</label>
                   <input
@@ -156,29 +155,34 @@
                   v-if="editingUser.role === 'estudiante'"
                 >
                   <label class="form-label">Historial</label>
-                  <input
+                  <textarea
                     v-model="editingUser.historial"
-                    type="text"
                     class="form-control"
-                  />
+                    rows="2"
+                  ></textarea>
+                </div>
+                <div class="d-flex justify-content-end mt-3">
+                  <button
+                    type="button"
+                    class="btn btn-secondary me-2"
+                    @click="closeModal"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    class="btn btn-primary"
+                    :disabled="loading"
+                  >
+                    <span v-if="!loading">
+                      {{ editingUser.id ? 'Guardar' : 'Crear' }}
+                    </span>
+                    <span v-else>
+                      <i class="fas fa-spinner fa-spin"></i> Guardando...
+                    </span>
+                  </button>
                 </div>
               </form>
-            </div>
-            <div class="modal-footer">
-              <button
-                type="button"
-                class="btn btn-secondary"
-                @click="closeModal"
-              >
-                Cancelar
-              </button>
-              <button
-                type="button"
-                class="btn btn-primary"
-                @click="handleSave"
-              >
-                {{ editingUser.id ? 'Guardar' : 'Crear' }}
-              </button>
             </div>
           </div>
         </div>
@@ -197,11 +201,14 @@ import {
   type Role
 } from '../../mocks/api'
 
+// Estados
 const users = ref<User[]>([])
+const loading = ref(false)
+const error = ref('')
 const filter = ref('')
 const isModalOpen = ref(false)
 
-// Para crear/editar
+// Modelo del formulario
 const editingUser = ref<Partial<User> & { role: Role }>({
   id: 0,
   nombre: '',
@@ -212,27 +219,33 @@ const editingUser = ref<Partial<User> & { role: Role }>({
 
 const roles: Role[] = ['admin', 'profesor', 'estudiante', 'secretario']
 
-// Carga inicial
-async function loadUsers() {
-  users.value = await fetchUsersMock()
-}
+// Cargar datos iniciales
 onMounted(loadUsers)
 
-// Filtrado
+async function loadUsers() {
+  loading.value = true
+  error.value = ''
+  try {
+    users.value = await fetchUsersMock()
+  } catch (err: unknown) {
+    error.value = (err as { message?: string }).message || 'Error al cargar usuarios'
+  } finally {
+    loading.value = false
+  }
+}
+
+// Computed de filtrado
 const filteredUsers = computed(() =>
   users.value.filter(u =>
     u.nombre.toLowerCase().includes(filter.value.toLowerCase()) ||
     u.email.toLowerCase().includes(filter.value.toLowerCase())
   )
 )
-function onFilter() {
-  /* nada más: v-model + computed se encargan */
-}
 
-// Abrir modal (nuevo o editar)
+// Abrir modal
 function openModal(user?: User) {
   if (user) {
-    editingUser.value = { ...user } as any
+    editingUser.value = { ...user }
   } else {
     editingUser.value = {
       nombre: '',
@@ -249,20 +262,45 @@ function closeModal() {
   isModalOpen.value = false
 }
 
-// Guardar cambios o crear
+// Guardar
 async function handleSave() {
-  // convertir Partial<User> → User
-  const u = editingUser.value as User
-  await saveUserMock(u)
-  await loadUsers()
-  closeModal()
+  loading.value = true
+  error.value = ''
+  try {
+    const u = editingUser.value as User
+    await saveUserMock(u)
+    await loadUsers()
+    closeModal()
+  } catch (err: unknown) {
+    error.value = (err as { message?: string }).message || 'Error al guardar usuario'
+  } finally {
+    loading.value = false
+  }
 }
 
 // Eliminar
 async function onDelete(id: number) {
   if (!confirm('¿Eliminar este usuario?')) return
-  await deleteUserMock(id)
-  await loadUsers()
+  loading.value = true
+  error.value = ''
+  try {
+    await deleteUserMock(id)
+    await loadUsers()
+  } catch (err: unknown) {
+    error.value = (err as { message?: string }).message || 'Error al eliminar usuario'
+  } finally {
+    loading.value = false
+  }
+}
+
+// Clase dinámica para los badges
+function roleBadgeClass(role: Role) {
+  return {
+    'badge bg-danger': role === 'admin',
+    'badge bg-success': role === 'profesor',
+    'badge bg-info text-dark': role === 'estudiante',
+    'badge bg-warning text-dark': role === 'secretario'
+  }
 }
 </script>
 

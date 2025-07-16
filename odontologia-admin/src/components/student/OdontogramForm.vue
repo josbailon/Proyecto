@@ -66,3 +66,4 @@ function toggleState(tooth: Tooth) {
 </script>
 
 <style src="./OdontogramForm.css" scoped></style>
+  

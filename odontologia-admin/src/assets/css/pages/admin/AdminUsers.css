@@ -1,49 +1,158 @@
-/* === Colores base === */
 :root {
-  --bs-primary: #007bff;
-  --bs-success: #28a745;
-  --bs-danger:  #dc3545;
-  --bs-warning: #ffc107;
-  --bs-info:    #17a2b8;
+  --primary-color: #1a237e;
+  --secondary-color: #388e3c;
+  --danger-color: #c62828;
+  --info-color: #1976d2;
+  --warning-color: #f9a825;
+  --light-bg: #f8f9fa;
+  --dark-bg: #343a40;
+  --muted-text: #6c757d;
+  --border-radius: 0.5rem;
+  --box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  --transition-speed: 0.3s;
 }
 
-/* Contenedor principal */
+/* =======================================
+   CONTENEDOR GENERAL
+======================================= */
 .admin-users {
-  background: #fff;
+  background: var(--light-bg);
+  min-height: 100vh;
+  color: #333;
 }
 
-/* Título */
+/* =======================================
+   TOOLBAR
+======================================= */
 .admin-users h1 {
   font-weight: 600;
 }
 
-/* Input de búsqueda */
-.admin-users .form-control {
+.admin-users input.form-control {
   max-width: 250px;
 }
 
-/* Botón 'Añadir' */
+/* =======================================
+   BOTONES
+======================================= */
+.admin-users .btn {
+  transition: background var(--transition-speed), color var(--transition-speed);
+}
+
+.admin-users .btn-primary {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.admin-users .btn-primary:hover {
+  background: #0d1b5b;
+}
+
 .admin-users .btn-success {
-  display: flex;
-  align-items: center;
+  background: var(--secondary-color);
+  border-color: var(--secondary-color);
 }
 
-/* Hover de filas */
+.admin-users .btn-success:hover {
+  background: #2e7d32;
+}
+
+.admin-users .btn-danger {
+  background: var(--danger-color);
+  border-color: var(--danger-color);
+}
+
+.admin-users .btn-danger:hover {
+  background: #a30000;
+}
+
+/* =======================================
+   TABLA
+======================================= */
+.admin-users .table {
+  border-radius: var(--border-radius);
+  overflow: hidden;
+}
+
+.admin-users .table th,
+.admin-users .table td {
+  vertical-align: middle;
+}
+
 .admin-users .table-hover tbody tr:hover {
-  background-color: rgba(0, 123, 255, 0.1);
+  background-color: rgba(26, 35, 126, 0.1);
+  cursor: pointer;
 }
 
-/* Badges según rol */
-.badge {
-  text-transform: capitalize;
+/* =======================================
+   BADGES DE ROLES
+======================================= */
+.badge.bg-danger {
+  background-color: var(--danger-color) !important;
 }
 
-/* Modal fade */
+.badge.bg-success {
+  background-color: var(--secondary-color) !important;
+}
+
+.badge.bg-info {
+  background-color: var(--info-color) !important;
+  color: #fff !important;
+}
+
+.badge.bg-warning {
+  background-color: var(--warning-color) !important;
+  color: #212529 !important;
+}
+
+/* =======================================
+   MODAL
+======================================= */
+.modal-content {
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+}
+
+.modal-header {
+  background: var(--primary-color);
+  color: #fff;
+  border-bottom: none;
+}
+
+.modal-title {
+  font-weight: 600;
+}
+
+.modal-body {
+  background: #fff;
+}
+
+.modal-footer {
+  background: #f1f3f5;
+  border-top: none;
+}
+
+.btn-close {
+  filter: brightness(0) invert(1);
+}
+
+/* =======================================
+   ANIMACIONES FADE
+======================================= */
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.2s ease;
+  transition: opacity var(--transition-speed) ease;
 }
+
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+/* =======================================
+   MENSAJES VACÍOS
+======================================= */
+.admin-users .text-muted {
+  font-size: 0.95rem;
+  color: var(--muted-text) !important;
 }
