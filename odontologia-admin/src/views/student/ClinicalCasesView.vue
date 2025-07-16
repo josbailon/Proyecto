@@ -16,6 +16,13 @@
             placeholder="Buscar por paciente o ID…"
           />
         </div>
+        <select v-model="statusFilter" class="ccv-status-filter">
+          <option value="">Todos</option>
+          <option value="Borrador">Borrador</option>
+          <option value="Pendiente">Pendiente</option>
+          <option value="Aprobado">Aprobado</option>
+          <option value="Completado">Completado</option>
+        </select>
         <button class="btn ccv-btn ccv-btn--filter" @click="applyFilter">
           <i class="fas fa-filter"></i>
         </button>
@@ -142,7 +149,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 
 type Status = 'Borrador'|'Pendiente'|'Aprobado'|'Completado';
 interface ClinicalCase {
@@ -155,6 +162,7 @@ interface ClinicalCase {
 }
 
 const filterTerm = ref('');
+const statusFilter = ref<Status | ''>('');
 const cases = ref<ClinicalCase[]>([
   {
     id:101,
@@ -176,14 +184,41 @@ const cases = ref<ClinicalCase[]>([
     comments:[
       { by:'Dr. Pérez', at:'13 ene 2024', text:'Revisar coagulación.' }
     ]
+  },
+  {
+    id:102,
+    patientName:'Luis Ramírez',
+    createdAt:'15 ene 2024',
+    status:'Pendiente',
+    reason:'Control de ortodoncia',
+    symptoms:'',
+    procedures:[{ code:'O110', teeth:'', description:'Ajuste mensual', status:'Pendiente' }],
+    prescriptions:[],
+    appointments:[{ id:1, date:'22 ene 2024, 09:00', status:'Programada' }],
+    comments:[]
+  },
+  {
+    id:103,
+    patientName:'Ana Torres',
+    createdAt:'10 dic 2023',
+    status:'Completado',
+    reason:'Limpieza dental',
+    symptoms:'',
+    procedures:[{ code:'L010', teeth:'', description:'Profilaxis', status:'Completado' }],
+    prescriptions:[{ id:1, drug:'Enjuague bucal', dose:'2 veces/día' }],
+    appointments:[],
+    comments:[{ by:'Dr. López', at:'11 dic 2023', text:'Buen progreso' }]
   }
 ]);
 
 const filteredCases = computed(() =>
-  cases.value.filter(c =>
-    c.patientName.toLowerCase().includes(filterTerm.value.toLowerCase()) ||
-    String(c.id).includes(filterTerm.value)
-  )
+  cases.value.filter(c => {
+    const matchesTerm =
+      c.patientName.toLowerCase().includes(filterTerm.value.toLowerCase()) ||
+      String(c.id).includes(filterTerm.value);
+    const matchesStatus = !statusFilter.value || c.status === statusFilter.value;
+    return matchesTerm && matchesStatus;
+  })
 );
 
 const selectedCase = ref<ClinicalCase|null>(null);
@@ -196,10 +231,26 @@ const tabs = [
 ];
 const activeTab = ref('desc');
 
-function applyFilter() {}
+function applyFilter() {
+  filterTerm.value = filterTerm.value.trim();
+}
 function createCase() { alert('Crear un nuevo caso…'); }
 function openCase(c:ClinicalCase) { selectedCase.value = c; activeTab.value = 'desc'; }
 function closeModal() { selectedCase.value = null; }
+
+function handleKey(e: KeyboardEvent) {
+  if (e.key === 'Escape' && selectedCase.value) {
+    closeModal();
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', handleKey);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', handleKey);
+});
 
 function badgeColor(s:Status){
   return {
@@ -246,6 +297,12 @@ function stripeColor(s:Status){
 .ccv-search input {
   padding: 0.5rem 0.5rem 0.5rem 2.5rem;
   border: 1px solid #ccc; border-radius: 4px;
+}
+.ccv-status-filter {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-left: 0.5rem;
 }
 
 /* Botones */
