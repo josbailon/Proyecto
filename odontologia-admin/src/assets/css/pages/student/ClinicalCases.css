@@ -1,12 +1,14 @@
 /* src/assets/css/pages/student/ClinicalCases.css */
 
+/* Layout general */
 .ccv {
-  padding: 2rem;
-  background: #f8f9fa;
-  min-height: 100vh;
-  font-family: 'Arial', sans-serif;
+  font-family: Arial, sans-serif;
+  color: #333;
+  padding: 1rem;
+  background: #f9fafa;
 }
 
+/* Header */
 .ccv-header {
   display: flex;
   justify-content: space-between;
@@ -14,175 +16,199 @@
   margin-bottom: 1.5rem;
 }
 
-.ccv-header h1 {
-  margin: 0;
-  font-size: 1.8rem;
-  color: #343a40;
-}
-
-.ccv-filters {
+.ccv-header__title {
   display: flex;
-  gap: 1rem;
-  margin-bottom: 2rem;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.ccv-filters input {
-  flex: 1;
+.ccv-header__title i {
+  color: #007bff;
+  font-size: 1.5rem;
 }
 
-.ccv-cards {
+.ccv-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: none;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.3s;
+}
+
+.ccv-btn--add {
+  background: #28a745;
+  color: #fff;
+}
+
+.ccv-btn--add:hover {
+  background: #218838;
+}
+
+.ccv-btn--small {
+  background: #f8f9fa;
+  color: #007bff;
+  border: 1px solid #007bff;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.8rem;
+}
+
+.ccv-btn--small:hover {
+  background: #e2e6ea;
+}
+
+/* Grid de tarjetas */
+.ccv-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
 }
 
 .ccv-card {
   background: #fff;
-  border-radius: 0.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   padding: 1rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
 
-.ccv-card-header {
+.ccv-card__body {
+  flex: 1;
+}
+
+.ccv-card__header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 0.5rem;
 }
 
-.ccv-card-header h5 {
+.ccv-card__header h2 {
   margin: 0;
   font-size: 1.1rem;
-  color: #007bff;
 }
 
-.ccv-card-actions {
+.ccv-badge {
+  padding: 0.3rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  color: #fff;
+  text-transform: uppercase;
+}
+
+.ccv-badge--yellow {
+  background: #ffc107;
+  color: #212529;
+}
+
+.ccv-badge--blue {
+  background: #007bff;
+}
+
+.ccv-badge--green {
+  background: #28a745;
+}
+
+.ccv-card__actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  margin-top: 1rem;
+  margin-top: 0.75rem;
 }
 
+/* Empty state */
 .ccv-empty {
   text-align: center;
-  color: #6c757d;
+  color: #666;
   margin-top: 3rem;
 }
 
-.ccv-empty i {
-  font-size: 3rem;
-  margin-bottom: 0.5rem;
-  color: #adb5bd;
-}
-
+/* Modal */
 .ccv-modal-backdrop {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.5);
-  z-index: 1040;
+  z-index: 1000;
 }
 
 .ccv-modal {
   position: fixed;
-  top: 50%;
+  top: 10%;
   left: 50%;
-  transform: translate(-50%, -50%);
-  width: 95%;
-  max-width: 800px;
+  transform: translateX(-50%);
   background: #fff;
-  border-radius: 0.5rem;
-  z-index: 1050;
+  width: 95%;
+  max-width: 700px;
+  border-radius: 8px;
+  z-index: 1001;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
 }
 
-.ccv-modal-header {
-  background: #007bff;
-  color: #fff;
-  padding: 1rem;
+.ccv-modal__header {
+  background: #f1f1f1;
+  padding: 0.75rem 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.ccv-modal-header h5 {
+.ccv-modal__header h3 {
   margin: 0;
+  font-size: 1.2rem;
 }
 
-.ccv-modal-header .btn-close {
+.ccv-modal__close {
   background: none;
   border: none;
-  color: #fff;
   font-size: 1.5rem;
   cursor: pointer;
 }
 
-.ccv-modal-tabs {
-  display: flex;
-  border-bottom: 1px solid #dee2e6;
-}
-
-.ccv-modal-tabs button {
-  flex: 1;
-  padding: 0.75rem;
-  background: none;
-  border: none;
-  border-bottom: 3px solid transparent;
-  cursor: pointer;
-  color: #495057;
-  font-weight: bold;
-}
-
-.ccv-modal-tabs button.active {
-  border-color: #007bff;
-  color: #007bff;
-}
-
-.ccv-modal-body {
-  padding: 1.5rem;
-  max-height: 60vh;
+.ccv-modal__body {
+  padding: 1rem;
+  max-height: 75vh;
   overflow-y: auto;
 }
 
-.ccv-modal-body h6 {
-  margin-top: 0;
-  color: #007bff;
+.form-group {
+  margin-bottom: 1rem;
 }
 
-.ccv-modal-body p {
-  margin: 0.5rem 0;
+.form-group label {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 0.3rem;
 }
 
-.ccv-modal-footer {
-  background: #f8f9fa;
-  padding: 1rem;
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.form-control.mb-1 {
+  margin-bottom: 0.5rem;
+}
+
+.text-end {
   text-align: right;
 }
 
-.badge {
-  font-size: 0.75rem;
-  padding: 0.4em 0.6em;
-  border-radius: 0.5rem;
+.btn.btn-primary {
+  background: #007bff;
+  border: none;
+  color: #fff;
 }
 
-.bg-secondary {
-  background-color: #6c757d !important;
-}
-
-.bg-warning {
-  background-color: #ffc107 !important;
-}
-
-.bg-primary {
-  background-color: #007bff !important;
-}
-
-.bg-success {
-  background-color: #28a745 !important;
-}
-
-.text-dark {
-  color: #212529 !important;
+.btn.btn-primary:hover {
+  background: #0056b3;
 }

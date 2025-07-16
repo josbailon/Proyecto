@@ -1,142 +1,139 @@
-// src/mocks/student/odontogram.ts
-
-import { delay } from '../utils';
-
-/**
- * Estado posible de un diente en el odontograma.
+/** 
+ * MOCK - src/mocks/student/odontogram.ts
+ * -------------------------------------------
+ * Datos de prueba para odontogramas.
+ * Incluye dientes, opciones de daños y tratamientos,
+ * y la relación de odontogramas con pacientes.
  */
+
+// Tipos de odontogramas posibles
+export type OdontogramType = "Adulto" | "Niño" | "Mixto";
+
+// Diagnósticos (daños) que puede registrar el odontólogo
 export type ToothStatus =
-  | 'sano'
-  | 'caries'
-  | 'restaurado'
-  | 'extraido'
-  | 'sellante'
-  | 'tratado';
+  | "Sano"
+  | "Caries"
+  | "Fractura"
+  | "Restaurado"
+  | "Ausente"
+  | "Endodoncia"
+  | "Prótesis"
+  | "Sellado"
+  | "Otros";
 
-/**
- * Representa una entrada en el odontograma de un paciente.
- */
-export interface OdontogramEntry {
-  /** Identificador único de la entrada */
-  id: string;
-  /** ID del paciente al que pertenece */
-  patientId: number;
-  /** Notación del diente (FDI o similar) */
-  tooth: string;
-  /** Estado actual del diente */
+// Opciones de tratamientos que puede aplicar el odontólogo
+export interface TreatmentOption {
+  code: string;       // Ej.: "T001"
+  name: string;       // Ej.: "Obturación"
+  cost?: number;      // Costo estimado en USD
+}
+
+// Representa un diente individual
+export interface Tooth {
+  id: string;                // Número odontológico, ej. "11"
+  name: string;              // Nombre descriptivo, ej. "Incisivo Central Superior Derecho"
+  type: "Permanente" | "Temporal";
   status: ToothStatus;
-  /** Comentarios o anotaciones adicionales */
-  annotations?: string;
-  /** Fecha de creación */
+  treatment?: string;        // Nombre de tratamiento asignado
+  notes?: string;            // Notas clínicas adicionales
+}
+
+// Odontograma de un paciente
+export interface Odontogram {
+  id: number;
+  patientId: number;
+  type: OdontogramType;
+  teeth: Tooth[];
   createdAt: string;
-  /** Fecha de última modificación */
-  updatedAt: string;
+  updatedAt?: string;
 }
 
-/**
- * Datos simulados: cada paciente tiene su array de entradas.
- */
-const odontograms: Record<number, OdontogramEntry[]> = {};
-
-/**
- * Genera un ID pseudo-único para las entradas.
- */
-function generateId(patientId: number, tooth: string): string {
-  return `${patientId}-${tooth}-${Date.now().toString(36)}`;
+// Pacientes de ejemplo (para asociar odontogramas)
+export interface PatientOdontogram {
+  id: number;
+  name: string;
+  odontograms: Odontogram[];
 }
 
-/**
- * Obtiene todas las entradas del odontograma para un paciente dado.
- * @param patientId ID del paciente
- */
-export async function fetchOdontogramMock(patientId: number): Promise<OdontogramEntry[]> {
-  await delay();
-  // Devolver copia para evitar mutaciones externas
-  return (odontograms[patientId] ?? []).map(entry => ({ ...entry }));
-}
+/* ---------------------------------------------
+   LISTAS DE OPCIONES
+---------------------------------------------- */
 
-/**
- * Guarda una nueva entrada de odontograma o actualiza una existente.
- * Si `entry.id` existe, se actualiza; si no, se crea una nueva.
- * @param patientId ID del paciente
- * @param entry Datos parciales de la entrada (debe incluir tooth y status)
- */
-export async function saveOdontogramEntryMock(
-  patientId: number,
-  entry: Partial<OdontogramEntry> & { tooth: string; status: ToothStatus }
-): Promise<OdontogramEntry> {
-  await delay();
+export const damageOptions: ToothStatus[] = [
+  "Sano",
+  "Caries",
+  "Fractura",
+  "Restaurado",
+  "Ausente",
+  "Endodoncia",
+  "Prótesis",
+  "Sellado",
+  "Otros"
+];
 
-  // Asegurar existencia del array para el paciente
-  if (!odontograms[patientId]) {
-    odontograms[patientId] = [];
+export const treatmentOptions: TreatmentOption[] = [
+  { code: "T001", name: "Obturación", cost: 50 },
+  { code: "T002", name: "Endodoncia", cost: 150 },
+  { code: "T003", name: "Extracción", cost: 30 },
+  { code: "T004", name: "Profilaxis", cost: 20 },
+  { code: "T005", name: "Colocación Prótesis", cost: 200 },
+  { code: "T006", name: "Sellante", cost: 25 },
+  { code: "T007", name: "Control", cost: 0 },
+];
+
+/* ---------------------------------------------
+   EJEMPLO DE PACIENTES Y ODONTOGRAMAS
+---------------------------------------------- */
+
+export const patientsOdontograms: PatientOdontogram[] = [
+  {
+    id: 1,
+    name: "María González",
+    odontograms: [
+      {
+        id: 101,
+        patientId: 1,
+        type: "Adulto",
+        createdAt: "2025-07-20",
+        teeth: [
+          {
+            id: "11",
+            name: "Incisivo Central Superior Derecho",
+            type: "Permanente",
+            status: "Caries",
+            treatment: "Obturación",
+            notes: "Pequeña caries en cara vestibular."
+          },
+          {
+            id: "21",
+            name: "Incisivo Central Superior Izquierdo",
+            type: "Permanente",
+            status: "Sano"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 2,
+    name: "Carlos López",
+    odontograms: [
+      {
+        id: 102,
+        patientId: 2,
+        type: "Niño",
+        createdAt: "2025-07-19",
+        teeth: [
+          {
+            id: "51",
+            name: "Incisivo Central Superior Derecho Temporal",
+            type: "Temporal",
+            status: "Fractura",
+            treatment: "Endodoncia",
+            notes: "Fractura complicada con exposición pulpar."
+          }
+        ]
+      }
+    ]
   }
-
-  // Actualizar si existe ID
-  if (entry.id) {
-    const list = odontograms[patientId];
-    const idx = list.findIndex(e => e.id === entry.id);
-    if (idx !== -1) {
-      const updated = {
-        ...list[idx],
-        ...entry,
-        updatedAt: new Date().toISOString()
-      };
-      list[idx] = updated;
-      return { ...updated };
-    }
-  }
-
-  // Crear nuevo
-  const now = new Date().toISOString();
-  const newEntry: OdontogramEntry = {
-    id: generateId(patientId, entry.tooth),
-    patientId,
-    tooth: entry.tooth,
-    status: entry.status,
-    annotations: entry.annotations,
-    createdAt: now,
-    updatedAt: now
-  };
-  odontograms[patientId].push(newEntry);
-  return { ...newEntry };
-}
-
-/**
- * Elimina una entrada del odontograma por su ID.
- * @param patientId ID del paciente
- * @param entryId ID de la entrada a eliminar
- */
-export async function deleteOdontogramEntryMock(
-  patientId: number,
-  entryId: string
-): Promise<void> {
-  await delay();
-  if (!odontograms[patientId]) return;
-  odontograms[patientId] = odontograms[patientId].filter(e => e.id !== entryId);
-}
-
-/**
- * Reemplaza todo el odontograma de un paciente con un nuevo conjunto de entradas.
- * Útil para sincronización completa.
- * @param patientId ID del paciente
- * @param entries Lista completa de entradas (sin `id`, `createdAt`, `updatedAt`)
- */
-export async function saveFullOdontogramMock(
-  patientId: number,
-  entries: Array<Partial<OdontogramEntry> & { tooth: string; status: ToothStatus; annotations?: string }>
-): Promise<void> {
-  await delay();
-
-  // Mapear cada entrada recibida a una OdontogramEntry completa
-  const now = new Date().toISOString();
-  odontograms[patientId] = entries.map(e => ({
-    id: generateId(patientId, e.tooth),
-    patientId,
-    tooth: e.tooth,
-    status: e.status,
-    annotations: e.annotations,
-    createdAt: now,
-    updatedAt: now
-  }));
-}
+];

@@ -1,104 +1,108 @@
-<!-- src/components/student/AssignmentsView.vue -->
-
+<!-- src/views/student/AssignmentsView.vue -->
 <template>
-  <section class="assignments container py-4">
-    <!-- Sprint 4 – 2025-07-18 – CRUD Tareas Académicas -->
-    <div class="card shadow-sm">
-      <div class="card-header d-flex align-items-center">
-        <ul class="nav nav-tabs card-header-tabs flex-grow-1">
-          <li class="nav-item">
-            <a
-              class="nav-link"
-              :class="{ active: tab === 'list' }"
-              href="#"
-              @click.prevent="tab = 'list'"
-            >Listado</a>
-          </li>
-          <li class="nav-item">
-            <a
-              class="nav-link"
-              :class="{ active: tab === 'form' }"
-              href="#"
-              @click.prevent="prepareNew(); tab = 'form'"
-            >{{ editMode ? 'Editar' : 'Crear' }}</a>
-          </li>
-        </ul>
-      </div>
-      <div class="card-body">
-        <!-- LISTADO -->
-        <div v-if="tab === 'list'">
-          <DataTable
-            :columns="cols"
-            :rows="studentStore.assignments"
-            :page="page"
-            :per-page="perPage"
-            @edit="onEdit"
-            @delete="onDelete"
-            @update:page="page = $event"
-          />
+  <div class="assignments">
+    <h1>Tareas del Estudiante</h1>
+    <p class="text-muted">Visualiza, entrega y sigue el progreso de tus tareas.</p>
+
+    <div class="assignments-grid">
+      <div
+        v-for="a in assignments"
+        :key="a.id"
+        class="assignment-card"
+      >
+        <div class="card-header">
+          <h4>{{ a.title }}</h4>
+          <span :class="['badge', badgeClass(a.status)]">{{ a.status }}</span>
         </div>
-        <!-- FORMULARIO -->
-        <div v-else>
-          <AssignmentForm
-            :model-value="form"
-            :edit-mode="editMode"
-            @save="onSubmit"
-            @cancel="() => (tab = 'list')"
+        <p class="subject"><strong>Materia:</strong> {{ a.subject }}</p>
+        <p class="professor"><strong>Profesor:</strong> {{ a.professor }}</p>
+        <p class="desc">{{ a.description }}</p>
+        <p class="deadline"><strong>Fecha límite:</strong> {{ a.deadline }}</p>
+        
+        <div class="progress-bar-container">
+          <div class="progress-bar-fill" :style="{ width: a.progress + '%' }"></div>
+        </div>
+        <span class="progress-label">{{ a.progress }}%</span>
+
+        <div class="files" v-if="a.files.length">
+          <p class="mt-2 mb-1"><strong>Archivos entregados:</strong></p>
+          <ul>
+            <li v-for="(file, i) in a.files" :key="i">
+              <a :href="file" target="_blank">{{ file.split('/').pop() }}</a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="actions mt-3">
+          <input
+            type="file"
+            ref="fileInput"
+            @change="onFileChange($event, a.id)"
           />
+          <button
+            class="btn-submit"
+            @click="markInProgress(a.id)"
+            v-if="a.status === 'Pendiente'"
+          >
+            Empezar tarea
+          </button>
+          <button
+            class="btn-submit"
+            @click="markComplete(a.id)"
+            v-if="a.status === 'En progreso'"
+          >
+            Marcar como completada
+          </button>
         </div>
       </div>
     </div>
-  </section>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useStudentStore } from '../../store/student';
-import DataTable from '../../components/common/DataTable.vue';
-import AssignmentForm from '../../components/student/AssignmentForm.vue';
-import type { Assignment } from '../../mocks/student/assignments';
+import { ref } from 'vue';
+import { assignmentsMock, type Assignment } from '../../mocks/student/assignments';
 
-const studentStore = useStudentStore();
-const tab         = ref<'list'|'form'>('list');
-const editMode    = ref(false);
-const form        = ref<Partial<Assignment>>({});
-const page        = ref(1);
-const perPage     = ref(10);
+const assignments = ref<Assignment[]>([...assignmentsMock]);
 
-const cols = [
-  { key: 'title',   label: 'Título' },
-  { key: 'dueDate', label: 'Fecha Límite' },
-  { key: 'status',  label: 'Estado' }
-];
-
-onMounted(() => {
-  studentStore.loadAssignments();
-});
-
-function prepareNew() {
-  editMode.value = false;
-  form.value = {};
+function badgeClass(status: string) {
+  return {
+    'badge-yellow': status === 'Pendiente',
+    'badge-blue': status === 'En progreso',
+    'badge-green': status === 'Completada'
+  };
 }
 
-function prepareEdit(a: Assignment) {
-  editMode.value = true;
-  form.value = { ...a };
-  tab.value = 'form';
+function onFileChange(event: Event, id: number) {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+  if (file) {
+    const found = assignments.value.find(a => a.id === id);
+    if (found) {
+      found.files.push(`uploads/${file.name}`);
+      found.progress = 50;
+      found.status = 'En progreso';
+      alert(`Archivo "${file.name}" subido para la tarea "${found.title}"`);
+    }
+  }
 }
 
-// handler intermedio
-function onEdit(row: Record<string, any>) {
-  prepareEdit(row as Assignment);
+function markInProgress(id: number) {
+  const found = assignments.value.find(a => a.id === id);
+  if (found) {
+    found.status = 'En progreso';
+    found.progress = 25;
+  }
 }
 
-async function onSubmit(payload: Assignment) {
-  await studentStore.saveAssignment(payload);
-  tab.value = 'list';
-}
-
-async function onDelete(id: number) {
-  await studentStore.deleteAssignment(id);
+function markComplete(id: number) {
+  const found = assignments.value.find(a => a.id === id);
+  if (found) {
+    found.status = 'Completada';
+    found.progress = 100;
+    alert(`¡Tarea "${found.title}" marcada como completada!`);
+  }
 }
 </script>
 
-<style src="../../assets/css/pages/student/AssignmentsView.css" scoped></style>
+<style scoped src="@/assets/css/pages/student/Assignments.css"></style>

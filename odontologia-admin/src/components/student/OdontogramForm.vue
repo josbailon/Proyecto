@@ -1,110 +1,68 @@
-<!-- src/components/student/OdontogramForm.vue -->
 <template>
   <div class="odontogram-form">
-    <div class="d-flex flex-wrap gap-2 mb-3">
-      <div
-        v-for="entry in entries"
-        :key="entry.id"
-        class="odontogram-tooth card p-2 text-center"
-        :class="statusClass(entry.status)"
-      >
-        <div>{{ entry.tooth }}</div>
-        <small>{{ entry.status }}</small>
-        <div class="mt-1">
-          <button
-            class="btn btn-sm btn-outline-danger"
-            @click="deleteEntry(entry.id)"
-          >
-            <i class="fas fa-trash-alt"></i>
-          </button>
-        </div>
-      </div>
+    <!-- Selector de tipo -->
+    <div class="selector-type">
+      <label><input type="radio" value="adult" v-model="type" /> Adulto</label>
+      <label><input type="radio" value="child" v-model="type" /> Infantil</label>
+      <label><input type="radio" value="mixed" v-model="type" /> Mixto</label>
     </div>
 
-    <div class="row g-2 mb-3">
-      <div class="col-4">
-        <input
-          v-model="newEntry.tooth"
-          type="text"
-          class="form-control"
-          placeholder="Diente"
-        />
-      </div>
-      <div class="col-4">
-        <select v-model="newEntry.status" class="form-select">
-          <option disabled value="">Estado</option>
-          <option value="sano">Sano</option>
-          <option value="caries">Caries</option>
-          <option value="restaurado">Restaurado</option>
-          <option value="extraido">Extraído</option>
-        </select>
-      </div>
-      <div class="col-4 d-flex">
-        <button class="btn btn-primary me-2" @click="addEntry">
-          Agregar
-        </button>
-        <button class="btn btn-success" @click="saveAll">
-          Guardar Todo
-        </button>
+    <!-- Leyenda de estados -->
+    <div class="legend">
+      <span><span class="legend-box healthy"></span> Sano</span>
+      <span><span class="legend-box planned"></span> Planeado</span>
+      <span><span class="legend-box treated"></span> Tratado</span>
+      <span><span class="legend-box missing"></span> Ausente</span>
+    </div>
+
+    <!-- Grilla del odontograma -->
+    <div class="chart">
+      <div
+        v-for="tooth in displayedTeeth"
+        :key="tooth.id"
+        class="tooth"
+        :class="tooth.state"
+        @click="toggleState(tooth)"
+        :title="`${tooth.label} — ${tooth.state}`"
+      >
+        {{ tooth.label }}
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue';
-import type { OdontogramEntry, ToothStatus } from '../../mocks/student/odontogram';
+import { ref, computed } from 'vue';
 
-const props = defineProps<{
-  entries: OdontogramEntry[];
-}>();
+type ToothState = 'healthy' | 'planned' | 'treated' | 'missing';
 
-const emit = defineEmits<{
-  (e: 'save-entry', entry: { tooth: string; status: ToothStatus; id?: string }): void;
-  (e: 'delete-entry', id: string): void;
-  (e: 'save-full', entries: Array<{ tooth: string; status: ToothStatus }>): void;
-}>();
+interface Tooth {
+  id: string;
+  label: string;
+  state: ToothState;
+}
 
-const newEntry = reactive<{ tooth: string; status: ToothStatus | '' }>({
-  tooth: '',
-  status: ''
+const type = ref<'adult' | 'child' | 'mixed'>('adult');
+
+const teethData = ref<Record<string, Tooth[]>>({
+  adult: Array.from({ length: 32 }, (_, i) => ({
+    id: `A${i + 1}`, label: `${i + 1}`, state: 'healthy'
+  })),
+  child: Array.from({ length: 20 }, (_, i) => ({
+    id: `C${i + 51}`, label: `${i + 51}`, state: 'healthy'
+  })),
+  mixed: []
 });
+// Construir mixto combinando infantil + adulto
+teethData.value.mixed = [...teethData.value.child, ...teethData.value.adult];
 
-function addEntry() {
-  if (newEntry.tooth && newEntry.status) {
-    emit('save-entry', { tooth: newEntry.tooth, status: newEntry.status });
-    newEntry.tooth = '';
-    newEntry.status = '';
-  }
-}
+const displayedTeeth = computed(() => teethData.value[type.value]);
 
-function saveAll() {
-  const payload = props.entries.map(e => ({ tooth: e.tooth, status: e.status }));
-  emit('save-full', payload);
-}
-
-function deleteEntry(id: string) {
-  emit('delete-entry', id);
-}
-
-function statusClass(status: ToothStatus) {
-  return {
-    'border-success': status === 'sano',
-    'border-danger': status === 'caries',
-    'border-warning': status === 'restaurado',
-    'border-secondary': status === 'extraido'
-  };
+function toggleState(tooth: Tooth) {
+  const states: ToothState[] = ['healthy', 'planned', 'treated', 'missing'];
+  const nextIndex = (states.indexOf(tooth.state) + 1) % states.length;
+  tooth.state = states[nextIndex];
 }
 </script>
 
-<style scoped>
-.odontogram-tooth {
-  width: 60px;
-  border: 2px solid var(--color-gray-300);
-  border-radius: 4px;
-}
-.border-success   { border-color: var(--color-success)   !important; }
-.border-danger    { border-color: var(--color-danger)    !important; }
-.border-warning   { border-color: var(--color-warning)   !important; }
-.border-secondary { border-color: var(--color-secondary) !important; }
-</style>
+<style src="./OdontogramForm.css" scoped></style>

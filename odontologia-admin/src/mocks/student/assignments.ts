@@ -1,36 +1,50 @@
 // src/mocks/student/assignments.ts
-import { delay } from '../utils';
+export type AssignmentStatus = 'Pendiente' | 'En progreso' | 'Completada';
 
 export interface Assignment {
   id: number;
+  subject: string;
   title: string;
-  dueDate: string;     // ISO timestamp
-  status: 'pendiente' | 'entregado' | 'corregido';
+  description: string;
+  professor: string;
+  deadline: string;
+  status: AssignmentStatus;
+  progress: number; // % de avance
+  files: string[]; // rutas de archivos entregados
 }
 
-let tasks: Assignment[] = [];
-
-/** Obtiene todas las tareas académicas. */
-export async function fetchAssignmentsMock(): Promise<Assignment[]> {
-  await delay();
-  return tasks.map(t => ({ ...t }));
-}
-
-/** Crea o actualiza una tarea (nueva o existente). */
-export async function saveAssignmentMock(
-  a: Partial<Assignment> & Omit<Assignment, 'id'> & { id?: number }
-): Promise<void> {
-  await delay();
-  if (a.id != null) {
-    tasks = tasks.map(x => (x.id === a.id ? { ...x, ...a } : x));
-  } else {
-    const next = tasks.length ? Math.max(...tasks.map(x => x.id)) + 1 : 1;
-    tasks.push({ id: next, ...a } as Assignment);
+export const assignmentsMock: Assignment[] = [
+  {
+    id: 1,
+    subject: 'Endodoncia',
+    title: 'Informe de caso clínico',
+    description: 'Desarrollar un informe detallado sobre un tratamiento de conducto.',
+    professor: 'Dra. Pérez',
+    deadline: '2025-07-30',
+    status: 'Pendiente',
+    progress: 0,
+    files: []
+  },
+  {
+    id: 2,
+    subject: 'Ortodoncia',
+    title: 'Presentación PowerPoint',
+    description: 'Crear presentación sobre técnicas modernas de ortodoncia.',
+    professor: 'Dr. García',
+    deadline: '2025-07-20',
+    status: 'En progreso',
+    progress: 50,
+    files: ['uploads/ppt_ortodoncia.pdf']
+  },
+  {
+    id: 3,
+    subject: 'Periodoncia',
+    title: 'Registro fotográfico',
+    description: 'Subir fotografías clínicas antes y después de limpieza profunda.',
+    professor: 'Dra. Moreno',
+    deadline: '2025-07-15',
+    status: 'Completada',
+    progress: 100,
+    files: ['uploads/fotos_caso1.jpg']
   }
-}
-
-/** Elimina una tarea por ID. */
-export async function deleteAssignmentMock(id: number): Promise<void> {
-  await delay();
-  tasks = tasks.filter(t => t.id !== id);
-}
+];

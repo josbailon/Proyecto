@@ -1,25 +1,125 @@
 /* src/assets/css/pages/student/OdontogramView.css */
 
-.odontogram .card {
-  border-radius: var(--radius);
+/* Contenedor principal */
+.odontogram-view {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: "Arial", sans-serif;
+  color: #333;
 }
 
-.odontogram .card-header {
-  background: var(--color-info);
-  color: var(--color-white);
-  font-weight: 600;
+.odontogram-view h1 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: #1e3a8a;
 }
 
-.odontogram-form {
-  margin-top: 1rem;
+/* Controles */
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
 }
 
-/* Estilos de inputs y botones para odontograma */
-.odontogram-form .form-control,
-.odontogram-form .form-select {
-  border-radius: var(--radius-sm);
+.controls label {
+  font-weight: bold;
 }
 
-.odontogram-form .btn {
-  min-width: 80px;
+.controls select {
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+/* Grid de dientes */
+.odontogram-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+/* Cada diente */
+.tooth {
+  background: #f9fafb;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.tooth:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.tooth strong {
+  font-size: 1.2rem;
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #1e3a8a;
+}
+
+.tooth-name {
+  display: block;
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 0.25rem;
+}
+
+.tooth-status {
+  font-weight: bold;
+  font-size: 0.85rem;
+}
+
+/* Estados de los dientes - colores distintivos */
+.tooth--healthy {
+  background-color: #e0f7fa;
+  border-color: #00bcd4;
+}
+
+.tooth--caries {
+  background-color: #fdecea;
+  border-color: #f44336;
+}
+
+.tooth--restored {
+  background-color: #f3e5f5;
+  border-color: #9c27b0;
+}
+
+.tooth--missing {
+  background-color: #eceff1;
+  border-color: #607d8b;
+}
+
+.tooth--endodontic {
+  background-color: #fff8e1;
+  border-color: #ffc107;
+}
+
+.tooth--fractured {
+  background-color: #ffebee;
+  border-color: #d32f2f;
+}
+
+.tooth--extraction {
+  background-color: #ffe0b2;
+  border-color: #fb8c00;
+}
+
+.tooth--sealed {
+  background-color: #e8f5e9;
+  border-color: #4caf50;
+}
+
+.no-data {
+  margin-top: 3rem;
+  text-align: center;
+  color: #777;
+  font-size: 1.1rem;
 }

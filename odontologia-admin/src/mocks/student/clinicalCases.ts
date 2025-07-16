@@ -1,27 +1,10 @@
-// src/mocks/student/clinicalCases.ts
-// Mock de datos de Casos Clínicos
+/**
+ * src/mocks/student/clinicalCases.ts
+ * 
+ * Mock de casos clínicos para módulo de odontología.
+ */
 
-export type Status = 'Borrador' | 'Pendiente' | 'Aprobado' | 'Completado';
-
-export interface ClinicalCase {
-  id: number;
-  patientName: string;
-  createdAt: string;
-  status: Status;
-  reason: string;
-  description: string;
-  treatment: string;
-  prescriptions: string[];
-  appointments: string[];
-  comments: Comment[];
-  procedures: Procedure[];
-}
-
-export interface Comment {
-  by: string;
-  at: string;
-  text: string;
-}
+export type Status = 'Pendiente' | 'Aprobado' | 'Completado';
 
 export interface Procedure {
   code: string;
@@ -30,76 +13,138 @@ export interface Procedure {
   status: Status;
 }
 
-export const clinicalCasesMock: ClinicalCase[] = [
+export interface Prescription {
+  id: number;
+  drug: string;
+  dose: string;
+}
+
+export interface Appointment {
+  id: number;
+  date: string;
+  status: string;
+}
+
+export interface Comment {
+  by: string;
+  at: string;
+  text: string;
+}
+
+export interface ClinicalCase {
+  id: number;
+  patientName: string;
+  reason: string;
+  symptoms: string;
+  notes: string;
+  createdAt: string;
+  status: Status;
+  procedures: Procedure[];
+  prescriptions: Prescription[];
+  appointments: Appointment[];
+  comments: Comment[];
+}
+
+export const clinicalCases: ClinicalCase[] = [
   {
     id: 1,
     patientName: 'María González',
-    createdAt: '2025-07-15',
+    reason: 'Dolor intenso en molar derecho',
+    symptoms: 'Dolor agudo al masticar, sensibilidad al frío',
+    notes: 'Posible endodoncia en diente 16.',
+    createdAt: '2024-07-01',
     status: 'Pendiente',
-    reason: 'Dolor en molar superior derecho',
-    description: 'Paciente presenta dolor agudo al masticar. Sospecha de caries profunda.',
-    treatment: 'Obturación con resina compuesta en pieza 16.',
-    prescriptions: ['Ibuprofeno 400mg cada 8h', 'Enjuague bucal con clorhexidina'],
-    appointments: ['2025-07-20 10:00'],
+    procedures: [
+      {
+        code: 'E123',
+        teeth: '16',
+        description: 'Endodoncia unirradicular',
+        status: 'Pendiente'
+      }
+    ],
+    prescriptions: [
+      {
+        id: 1,
+        drug: 'Ibuprofeno 400mg',
+        dose: 'Cada 8h durante 3 días'
+      }
+    ],
+    appointments: [
+      {
+        id: 1,
+        date: '2024-07-10 09:00',
+        status: 'Programada'
+      }
+    ],
     comments: [
       {
         by: 'Dr. Pérez',
-        at: '2025-07-16',
-        text: 'Revisar radiografía antes de proceder.'
-      }
-    ],
-    procedures: [
-      {
-        code: 'K021',
-        teeth: '16',
-        description: 'Obturación de caries profunda en pieza 16',
-        status: 'Pendiente'
+        at: '2024-07-02',
+        text: 'Revisar diagnóstico con radiografía.'
       }
     ]
   },
   {
     id: 2,
-    patientName: 'Luis Ramírez',
-    createdAt: '2025-07-10',
+    patientName: 'Carlos López',
+    reason: 'Seguimiento de ortodoncia',
+    symptoms: 'Sin dolor, solo molestias leves.',
+    notes: 'Paciente en fase de ajuste mensual.',
+    createdAt: '2024-06-20',
     status: 'Aprobado',
-    reason: 'Revisión de ortodoncia',
-    description: 'Paciente en control mensual de brackets. Sin hallazgos relevantes.',
-    treatment: 'Ajuste de alambres y revisión de higiene.',
-    prescriptions: [],
-    appointments: ['2025-07-25 09:30'],
-    comments: [],
     procedures: [
       {
         code: 'O110',
         teeth: '',
-        description: 'Ajuste mensual de brackets',
+        description: 'Ajuste de brackets',
         status: 'Aprobado'
+      }
+    ],
+    prescriptions: [],
+    appointments: [
+      {
+        id: 1,
+        date: '2024-07-15 11:00',
+        status: 'Confirmada'
+      }
+    ],
+    comments: [
+      {
+        by: 'Dra. Gómez',
+        at: '2024-06-21',
+        text: 'Buen progreso, seguir revisiones mensuales.'
       }
     ]
   },
   {
     id: 3,
     patientName: 'Ana Torres',
-    createdAt: '2025-06-28',
+    reason: 'Limpieza dental y control de encías',
+    symptoms: 'Sangrado leve al cepillar.',
+    notes: 'Signos de gingivitis leve.',
+    createdAt: '2024-06-10',
     status: 'Completado',
-    reason: 'Limpieza dental',
-    description: 'Profilaxis realizada sin complicaciones.',
-    treatment: 'Limpieza profesional con ultrasonido y aplicación de flúor.',
-    prescriptions: ['Enjuague bucal dos veces al día'],
+    procedures: [
+      {
+        code: 'P200',
+        teeth: '',
+        description: 'Profilaxis con ultrasonido',
+        status: 'Completado'
+      }
+    ],
+    prescriptions: [
+      {
+        id: 1,
+        drug: 'Enjuague con clorhexidina 0.12%',
+        dose: '2 veces al día por 7 días'
+      }
+    ],
     appointments: [],
     comments: [
       {
         by: 'Dr. López',
-        at: '2025-06-29',
-        text: 'Caso completado satisfactoriamente.'
-      }
-    ],
-    procedures: [
-      {
-        code: 'L010',
-        teeth: '',
-        description: 'Profilaxis dental',
-        status: 'Completado'
+        at: '2024-06-11',
+        text: 'Encías mejoraron tras profilaxis.'
       }
     ]
   }
