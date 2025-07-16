@@ -34,6 +34,7 @@ const ClinicalCases         = () => import('@/views/student/ClinicalCasesView.vu
 const AssignmentsView       = () => import('@/views/student/AssignmentsView.vue')
 const CommunicationView     = () => import('@/views/student/CommunicationView.vue')
 const OdontogramView        = () => import('@/views/student/OdontogramView.vue')
+const StudentResources      = () => import('@/views/student/ResourcesView.vue')
 
 const routes: RouteRecordRaw[] = [
   { path: '/', redirect: '/login' },
@@ -89,6 +90,7 @@ const routes: RouteRecordRaw[] = [
       { path: 'cases',        name: 'ClinicalCases',    component: ClinicalCases },
       { path: 'assignments',  name: 'Assignments',      component: AssignmentsView },
       { path: 'communication', name: 'Communication',    component: CommunicationView },
+      { path: 'resources',    name: 'StudentResources', component: StudentResources },
       { path: 'odontogram',   name: 'Odontogram',       component: OdontogramView }
     ]
   },

@@ -30,6 +30,7 @@ const navItems: Array<{
   { name: 'ClinicalCases',      label: 'Casos Clínicos',      icon: 'fas fa-file-medical',    to: { name: 'ClinicalCases' } },
   { name: 'Assignments',        label: 'Tareas',              icon: 'fas fa-tasks',           to: { name: 'Assignments' } },
   { name: 'Communication',      label: 'Mensajes',            icon: 'fas fa-envelope',        to: { name: 'Communication' } },
+  { name: 'StudentResources',  label: 'Recursos',            icon: 'fas fa-book',            to: { name: 'StudentResources' } },
   { name: 'Odontogram',         label: 'Odontograma',         icon: 'fas fa-tooth',           to: { name: 'Odontogram' } }
 ]
 </script>
