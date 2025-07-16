@@ -1,3 +1,5 @@
+<!-- src/components/student/ResourcesLibrary.vue -->
+
 <template>
   <div class="resources-library">
     <div v-if="!items.length" class="text-muted">No hay recursos disponibles.</div>

@@ -1,3 +1,4 @@
+<!-- src/components/student/ClinicalHistoryForm.vue -->
 <template>
   <HistoryForm
     :model-value="modelValue"

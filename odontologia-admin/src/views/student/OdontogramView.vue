@@ -1,3 +1,5 @@
+<!-- src/components/student/OdontogramView.vue -->
+
 <template>
   <section class="odontogram container py-4">
     <!-- Sprint 4 – 2025-07-19 – Odontograma Interactivo -->

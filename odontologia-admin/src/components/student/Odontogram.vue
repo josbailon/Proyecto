@@ -1,3 +1,4 @@
+<!-- src/components/student/Odontogram.vue -->
 <template>
   <div class="odontogram-view">
     <div class="d-flex justify-content-between align-items-center mb-3">

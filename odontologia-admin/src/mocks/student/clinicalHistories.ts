@@ -1,3 +1,4 @@
+// src/mocks/student/clinicalHistories.ts
 import { delay } from '../utils';
 
 export interface ClinicalHistory {

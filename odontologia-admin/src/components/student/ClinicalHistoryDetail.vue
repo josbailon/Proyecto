@@ -1,4 +1,4 @@
-<template>
+<!-- src/components/student/ClinicalHistoryDetail.vue --><template>
   <div class="history-detail card shadow-sm p-3">
     <h5 class="card-title mb-3">Historia Clínica</h5>
     <dl class="row">

@@ -1,3 +1,5 @@
+<!-- src/components/student/CommunicationView.vue -->
+
 <template>
   <section class="communication container py-4">
     <!-- Sprint 4 – 2025-07-20 – Mensajería -->

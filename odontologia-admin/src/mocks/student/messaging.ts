@@ -1,3 +1,4 @@
+// src/mocks/student/messaging.ts
 import { delay } from '../utils';
 
 export interface Message {

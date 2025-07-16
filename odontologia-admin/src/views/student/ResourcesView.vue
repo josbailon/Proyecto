@@ -1,3 +1,5 @@
+<!-- src/components/student/ResourcesView.vue -->
+
 <template>
   <section class="container py-4">
     <h1 class="mb-4">Biblioteca de Recursos</h1>

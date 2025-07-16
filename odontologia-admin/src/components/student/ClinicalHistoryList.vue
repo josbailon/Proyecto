@@ -1,3 +1,4 @@
+<!-- src/components/student/ClinicalHistoryList.vue -->
 <template>
   <DataTable
     :columns="cols"

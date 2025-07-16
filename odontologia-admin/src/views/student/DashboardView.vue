@@ -4,7 +4,6 @@
     <header class="dashboard-header">
       <h1>Mis Pacientes</h1>
       <p>Gestiona tus pacientes asignados y sus tratamientos</p>
-      <button class="btn-new" @click="onNewPatient">+ Nuevo Paciente</button>
     </header>
 
     <section class="stats-cards">
@@ -37,6 +36,7 @@
       <select v-model="filterState" class="filter-select">
         <option value="">Todos los estados</option>
         <option value="Activo">Activo</option>
+        <option value="Pendiente">Pendiente</option>
         <option value="Completado">Completado</option>
       </select>
       <select v-model="filterTreatment" class="filter-select">
@@ -54,7 +54,7 @@
           <th>Estado</th>
           <th>Próxima Cita</th>
           <th>Progreso</th>
-          <th>Acciones</th>
+          <th class="text-end">Acciones</th>
         </tr>
       </thead>
       <tbody>
@@ -68,13 +68,19 @@
           </td>
           <td>
             <div class="treatment">{{ p.treatment }}</div>
-            <div class="detail">{{ p.detail }}</div>
+            <div class="detail text-muted small">{{ p.detail }}</div>
           </td>
           <td>
             <span
               class="badge"
-              :class="p.state === 'Activo' ? 'badge-active' : 'badge-completed'"
-            >{{ p.state }}</span>
+              :class="{
+                'badge-active': p.state === 'Activo',
+                'badge-pending': p.state === 'Pendiente',
+                'badge-completed': p.state === 'Completado'
+              }"
+            >
+              {{ p.state }}
+            </span>
           </td>
           <td>{{ p.nextAppointment }}</td>
           <td>
@@ -83,13 +89,101 @@
             </div>
             <span class="percent">{{ p.progress }}%</span>
           </td>
-          <td>
-            <button class="btn-link">Ver</button>
-            <button class="btn-link">Editar</button>
+          <td class="text-end">
+            <button class="btn-link" @click="openHistory(p)">
+              <i class="fas fa-eye me-1"></i> Ver
+            </button>
+          </td>
+        </tr>
+        <tr v-if="filteredPatients.length === 0">
+          <td colspan="6" class="text-center py-3 text-muted">
+            No se encontraron pacientes.
           </td>
         </tr>
       </tbody>
     </table>
+
+    <!-- Modal -->
+    <div
+      class="modal-backdrop fade show"
+      v-if="selected"
+      @click.self="closeModal"
+    ></div>
+    <div
+      class="modal d-block"
+      v-if="selected"
+      style="padding-top: 3rem;"
+    >
+      <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header border-0">
+            <h5 class="modal-title">
+              <i class="fas fa-user me-2 text-primary"></i>
+              Historia de {{ selected.name }}
+            </h5>
+            <button type="button" class="btn-close" @click="closeModal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row mb-4">
+              <!-- Info personal -->
+              <div class="col-md-6">
+                <h6 class="fw-bold mb-3 text-primary">Información Personal</h6>
+                <dl class="row small">
+                  <dt class="col-sm-4">Nombre completo:</dt>
+                  <dd class="col-sm-8">{{ selected.name }}</dd>
+                  <dt class="col-sm-4">Edad:</dt>
+                  <dd class="col-sm-8">{{ selected.age }} años</dd>
+                  <dt class="col-sm-4">Cédula:</dt>
+                  <dd class="col-sm-8">{{ selected.cedula }}</dd>
+                  <dt class="col-sm-4">Teléfono:</dt>
+                  <dd class="col-sm-8">{{ selected.phone }}</dd>
+                </dl>
+              </div>
+              <!-- Info médica -->
+              <div class="col-md-6">
+                <h6 class="fw-bold mb-3 text-primary">Información Médica</h6>
+                <dl class="row small">
+                  <dt class="col-sm-4">Alergias:</dt>
+                  <dd class="col-sm-8">{{ selected.allergies }}</dd>
+                  <dt class="col-sm-4">Medicamentos:</dt>
+                  <dd class="col-sm-8">{{ selected.medications }}</dd>
+                  <dt class="col-sm-4">Condiciones:</dt>
+                  <dd class="col-sm-8">{{ selected.conditions }}</dd>
+                </dl>
+              </div>
+            </div>
+
+            <div>
+              <h6 class="fw-bold mb-3 text-primary">Historial de Tratamientos</h6>
+              <ul class="list-group">
+                <li
+                  v-for="t in selected.history"
+                  :key="t.id"
+                  class="list-group-item d-flex justify-content-between align-items-start"
+                >
+                  <div class="ms-2 me-auto">
+                    <div class="fw-semibold">{{ t.title }}</div>
+                    <small class="text-muted">{{ t.description }}</small>
+                    <div><small>Supervisor: {{ t.supervisor }}</small></div>
+                  </div>
+                  <span class="badge bg-secondary rounded-pill">
+                    {{ t.date }}
+                  </span>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="modal-footer border-0">
+            <button class="btn btn-success" @click="startTreatment">
+              <i class="fas fa-stethoscope me-1"></i> Iniciar caso clínico
+            </button>
+            <button class="btn btn-outline-secondary" @click="closeModal">
+              Cerrar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -125,7 +219,6 @@ function todayString(): string {
 
 async function load(): Promise<void> {
   const data = await fetchPatientsMock()
-  // añadir initials
   patients.value = data.map(p => ({
     ...p,
     initials: p.name
@@ -133,7 +226,6 @@ async function load(): Promise<void> {
       .map(w => w[0])
       .join('')
   }))
-  // estadísticas
   stats.value.patients = data.length
   stats.value.appointments = data.filter(p => p.nextAppointment.includes(todayString())).length
   stats.value.activeTreatments = data.filter(p => p.state === 'Activo').length
@@ -150,9 +242,18 @@ const filteredPatients = computed(() =>
   )
 )
 
-function onNewPatient() {
-  // lanza modal o navega a un formulario de nuevo paciente
-  alert('Aquí abrirías el formulario de Nuevo Paciente')
+const selected = ref<Patient | null>(null)
+
+function openHistory(p: Patient) {
+  selected.value = p
+}
+
+function closeModal() {
+  selected.value = null
+}
+
+function startTreatment() {
+  alert(`Iniciando tratamiento para ${selected.value?.name}`)
 }
 </script>
 

@@ -1,3 +1,5 @@
+<!-- src/components/student/AssignmentsView.vue -->
+
 <template>
   <section class="assignments container py-4">
     <!-- Sprint 4 – 2025-07-18 – CRUD Tareas Académicas -->

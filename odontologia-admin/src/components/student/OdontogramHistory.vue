@@ -1,3 +1,5 @@
+<!-- src/components/student/OdontogramHistory.vue -->
+
 <template>
   <div class="odontogram-history">
     <h5 class="mb-3">Historial Odontograma</h5>

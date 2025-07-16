@@ -1,3 +1,5 @@
+<!-- src/components/student/StudentSidebar.vue -->
+
 <template>
   <nav
     class="sidebar d-flex flex-column p-3 text-white"

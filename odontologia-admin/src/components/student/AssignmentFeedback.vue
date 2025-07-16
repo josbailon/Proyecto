@@ -1,4 +1,5 @@
-<template>
+<!-- src/components/student/AssignmentFeedback.vue -->
+ <template>
   <div class="assignment-feedback card shadow-sm p-3">
     <h5 class="card-title mb-3">Retroalimentación: {{ feedback.title }}</h5>
     <div v-if="!feedback.comments.length" class="text-muted">
