@@ -1,247 +1,217 @@
 <template>
   <div class="login-page">
-    <div class="container login-container">
-      <div class="card login-card shadow">
-        <div class="row g-0">
-          <!-- PANEL IZQUIERDO -->
-          <div class="col-lg-5 login-left d-none d-lg-flex flex-column justify-content-center align-items-center text-center">
-            <img src="@/assets/img/descarga.png" alt="Logo" class="login-logo mb-4" />
-            <h2 class="login-title mb-2">Facultad de Odontología</h2>
-            <h1 class="login-subtitle mb-3">ULEAM</h1>
-            <p class="login-description">
-              Bienvenido a nuestra plataforma.
-            </p>
-          </div>
+    <div class="login-container">
+      <!-- PANEL IZQUIERDO -->
+      <div class="panel left-panel">
+        <img src="@/assets/img/descarga.png" alt="Logo" class="logo" />
+        <h2>Facultad de Odontología ULEAM</h2>
+        <p>Bienvenido a la plataforma de gestión clínica.</p>
+      </div>
 
-          <!-- PANEL DERECHO -->
-          <div class="col-12 col-lg-7 login-right d-flex flex-column justify-content-center p-5">
-            <button
-              type="button"
-              class="btn-close ms-auto mb-3"
-              @click="resetForm"
-              aria-label="Cerrar"
-            ></button>
-            <h3 class="text-primary fw-bold mb-4">Iniciar Sesión</h3>
-            <form
-              @submit.prevent="onSubmit"
-              novalidate
-              class="flex-grow-1 d-flex flex-column justify-content-center"
-            >
-              <div class="mb-4 position-relative">
-                <i class="fas fa-user form-icon"></i>
-                <input
-                  v-model="email"
-                  type="email"
-                  class="form-control form-control-lg"
-                  placeholder="Correo electrónico"
-                  required
-                  :disabled="loading"
-                />
-              </div>
-              <div class="mb-4 position-relative">
-                <i class="fas fa-lock form-icon"></i>
-                <input
-                  v-model="password"
-                  type="password"
-                  class="form-control form-control-lg"
-                  placeholder="Contraseña"
-                  required
-                  :disabled="loading"
-                />
-              </div>
-              <button
-                type="submit"
-                class="btn btn-login btn-lg w-100 mb-3"
-                :disabled="loading"
-              >
-                <span v-if="!loading">ENTRAR</span>
-                <span v-else>
-                  <i class="fas fa-spinner fa-spin"></i> Procesando...
-                </span>
-              </button>
-              <p class="text-muted small text-center">
-                ¿Olvidaste tu contraseña?
-                <a href="#" class="text-primary">Recupérala aquí</a>
-              </p>
-            </form>
+      <!-- PANEL DERECHO -->
+      <div class="panel right-panel">
+        <form @submit.prevent="onSubmit" class="login-form">
+          <h3>Iniciar Sesión</h3>
+          <div class="input-group">
+            <i class="fas fa-envelope"></i>
+            <input v-model="email" type="email" placeholder="Correo electrónico" required :disabled="loading" />
           </div>
-        </div>
+          <div class="input-group">
+            <i class="fas fa-lock"></i>
+            <input v-model="password" type="password" placeholder="Contraseña" required :disabled="loading" />
+          </div>
+          <button type="submit" class="btn-login" :disabled="loading">
+            <span v-if="!loading">Entrar</span>
+            <span v-else><i class="fas fa-spinner fa-spin"></i> Cargando...</span>
+          </button>
+          <a href="#" class="forgot-link">¿Olvidaste tu contraseña?</a>
+        </form>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { loginMock } from '../mocks/api';
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { loginMock } from '../mocks/admin/api'
 
-const email = ref('');
-const password = ref('');
-const loading = ref(false);
-const router = useRouter();
-
-function resetForm() {
-  email.value = '';
-  password.value = '';
-}
+const email = ref('')
+const password = ref('')
+const loading = ref(false)
+const router = useRouter()
 
 async function onSubmit() {
-  if (loading.value) return;
-  loading.value = true;
+  if (loading.value) return
+  loading.value = true
+
   try {
-    const user = await loginMock(email.value.trim(), password.value);
-    localStorage.setItem('user', JSON.stringify(user));
+    const user = await loginMock(email.value.trim(), password.value)
+    localStorage.setItem('user', JSON.stringify(user))
+
     switch (user.role) {
-      case 'admin':
-        router.push({ name: 'HomeAdmin' });
-        break;
-      case 'profesor':
-        router.push({ name: 'ProfessorDashboard' });
-        break;
-      case 'secretario':
-        router.push({ name: 'SecretaryDashboard' });
-        break;
-      case 'estudiante':
-        router.push({ name: 'StudentDashboard' });
-        break;
+      case 'admin': router.push({ name: 'HomeAdmin' }); break
+      case 'profesor': router.push({ name: 'ProfessorDashboard' }); break
+      case 'secretario': router.push({ name: 'SecretaryDashboard' }); break
+      case 'estudiante': router.push({ name: 'StudentDashboard' }); break
+      default: router.push({ name: 'Login' })
     }
   } catch (err: any) {
-    alert(err.message || 'Error al iniciar sesión');
+    alert(err.message || 'Error al iniciar sesión')
   } finally {
-    loading.value = false;
+    loading.value = false
   }
 }
 </script>
 
 <style scoped>
-/* Fondo general */
 .login-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #4CA1AF, #2C3E50);
+  background: linear-gradient(135deg, #00695c 0%, #004d40 100%);
   display: flex;
-  align-items: center;
   justify-content: center;
-  padding: 2rem;
+  align-items: center;
+  padding: 1.5rem;
 }
 
 .login-container {
-  max-width: 1100px;
+  display: flex;
+  flex-direction: row;
   width: 100%;
-}
-
-/* Card principal */
-.login-card {
-  border: none;
-  border-radius: 1rem;
+  max-width: 1000px;
+  background: #ffffff;
+  border-radius: 12px;
   overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
 }
 
-/* Panel izquierdo */
-.login-left {
-  background: linear-gradient(
-    180deg,
-    #2C3E50 0%,
-    #4CA1AF 100%
-  );
-  color: #fff;
+/* Responsive stack */
+@media (max-width: 768px) {
+  .login-container {
+    flex-direction: column;
+  }
+
+  .panel {
+    padding: 2rem;
+  }
+
+  .left-panel {
+    order: 2;
+    text-align: center;
+  }
+
+  .right-panel {
+    order: 1;
+  }
+
+  .logo {
+    width: 80px;
+    margin-bottom: 1rem;
+  }
+
+  .login-form {
+    width: 100%;
+  }
+}
+
+.panel {
+  flex: 1;
   padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
-.login-logo {
+.left-panel {
+  background-color: #004d40;
+  color: white;
+  text-align: center;
+}
+
+.right-panel {
+  background-color: #f9f9f9;
+}
+
+/* Logo */
+.logo {
   width: 120px;
   height: auto;
-  background: #fff;
+  margin: 0 auto 1.5rem;
+  background: white;
+  padding: 0.5rem;
   border-radius: 50%;
-  padding: 0.75rem;
-  box-shadow: 0 0 15px rgba(0,0,0,0.2);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
 }
 
-.login-title {
-  font-size: 1.5rem;
-  font-weight: 600;
+/* Login Form */
+.login-form {
+  width: 100%;
+  max-width: 350px;
+  margin: 0 auto;
 }
 
-.login-subtitle {
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: #F05B4D;
+.login-form h3 {
+  color: #004d40;
+  margin-bottom: 1.5rem;
 }
 
-.login-description {
-  font-size: 0.95rem;
-  max-width: 300px;
+.input-group {
+  position: relative;
+  margin-bottom: 1.25rem;
 }
 
-/* Panel derecho */
-.login-right {
-  background: #fff;
-}
-
-.btn-close {
-  color: #999;
-  font-size: 1.2rem;
-  transition: color 0.2s;
-}
-
-.btn-close:hover {
-  color: #333;
-}
-
-.form-icon {
+.input-group i {
   position: absolute;
   top: 50%;
   left: 1rem;
   transform: translateY(-50%);
-  font-size: 1.2rem;
-  color: #4CA1AF;
+  color: #888;
 }
 
-.form-control {
-  padding-left: 3rem;
-  border-radius: 0.5rem;
-  height: 3.5rem;
-  border: 1px solid #CED4DA;
-  transition: border-color 0.3s;
+.input-group input {
+  width: 100%;
+  padding: 0.75rem 0.75rem 0.75rem 2.5rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  transition: border-color 0.3s, box-shadow 0.3s;
 }
 
-.form-control:focus {
-  border-color: #4CA1AF;
-  box-shadow: 0 0 0 0.2rem rgba(76, 161, 175, 0.25);
+.input-group input:focus {
+  border-color: #00796b;
+  box-shadow: 0 0 0 0.2rem rgba(0, 121, 107, 0.25);
+  outline: none;
 }
 
 .btn-login {
-  background: #f05b4d;
-  border: none;
+  width: 100%;
+  padding: 0.75rem;
+  background: #00796b;
   color: #fff;
-  font-weight: 600;
-  border-radius: 0.5rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: bold;
   transition: background 0.3s;
-  height: 3.5rem;
 }
 
-.btn-login:hover {
-  background: #c92c38;
-}
-
-.text-primary {
-  color: #4CA1AF !important;
-}
-
-.text-muted {
-  color: #6c757d !important;
+.btn-login:hover:not(:disabled) {
+  background: #004d40;
 }
 
 .btn-login:disabled {
-  background: #cccccc;
+  background: #ccc;
   cursor: not-allowed;
 }
 
-a.text-primary {
+.forgot-link {
+  display: block;
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  color: #00796b;
   text-decoration: none;
 }
 
-a.text-primary:hover {
+.forgot-link:hover {
   text-decoration: underline;
 }
 </style>
