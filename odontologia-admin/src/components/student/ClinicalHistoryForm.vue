@@ -1,4 +1,3 @@
-<!-- src/components/student/ClinicalHistoryForm.vue -->
 <template>
   <HistoryForm
     :model-value="modelValue"
@@ -9,13 +8,22 @@
 </template>
 
 <script setup lang="ts">
-import HistoryForm from './HistoryForm.vue';
-import type { ClinicalHistory } from '../../mocks/student/clinicalHistories';
+import HistoryForm from './HistoryForm.vue'
+import type { ClinicalHistory } from '../../mocks/student/clinicalHistories'
 
-const props = defineProps<{ modelValue: Partial<ClinicalHistory>; editMode: boolean }>();
+// Declaración de props sin crear una variable innecesaria
+defineProps<{
+  modelValue: Partial<ClinicalHistory>
+  editMode: boolean
+}>()
 
-defineEmits<{ (e: 'save', data: ClinicalHistory): void; (e: 'cancel'): void }>();
+// Declaración de eventos emitidos
+defineEmits<{
+  (e: 'save', data: ClinicalHistory): void
+  (e: 'cancel'): void
+}>()
 </script>
 
 <style scoped>
+/* Puedes agregar estilos personalizados si lo necesitas */
 </style>

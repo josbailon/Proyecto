@@ -1,16 +1,16 @@
 // src/mocks/admin/api.ts
 
 // --------------------------------------------------
-// Utility: simulación de latencia en las llamadas
+// Simulación de latencia en las llamadas
 // --------------------------------------------------
 export function delay(ms: number = 300): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 // --------------------------------------------------
-// Tipos y datos iniciales de Usuario (Admin)
+// Tipos centralizados
 // --------------------------------------------------
-export type Role = 'admin' | 'estudiante' | 'profesor' | 'secretario';
+export type Role = 'admin' | 'estudiante' | 'profesor' | 'secretario' | 'paciente';
 
 export interface User {
   id: number;
@@ -18,62 +18,62 @@ export interface User {
   email: string;
   password: string;
   role: Role;
-  especialidad?: string;   // solo para profes/estudiantes
-  historial?: string;       // opcional, si se modela
+  especialidad?: string; // estudiante / profesor
+  historial?: string;    // solo para paciente
 }
 
-// Datos iniciales
-const initialUsers: User[] = [
-  { id: 1, nombre: 'Admin Uno',        email: 'admin@odontologia.com',    password: 'admin123', role: 'admin' },
-  { id: 2, nombre: 'Estudiante Pérez', email: 'estudiante@uni.edu',       password: 'est123',   role: 'estudiante', especialidad: 'Ortodoncia' },
-  { id: 3, nombre: 'Profesor López',   email: 'profesor@uni.edu',         password: 'prof123',  role: 'profesor',  especialidad: 'Endodoncia' },
-  { id: 4, nombre: 'Secretario Cruz',  email: 'secretario@odontologia.com', password: 'sec123', role: 'secretario' }
+// --------------------------------------------------
+// Datos iniciales (base de usuarios)
+// --------------------------------------------------
+const users: User[] = [
+  { id: 1, nombre: 'Admin Uno', email: 'admin@uleam.com', password: 'admin123', role: 'admin' },
+  { id: 2, nombre: 'Estudiante Pérez', email: 'estudiante@uleam.com', password: 'est123', role: 'estudiante', especialidad: 'Ortodoncia' },
+  { id: 3, nombre: 'Profesor López', email: 'profesor@uleam.com', password: 'prof123', role: 'profesor', especialidad: 'Endodoncia' },
+  { id: 4, nombre: 'Secretario Cruz', email: 'secretario@uleam.com', password: 'sec123', role: 'secretario' },
+  { id: 5, nombre: 'Paciente Ruiz', email: 'paciente@uleam.com', password: 'pac123', role: 'paciente', historial: 'Sin antecedentes relevantes' }
 ];
 
 // --------------------------------------------------
-// 1) Login & gestión de usuarios
+// API Mock: Usuarios
 // --------------------------------------------------
 
-/** Simula un login: busca usuario por email+password */
+/** Login simulado */
 export async function loginMock(email: string, password: string): Promise<User> {
   await delay();
-  const usuario = initialUsers.find(u => u.email === email && u.password === password);
-  if (!usuario) throw new Error('Credenciales inválidas');
-  return { ...usuario };
+  const user = users.find(u => u.email === email && u.password === password);
+  if (!user) throw new Error('Credenciales inválidas');
+  return { ...user }; // se mantiene la contraseña interna
 }
 
-/** Devuelve la lista de usuarios (sin password) */
+/** Devuelve todos los usuarios sin contraseña */
 export async function fetchUsersMock(): Promise<User[]> {
   await delay();
-  return initialUsers.map(u => ({ ...u, password: '' }));
+  return users.map(u => ({ ...u, password: '' }));
 }
 
-/**
- * Crea o actualiza un usuario.
- * Si `user.id` existe, lo actualiza; si no, lo añade con nuevo id.
- */
+/** Crea o actualiza un usuario */
 export async function saveUserMock(user: User): Promise<User> {
   await delay();
-  const idx = initialUsers.findIndex(u => u.id === user.id);
-  if (idx >= 0) {
-    initialUsers[idx] = { ...user };
+  const index = users.findIndex(u => u.id === user.id);
+  if (index >= 0) {
+    users[index] = { ...user };
   } else {
-    const newId = initialUsers.length ? Math.max(...initialUsers.map(u => u.id)) + 1 : 1;
-    user.id = newId;
-    initialUsers.push({ ...user });
+    const nextId = users.length ? Math.max(...users.map(u => u.id)) + 1 : 1;
+    user.id = nextId;
+    users.push({ ...user });
   }
   return { ...user, password: '' };
 }
 
-/** Elimina un usuario por su ID */
+/** Elimina un usuario por ID */
 export async function deleteUserMock(id: number): Promise<void> {
   await delay();
-  const idx = initialUsers.findIndex(u => u.id === id);
-  if (idx >= 0) initialUsers.splice(idx, 1);
+  const index = users.findIndex(u => u.id === id);
+  if (index >= 0) users.splice(index, 1);
 }
 
 // --------------------------------------------------
-// 2) Mock de estadísticas para HomeAdmin.vue
+// API Mock: Estadísticas
 // --------------------------------------------------
 
 export interface Stats {
@@ -83,13 +83,12 @@ export interface Stats {
   messages: number;
 }
 
-/** Simula la carga de estadísticas en el dashboard admin */
 export async function fetchStatsMock(): Promise<Stats> {
   await delay();
   return {
-    users: initialUsers.length,
-    appointments: 58,   // valores de ejemplo
-    patients: 124,
+    users: users.length,
+    appointments: 58,
+    patients: users.filter(u => u.role === 'paciente').length,
     messages: 37
   };
 }

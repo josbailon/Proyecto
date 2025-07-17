@@ -64,6 +64,21 @@
       <div class="ccv-modal__body">
         <form @submit.prevent="saveNewCase">
           <div class="form-group">
+            <label>Título</label>
+            <input v-model="newCase.title" type="text" class="form-control" required />
+          </div>
+          <div class="form-group">
+            <label>Etapa</label>
+            <select v-model="newCase.stage" class="form-control" required>
+              <option disabled value="">Selecciona...</option>
+              <option value="presentacion">Presentación</option>
+              <option value="diagnostico">Diagnóstico</option>
+              <option value="plan">Plan de Tratamiento</option>
+              <option value="procedimiento">Procedimiento</option>
+              <option value="seguimiento">Seguimiento</option>
+            </select>
+          </div>
+          <div class="form-group">
             <label>Nombre del Paciente</label>
             <input v-model="newCase.patientName" type="text" class="form-control" required />
           </div>
@@ -74,6 +89,10 @@
           <div class="form-group">
             <label>Síntomas</label>
             <textarea v-model="newCase.symptoms" class="form-control"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Descripción</label>
+            <textarea v-model="newCase.description" class="form-control" rows="2"></textarea>
           </div>
           <div class="form-group">
             <label>Notas</label>
@@ -133,34 +152,32 @@ import CaseDetail from '@/components/student/CaseDetail.vue'
 import { clinicalCases as initialCases, type ClinicalCase, type Status } from '../../mocks/student/clinicalCases'
 
 const clinicalCases = ref<ClinicalCase[]>([...initialCases])
-
 const selectedCase = ref<ClinicalCase | null>(null)
 const activeTab = ref('desc')
+const showCreateModal = ref(false)
 
 function openCase(c: ClinicalCase, tab: string) {
   selectedCase.value = c
   activeTab.value = tab
 }
-
 function closeModal() {
   selectedCase.value = null
 }
-
-const showCreateModal = ref(false)
-
 function openCreateModal() {
   showCreateModal.value = true
 }
-
 function closeCreateModal() {
   showCreateModal.value = false
 }
 
 const newCase = ref<ClinicalCase>({
   id: 0,
+  title: '',
+  stage: '',
   patientName: '',
   reason: '',
   symptoms: '',
+  description: '',
   notes: '',
   createdAt: new Date().toISOString().split('T')[0],
   status: 'Pendiente',
@@ -178,7 +195,6 @@ function addProcedure() {
     status: 'Pendiente'
   })
 }
-
 function addPrescription() {
   newCase.value.prescriptions.push({
     id: Date.now(),
@@ -186,7 +202,6 @@ function addPrescription() {
     dose: ''
   })
 }
-
 function addAppointment() {
   newCase.value.appointments.push({
     id: Date.now(),
@@ -194,18 +209,19 @@ function addAppointment() {
     status: ''
   })
 }
-
 function saveNewCase() {
   const nextId = Math.max(...clinicalCases.value.map(c => c.id), 0) + 1
   newCase.value.id = nextId
   clinicalCases.value.push(JSON.parse(JSON.stringify(newCase.value)))
   closeCreateModal()
-  // Reiniciar el formulario
   newCase.value = {
     id: 0,
+    title: '',
+    stage: '',
     patientName: '',
     reason: '',
     symptoms: '',
+    description: '',
     notes: '',
     createdAt: new Date().toISOString().split('T')[0],
     status: 'Pendiente',
@@ -215,7 +231,6 @@ function saveNewCase() {
     comments: [],
   }
 }
-
 function badgeColor(status: Status) {
   return {
     Pendiente: 'ccv-badge--yellow',
