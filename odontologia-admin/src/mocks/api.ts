@@ -25,7 +25,7 @@ export interface User {
 // --------------------------------------------------
 // Datos iniciales: usuarios
 // --------------------------------------------------
-const initialUsers: User[] = [
+export const initialUsers: User[] = [
   { id: 1, nombre: 'Admin Uno',         email: 'admin@uleam.com',      password: 'admin123',     role: 'admin'      },
   { id: 2, nombre: 'Estudiante Pérez',  email: 'estudiante@uleam.com', password: 'est123',       role: 'estudiante', especialidad: 'Ortodoncia' },
   { id: 3, nombre: 'Profesor López',    email: 'profesor@uleam.com',   password: 'prof123',      role: 'profesor',  especialidad: 'Endodoncia'  },

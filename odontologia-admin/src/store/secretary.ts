@@ -1,123 +1,115 @@
-// src/store/secretary.ts
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+
+// Mocks y tipos
 import {
   fetchPatientsMock,
   savePatientMock,
   deletePatientMock,
+  type Patient,
+} from '@/mocks/secretary/patients';
+
+import {
   fetchAppointmentsMock,
-  saveAppointmentMock,
-  deleteAppointmentMock,
-  fetchStudentsByCourseMock,
-  fetchHistoriesMock,
-  saveHistoryMock
-} from '@/mocks/api';
+  type Appointment,
+} from '@/mocks/secretary/appointments';
 
-import type {
-  Patient,
-  Appointment,
-  StudentInfo,
-  ClinicalHistory
-} from '@/mocks/api';
+import {
+  fetchPatientAssignmentsMock,
+  addPatientAssignmentMock,
+  updatePatientAssignmentMock,
+  deletePatientAssignmentMock,
+  type PatientAssignment,
+} from '@/mocks/secretary/patientAssignments';
 
-export const useSecretaryStore = defineStore('secretary', () => {
-  // ----------------------------
-  // Estado: pacientes
-  // ----------------------------
-  const patients = ref<Patient[]>([]);
+import {
+  medicalHistories as historiesData,
+  type MedicalHistory,
+} from '@/mocks/secretary/medicalHistories';
 
-  async function loadPatients() {
-    patients.value = await fetchPatientsMock();
-  }
+export const useSecretaryStore = defineStore('secretary', {
+  state: () => ({
+    patients: [] as Patient[],
+    appointments: [] as Appointment[],
+    assignments: [] as PatientAssignment[],
+    histories: [] as MedicalHistory[],
+  }),
 
-  async function savePatient(p: Patient) {
-    const saved = await savePatientMock(p);
-    const index = patients.value.findIndex(x => x.id === saved.id);
-    if (index >= 0) {
-      patients.value[index] = saved;
-    } else {
-      patients.value.push(saved);
+  actions: {
+    // ------------------------------------------
+    // PACIENTES
+    // ------------------------------------------
+    async loadPatients() {
+      this.patients = await fetchPatientsMock();
+    },
+
+    async addOrUpdatePatient(p: Patient) {
+      await savePatientMock(p);
+      const idx = this.patients.findIndex(x => x.id === p.id);
+      if (idx >= 0) this.patients[idx] = p;
+      else this.patients.push(p);
+    },
+
+    async removePatient(id: number) {
+      await deletePatientMock(id);
+      this.patients = this.patients.filter(p => p.id !== id);
+    },
+
+    // ------------------------------------------
+    // CITAS
+    // ------------------------------------------
+    async loadAppointments() {
+      this.appointments = await fetchAppointmentsMock();
+    },
+
+    // ------------------------------------------
+    // ASIGNACIÓN DE PACIENTES A ESTUDIANTES
+    // ------------------------------------------
+    async loadAssignments() {
+      this.assignments = await fetchPatientAssignmentsMock();
+    },
+
+    async addOrUpdateAssignment(a: PatientAssignment) {
+      const idx = this.assignments.findIndex(x => x.id === a.id);
+      if (idx >= 0) {
+        await updatePatientAssignmentMock(a);
+        this.assignments[idx] = a;
+      } else {
+        await addPatientAssignmentMock(a);
+        this.assignments.push(a);
+      }
+    },
+
+    async removeAssignment(id: number) {
+      await deletePatientAssignmentMock(id);
+      this.assignments = this.assignments.filter(a => a.id !== id);
+    },
+
+    // ------------------------------------------
+    // HISTORIAS CLÍNICAS (Cuestionario de Tamizaje)
+    // ------------------------------------------
+    async loadHistories() {
+      this.histories = historiesData;
+    },
+
+    async addOrUpdateHistory(h: MedicalHistory) {
+      const idx = this.histories.findIndex(x => x.id === h.id);
+      if (idx >= 0) {
+        this.histories[idx] = h;
+      } else {
+        this.histories.push(h);
+      }
+    },
+
+    // ------------------------------------------
+    // CARGA GENERAL PARA DASHBOARD
+    // ------------------------------------------
+    async loadAllData() {
+      await Promise.all([
+        this.loadPatients(),
+        this.loadAppointments(),
+        this.loadAssignments(),
+        this.loadHistories(),
+      ]);
     }
   }
-
-  async function deletePatient(id: number) {
-    await deletePatientMock(id);
-    patients.value = patients.value.filter(p => p.id !== id);
-  }
-
-  // ----------------------------
-  // Estado: citas
-  // ----------------------------
-  const appointments = ref<Appointment[]>([]);
-
-  async function loadAppointments() {
-    appointments.value = await fetchAppointmentsMock();
-  }
-
-  async function addAppointment(a: Appointment) {
-    const saved = await saveAppointmentMock(a);
-    const index = appointments.value.findIndex(x => x.id === saved.id);
-    if (index >= 0) {
-      appointments.value[index] = saved;
-    } else {
-      appointments.value.push(saved);
-    }
-  }
-
-  async function deleteAppointment(id: number) {
-    await deleteAppointmentMock(id);
-    appointments.value = appointments.value.filter(a => a.id !== id);
-  }
-
-  // ----------------------------
-  // Estado: estudiantes
-  // ----------------------------
-  const students = ref<StudentInfo[]>([]);
-
-  async function loadStudents(course: string = 'Odontología') {
-    students.value = await fetchStudentsByCourseMock(course);
-  }
-
-  // ----------------------------
-  // Estado: historias médicas (cuestionario)
-  // ----------------------------
-  const medicalHistories = ref<ClinicalHistory[]>([]);
-
-  async function loadMedicalHistories() {
-    medicalHistories.value = await fetchHistoriesMock();
-  }
-
-  async function addMedicalHistory(history: ClinicalHistory) {
-    const saved = await saveHistoryMock(history);
-    medicalHistories.value.push(saved);
-  }
-
-  // ----------------------------
-  // Carga completa
-  // ----------------------------
-  async function loadAllData() {
-    await Promise.all([
-      loadPatients(),
-      loadAppointments(),
-      loadStudents(),
-      loadMedicalHistories()
-    ]);
-  }
-
-  return {
-    patients,
-    appointments,
-    students,
-    medicalHistories,
-    loadPatients,
-    savePatient,
-    deletePatient,
-    loadAppointments,
-    addAppointment,
-    deleteAppointment,
-    loadStudents,
-    loadMedicalHistories,
-    addMedicalHistory,
-    loadAllData
-  };
 });

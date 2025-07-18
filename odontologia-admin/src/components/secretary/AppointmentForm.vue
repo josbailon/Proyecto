@@ -1,107 +1,168 @@
 <template>
-  <form @submit.prevent="submitForm" class="appointment-form">
-    <div>
-      <label for="patient">Paciente:</label>
-      <select v-model="form.patientId" required>
-        <option disabled value="">Seleccione un paciente</option>
-        <option v-for="p in patients" :key="p.id" :value="p.id">
-          {{ p.nombre }} ({{ p.cedula }})
-        </option>
-      </select>
-    </div>
+  <div class="appointment-form">
+    <h2>Agendar Cita</h2>
+    <form @submit.prevent="submitForm">
+      <div class="form-group">
+        <label for="paciente">Paciente:</label>
+        <select v-model="form.pacienteId" required>
+          <option disabled value="">Seleccione un paciente</option>
+          <option v-for="p in patients" :key="p.id" :value="p.id">
+            {{ p.nombre }} - {{ p.cedula }}
+          </option>
+        </select>
+      </div>
 
-    <div>
-      <label for="student">Estudiante:</label>
-      <select v-model="form.studentId" required>
-        <option disabled value="">Seleccione un estudiante</option>
-        <option v-for="s in students" :key="s.id" :value="s.id">
-          {{ s.name }} ({{ s.course }})
-        </option>
-      </select>
-    </div>
+      <div class="form-group">
+        <label for="estudiante">Estudiante:</label>
+        <select v-model="form.estudianteId" required>
+          <option disabled value="">Seleccione un estudiante</option>
+          <option
+            v-for="s in assignedStudents"
+            :key="s.estudianteId"
+            :value="s.estudianteId"
+          >
+            {{ getStudentName(s.estudianteId) }}
+          </option>
+        </select>
+      </div>
 
-    <div>
-      <label for="datetime">Fecha y hora:</label>
-      <input type="datetime-local" v-model="form.datetime" required />
-    </div>
+      <div class="form-group">
+        <label for="fecha">Fecha:</label>
+        <input type="date" v-model="form.fecha" required />
+      </div>
 
-    <div>
-      <label for="notes">Notas (opcional):</label>
-      <textarea v-model="form.notes" rows="3"></textarea>
-    </div>
+      <div class="form-group">
+        <label for="hora">Hora:</label>
+        <input type="time" v-model="form.hora" required />
+      </div>
 
-    <button type="submit">Agendar Cita</button>
-  </form>
+      <div class="form-group">
+        <label for="estado">Estado:</label>
+        <select v-model="form.estado" required>
+          <option value="pendiente">Pendiente</option>
+          <option value="confirmada">Confirmada</option>
+          <option value="cancelada">Cancelada</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="notas">Notas:</label>
+        <textarea v-model="form.notas" rows="3" />
+      </div>
+
+      <button type="submit">Guardar Cita</button>
+    </form>
+  </div>
 </template>
 
-<script setup lang="ts">
-import { ref, onMounted } from 'vue';
+<script lang="ts" setup>
+import { ref, computed } from 'vue';
 import { useSecretaryStore } from '@/store/secretary';
+import type { Appointment } from '@/mocks/secretary/appointments';
 
-const store = useSecretaryStore();
-const patients = store.patients;
-const students = store.students;
+const secretary = useSecretaryStore();
 
-const form = ref({
-  patientId: '',
-  studentId: '',
-  datetime: '',
-  notes: '',
+const form = ref<Appointment>({
+  id: Date.now(),
+  pacienteId: 0,
+  estudianteId: 0,
+  fecha: '',
+  hora: '',
+  estado: 'pendiente',
+  notas: '',
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
 });
 
-function submitForm() {
-  if (!form.value.patientId || !form.value.studentId || !form.value.datetime) return;
+const patients = computed(() => secretary.patients);
+const assignments = computed(() => secretary.assignments);
 
-  store.addAppointment({
-    id: 0,
-    patientId: Number(form.value.patientId),
-    studentId: Number(form.value.studentId),
-    datetime: form.value.datetime,
-    status: 'pendiente',
-    notes: form.value.notes,
+// Filtra estudiantes asignados únicos
+const assignedStudents = computed(() => {
+  const unique: Record<number, boolean> = {};
+  return assignments.value.filter((a) => {
+    if (!unique[a.estudianteId]) {
+      unique[a.estudianteId] = true;
+      return true;
+    }
+    return false;
   });
+});
 
-  alert('Cita registrada exitosamente');
-
-  Object.keys(form.value).forEach(key => form.value[key] = '');
+// Extrae nombre desde la lista de asignaciones
+function getStudentName(id: number): string {
+  const found = assignments.value.find(a => a.estudianteId === id);
+  if (found) {
+    const student = secretary.assignments.find(s => s.estudianteId === id);
+    return `Estudiante ${student?.estudianteId}`;
+  }
+  return 'Estudiante Desconocido';
 }
 
-onMounted(() => {
-  store.loadPatients();
-  store.loadStudents();
-});
+function submitForm() {
+  form.value.id = Date.now();
+  form.value.createdAt = new Date().toISOString();
+  form.value.updatedAt = new Date().toISOString();
+  secretary.appointments.push({ ...form.value });
+  alert('Cita registrada exitosamente.');
+  resetForm();
+}
+
+function resetForm() {
+  form.value = {
+    id: Date.now(),
+    pacienteId: 0,
+    estudianteId: 0,
+    fecha: '',
+    hora: '',
+    estado: 'pendiente',
+    notas: '',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+}
 </script>
 
 <style scoped>
 .appointment-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  max-width: 600px;
+  background: #fff;
+  padding: 1rem;
+  border-radius: 8px;
+  max-width: 500px;
   margin: auto;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
 }
 
 label {
   font-weight: bold;
+  display: block;
+  margin-bottom: 0.3rem;
 }
 
 input,
 select,
 textarea {
-  padding: 0.5rem;
-  font-size: 1rem;
   width: 100%;
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
 }
 
 button {
-  padding: 0.75rem;
-  background-color: #28a745;
+  background-color: #007bff;
   color: white;
+  padding: 0.6rem 1rem;
   border: none;
+  border-radius: 5px;
   cursor: pointer;
-}
-
-button:hover {
-  background-color: #218838;
+  width: 100%;
 }
 </style>

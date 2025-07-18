@@ -1,9 +1,10 @@
+<!-- src/views/Login.vue -->
 <template>
   <div class="login-page">
     <div class="login-container">
       <!-- PANEL IZQUIERDO -->
       <div class="panel left-panel">
-        <img src="@/assets/img/descarga.png" alt="Logo" class="logo" />
+        <img src="@/assets/img/descarga.png" alt="Logo ULEAM" class="logo" />
         <h2>Facultad de Odontología ULEAM</h2>
         <p>Bienvenido a la plataforma de gestión clínica.</p>
       </div>
@@ -13,12 +14,26 @@
         <form @submit.prevent="onSubmit" class="login-form">
           <h3>Iniciar Sesión</h3>
           <div class="input-group">
-            <i class="fas fa-envelope"></i>
-            <input v-model="email" type="email" placeholder="Correo electrónico" required :disabled="loading" />
+            <i class="fas fa-envelope" aria-hidden="true"></i>
+            <input
+              v-model="email"
+              type="email"
+              placeholder="Correo electrónico"
+              required
+              :disabled="loading"
+              aria-label="Correo electrónico"
+            />
           </div>
           <div class="input-group">
-            <i class="fas fa-lock"></i>
-            <input v-model="password" type="password" placeholder="Contraseña" required :disabled="loading" />
+            <i class="fas fa-lock" aria-hidden="true"></i>
+            <input
+              v-model="password"
+              type="password"
+              placeholder="Contraseña"
+              required
+              :disabled="loading"
+              aria-label="Contraseña"
+            />
           </div>
           <button type="submit" class="btn-login" :disabled="loading">
             <span v-if="!loading">Entrar</span>
@@ -34,7 +49,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { loginMock } from '../mocks/admin/api'
+import { loginMock } from '@/mocks/admin/api'
 
 const email = ref('')
 const password = ref('')
@@ -50,11 +65,20 @@ async function onSubmit() {
     localStorage.setItem('user', JSON.stringify(user))
 
     switch (user.role) {
-      case 'admin': router.push({ name: 'HomeAdmin' }); break
-      case 'profesor': router.push({ name: 'ProfessorDashboard' }); break
-case 'secretario': router.push({ name: 'PatientManagement' }); break
-      case 'estudiante': router.push({ name: 'StudentDashboard' }); break
-      default: router.push({ name: 'Login' })
+      case 'admin':
+        router.push({ name: 'HomeAdmin' })
+        break
+      case 'profesor':
+        router.push({ name: 'ProfessorDashboard' })
+        break
+      case 'secretario':
+        router.push({ name: 'PatientManagement' })
+        break
+      case 'estudiante':
+        router.push({ name: 'StudentDashboard' })
+        break
+      default:
+        router.push({ name: 'Login' })
     }
   } catch (err: any) {
     alert(err.message || 'Error al iniciar sesión')
@@ -76,7 +100,6 @@ case 'secretario': router.push({ name: 'PatientManagement' }); break
 
 .login-container {
   display: flex;
-  flex-direction: row;
   width: 100%;
   max-width: 1000px;
   background: #ffffff;
@@ -85,7 +108,6 @@ case 'secretario': router.push({ name: 'PatientManagement' }); break
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
 }
 
-/* Responsive stack */
 @media (max-width: 768px) {
   .login-container {
     flex-direction: column;
@@ -143,7 +165,6 @@ case 'secretario': router.push({ name: 'PatientManagement' }); break
   box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
 }
 
-/* Login Form */
 .login-form {
   width: 100%;
   max-width: 350px;

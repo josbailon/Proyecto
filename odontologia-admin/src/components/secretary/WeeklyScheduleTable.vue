@@ -36,7 +36,14 @@ const appointments = ref<Appointment[]>([]);
 
 onMounted(async () => {
   await store.loadAppointments();
-  appointments.value = store.appointments;
+  appointments.value = store.appointments.map((cita: any) => ({
+    id: cita.id,
+    studentId: cita.estudianteId,
+    patientId: cita.pacienteId,
+    datetime: `${cita.fecha}T${cita.hora}`,
+    status: cita.estado,
+    notes: cita.notas
+  }));
 });
 </script>
 

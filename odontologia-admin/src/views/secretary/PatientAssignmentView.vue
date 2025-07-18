@@ -1,108 +1,214 @@
-<!-- src/views/secretary/PatientAssignmentView.vue -->
 <template>
   <section class="patient-assignment container py-4">
-    <!-- Sprint 4 – 2025-07-18 – Gestión de asignación de pacientes -->
-    <h2 class="mb-4">Asignación de Pacientes</h2>
-    <div class="card shadow-sm">
-      <div class="card-header d-flex align-items-center">
-        <ul class="nav nav-tabs card-header-tabs flex-grow-1">
-          <li class="nav-item">
-            <a
-              href="#"
-              class="nav-link"
-              :class="{ active: tab === 'list' }"
-              @click.prevent="tab = 'list'"
-            >
-              Listado
-            </a>
-          </li>
-          <li class="nav-item">
-            <a
-              href="#"
-              class="nav-link"
-              :class="{ active: tab === 'form' }"
-              @click.prevent="prepareNew()"
-            >
-              {{ editMode ? 'Editar' : 'Crear' }}
-            </a>
-          </li>
-        </ul>
+    <h2>Asignación de Pacientes</h2>
+
+    <div class="tabs-container">
+      <button :class="{ active: tab === 'list' }" @click="tab = 'list'">Listado</button>
+      <button :class="{ active: tab === 'form' }" @click="prepareNew">Nueva/Editar</button>
+    </div>
+
+    <div v-if="tab === 'list'" class="list-section">
+      <div class="filters">
+        <label>
+          Estado:
+          <select v-model="filterEstado">
+            <option value="Todas">Todas</option>
+            <option value="asignado">Asignado</option>
+            <option value="cancelado">Cancelado</option>
+            <option value="finalizado">Finalizado</option>
+          </select>
+        </label>
+        <label>
+          Estudiante ID:
+          <select v-model="filterEstudianteId">
+            <option :value="null">Todos</option>
+            <option v-for="id in estudianteIds" :key="id" :value="id">
+              {{ id }}
+            </option>
+          </select>
+        </label>
       </div>
-      <div class="card-body">
-        <div v-if="tab === 'list'">
-          <DataTable
-            :columns="columns"
-            :rows="assignments"
-            :page="page"
-            :per-page="perPage"
-            @edit="onEdit"
-            @delete="onDelete"
-            @update:page="(val: number) => (page = val)"
-          />
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Estudiante</th>
+            <th>Paciente</th>
+            <th>Fecha</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="a in filteredAssignments" :key="a.id">
+            <td>{{ a.id }}</td>
+            <td>{{ a.estudianteId }}</td>
+            <td>{{ a.pacienteId }}</td>
+            <td>{{ a.fechaAsignacion }}</td>
+            <td>{{ a.estado }}</td>
+            <td>
+              <button @click="onEdit(a)">✏️</button>
+              <button class="btn-danger" @click="onDelete(a.id)">🗑️</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div v-else class="form-section">
+      <form @submit.prevent="onSave">
+        <label>
+          Estudiante ID:
+          <input type="number" v-model="form.estudianteId" required />
+        </label>
+        <label>
+          Paciente ID:
+          <input type="number" v-model="form.pacienteId" required />
+        </label>
+        <label>
+          Fecha:
+          <input type="date" v-model="form.fechaAsignacion" required />
+        </label>
+        <label>
+          Estado:
+          <select v-model="form.estado" required>
+            <option value="asignado">asignado</option>
+            <option value="cancelado">cancelado</option>
+            <option value="finalizado">finalizado</option>
+          </select>
+        </label>
+        <label>
+          Notas:
+          <textarea v-model="form.notas"></textarea>
+        </label>
+        <div class="form-actions">
+          <button type="submit">{{ editMode ? 'Actualizar' : 'Guardar' }}</button>
+          <button type="button" @click="tab = 'list'">Cancelar</button>
         </div>
-        <div v-else>
-          <PatientAssignmentForm
-            :model-value="formModel"
-            :edit-mode="editMode"
-            @save="onSave"
-            @cancel="() => (tab = 'list')"
-          />
-        </div>
-      </div>
+      </form>
     </div>
   </section>
 </template>
 
-<script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import DataTable               from '../../components/common/DataTable.vue'
-import PatientAssignmentForm   from '../../components/secretary/PatientAssignmentForm.vue'
-// Import relativo al mock de patientAssignments
-import type { PatientAssignment } from '../../mocks/secretary/patientAssignments'
+<script setup>
+import { ref, computed, onMounted } from 'vue'
 import {
   fetchPatientAssignmentsMock,
-  savePatientAssignmentMock,
+  addPatientAssignmentMock,
+  updatePatientAssignmentMock,
   deletePatientAssignmentMock
-} from '../../mocks/secretary/patientAssignments'
+} from '@/mocks/secretary/patientAssignments'
 
-const assignments = ref<PatientAssignment[]>([])
-const tab         = ref<'list' | 'form'>('list')
-const editMode    = ref(false)
-const formModel   = ref<Partial<PatientAssignment>>({})
-const page        = ref(1)
-const perPage     = ref(10)
+// local state
+const tab = ref('list')
+const assignments = ref([])
+const form = ref({})
+const editMode = ref(false)
 
-const columns = [
-  { key: 'studentId', label: 'ID Estudiante' },
-  { key: 'patientId', label: 'ID Paciente' }
-]
+const filterEstado = ref('Todas')
+const filterEstudianteId = ref(null)
 
-onMounted(async () => {
-  assignments.value = await fetchPatientAssignmentsMock()
+const estudianteIds = computed(() => {
+  const ids = assignments.value.map(a => a.estudianteId)
+  return Array.from(new Set(ids))
 })
 
+// load data
+async function load() {
+  assignments.value = await fetchPatientAssignmentsMock()
+}
+onMounted(load)
+
+// list filtering
+const filteredAssignments = computed(() =>
+  assignments.value.filter(a =>
+    (filterEstado.value === 'Todas' || a.estado === filterEstado.value) &&
+    (filterEstudianteId.value === null || a.estudianteId === filterEstudianteId.value)
+  )
+)
+
+// actions
 function prepareNew() {
-  editMode.value  = false
-  formModel.value = {}
-  tab.value       = 'form'
+  form.value = {}
+  editMode.value = false
+  tab.value = 'form'
 }
 
-function onEdit(row: Record<string, any>) {
-  editMode.value  = true
-  formModel.value = { ...(row as PatientAssignment) }
-  tab.value       = 'form'
+function onEdit(a) {
+  form.value = { ...a }
+  editMode.value = true
+  tab.value = 'form'
 }
 
-async function onSave(payload: PatientAssignment) {
-  await savePatientAssignmentMock(payload)
-  assignments.value = await fetchPatientAssignmentsMock()
-  tab.value         = 'list'
+async function onSave() {
+  if (editMode.value) {
+    await updatePatientAssignmentMock(form.value)
+  } else {
+    await addPatientAssignmentMock({
+      ...form.value,
+      id: Date.now(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    })
+  }
+  await load()
+  tab.value = 'list'
 }
 
-async function onDelete(id: number) {
-  await deletePatientAssignmentMock(id)
-  assignments.value = await fetchPatientAssignmentsMock()
+async function onDelete(id) {
+  if (confirm('¿Está seguro de eliminar esta asignación?')) {
+    await deletePatientAssignmentMock(id)
+    await load()
+  }
 }
 </script>
 
-<style src="@/assets/css/pages/secretary/PatientAssignment.css" scoped></style>
+<style scoped>
+.patient-assignment {
+  max-width: 800px;
+  margin: auto;
+  padding: 1rem;
+}
+.tabs-container button {
+  margin-right: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  background: #ddd;
+}
+.tabs-container button.active {
+  background: #aaa;
+  color: white;
+}
+.filters {
+  margin-bottom: 1rem;
+  display: flex;
+  gap: 1rem;
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.table th, .table td {
+  border: 1px solid #ccc;
+  padding: 0.5rem;
+}
+.btn-danger {
+  background: #d9534f;
+  color: #fff;
+  border: none;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+}
+.form-section form {
+  display: grid;
+  gap: 0.8rem;
+}
+.form-actions {
+  margin-top: 1rem;
+}
+.form-actions button {
+  margin-right: 0.5rem;
+  padding: 0.5rem 1rem;
+}
+</style>

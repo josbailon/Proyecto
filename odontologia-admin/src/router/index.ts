@@ -3,33 +3,37 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import type { Role } from '../mocks/api'
 
-// Layouts
+// Layouts por rol
 import AdminLayout     from '@/components/layouts/AdminLayout.vue'
 import ProfessorLayout from '@/components/layouts/ProfessorLayout.vue'
 import SecretaryLayout from '@/components/layouts/SecretaryLayout.vue'
 import StudentLayout   from '@/components/layouts/StudentLayout.vue'
 
-// Lazy-loaded Views
+// Login público
 const Login = () => import('@/views/Login.vue')
 
-// Admin
+// -------------------------
+// Vistas por rol (lazy load)
+// -------------------------
+
+// 👑 Admin
 const HomeAdmin      = () => import('@/views/admin/HomeAdmin.vue')
 const AdminUsers     = () => import('@/views/admin/AdminUsers.vue')
 const AdminSettings  = () => import('@/views/admin/AdminSettings.vue')
 
-// Professor
+// 👨‍🏫 Profesor
 const ProfessorDashboard    = () => import('@/views/professor/ProfessorDashboardView.vue')
 const AssignmentsManagement = () => import('@/views/professor/AssignmentsManagementView.vue')
 const ProfessorProfile      = () => import('@/views/professor/ProfileView.vue')
 const StudentProgress       = () => import('@/views/professor/StudentProgressView.vue')
 
-// Secretary
+// ✍️ Secretaría
 const SecretaryDashboard   = () => import('@/views/secretary/SecretaryDashboardView.vue')
 const PatientAssignment    = () => import('@/views/secretary/PatientAssignmentView.vue')
 const WeeklySchedule       = () => import('@/views/secretary/WeeklyScheduleView.vue')
-const PatientManagement    = () => import('@/views/secretary/PatientManagementView.vue') // NUEVA
+const PatientManagement    = () => import('@/views/secretary/PatientManagementView.vue') // NUEVO
 
-// Student
+// 👨‍🎓 Estudiante
 const StudentDashboard  = () => import('@/views/student/DashboardView.vue')
 const ClinicalHistory   = () => import('@/views/student/ClinicalHistoryView.vue')
 const ClinicalCases     = () => import('@/views/student/ClinicalCasesView.vue')
@@ -38,11 +42,13 @@ const CommunicationView = () => import('@/views/student/CommunicationView.vue')
 const OdontogramView    = () => import('@/views/student/OdontogramView.vue')
 const StudentResources  = () => import('@/views/student/ResourcesView.vue')
 
-// Rutas
+// -------------------------
+// Definición de rutas
+// -------------------------
 const routes: RouteRecordRaw[] = [
   { path: '/', redirect: '/login' },
 
-  // Public
+  // Público
   { path: '/login', name: 'Login', component: Login },
 
   // Admin
@@ -57,7 +63,7 @@ const routes: RouteRecordRaw[] = [
     ]
   },
 
-  // Professor
+  // Profesor
   {
     path: '/professor',
     component: ProfessorLayout,
@@ -70,7 +76,7 @@ const routes: RouteRecordRaw[] = [
     ]
   },
 
-  // Secretary
+  // Secretario
   {
     path: '/secretary',
     component: SecretaryLayout,
@@ -79,11 +85,11 @@ const routes: RouteRecordRaw[] = [
       { path: '', name: 'SecretaryDashboard', component: SecretaryDashboard },
       { path: 'patients', name: 'PatientAssignment', component: PatientAssignment },
       { path: 'schedule', name: 'WeeklySchedule', component: WeeklySchedule },
-      { path: 'management', name: 'PatientManagement', component: PatientManagement } // NUEVA PÁGINA
+      { path: 'management', name: 'PatientManagement', component: PatientManagement }
     ]
   },
 
-  // Student
+  // Estudiante
   {
     path: '/student',
     component: StudentLayout,
@@ -99,18 +105,22 @@ const routes: RouteRecordRaw[] = [
     ]
   },
 
-  // Fallback
+  // Ruta desconocida
   { path: '/:pathMatch(.*)*', redirect: '/login' }
 ]
 
-// Router
+// -------------------------
+// Instancia del router
+// -------------------------
 const router = createRouter({
   history: createWebHistory(),
   routes,
   scrollBehavior: () => ({ left: 0, top: 0 })
 })
 
-// Protección de rutas por autenticación y rol
+// -------------------------
+// Protección por autenticación y rol
+// -------------------------
 router.beforeEach((to, _from, next) => {
   const raw = localStorage.getItem('user')
   const user: { role: Role } | null = raw ? JSON.parse(raw) : null

@@ -1,28 +1,56 @@
-<!-- src/components/layouts/SecretaryLayout.vue -->
 <template>
   <div class="secretary-layout d-flex">
-    <!-- Barra lateral -->
-    <Sidebar role="secretario" />
+    <!-- Sidebar con props -->
+    <Sidebar
+      :title="'Secretaría'"
+      :subtitle="'Gestión Clínica'"
+      :logoSrc="'/logo-uleam.png'"
+      :items="menuItems"
+    />
 
-    <!-- Zona principal: Header, contenido y Footer -->
+    <!-- Contenido principal -->
     <div class="main flex-grow-1 d-flex flex-column">
       <Header role="secretario" />
-
       <main class="content flex-grow-1 p-4">
-        <!-- Aquí cargan las vistas hijas -->
         <router-view />
       </main>
-
       <Footer />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-// Componentes de layout
 import Sidebar from '@/components/common/Sidebar.vue'
-import Header  from '@/components/common/Header.vue'
-import Footer  from '@/components/common/Footer.vue'
+import Header from '@/components/common/Header.vue'
+import Footer from '@/components/common/Footer.vue'
+
+// Definimos las páginas del sidebar del secretario
+const menuItems = [
+  {
+    name: 'SecretaryDashboard',
+    label: 'Dashboard',
+    icon: 'fas fa-home',
+    to: '/secretary'
+  },
+  {
+    name: 'PatientManagement',
+    label: 'Gestión de Pacientes',
+    icon: 'fas fa-user-injured',
+    to: '/secretary/management'
+  },
+  {
+    name: 'PatientAssignmentView',
+    label: 'Asignaciones',
+    icon: 'fas fa-user-check',
+    to: '/secretary/patients'
+  },
+  {
+    name: 'WeeklySchedule',
+    label: 'Agenda Semanal',
+    icon: 'fas fa-calendar-alt',
+    to: '/secretary/schedule'
+  }
+]
 </script>
 
 <style scoped>
@@ -44,7 +72,6 @@ import Footer  from '@/components/common/Footer.vue'
   overflow-y: auto;
 }
 
-/* Personaliza Header y Footer dentro de este layout */
 .secretary-layout ::v-deep .navbar {
   background-color: var(--color-info);
 }

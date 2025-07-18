@@ -15,13 +15,13 @@
         </thead>
         <tbody>
           <tr v-for="appt in appointments" :key="appt.id">
-            <td>{{ formatDate(appt.datetime) }}</td>
-            <td>{{ formatTime(appt.datetime) }}</td>
-            <td>{{ appt.studentId }}</td>
-            <td>{{ appt.patientId }}</td>
+            <td>{{ appt.fecha }}</td>
+            <td>{{ appt.hora }}</td>
+            <td>{{ appt.estudianteId }}</td>
+            <td>{{ appt.pacienteId }}</td>
             <td>
-              <span :class="statusBadge(appt.status)">
-                {{ appt.status }}
+              <span :class="statusBadge(appt.estado)">
+                {{ appt.estado }}
               </span>
             </td>
           </tr>
@@ -38,8 +38,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import type { Appointment } from '../../mocks/secretary/appointments';
-import { fetchAppointmentsMock } from '../../mocks/secretary/appointments';
+import type { Appointment } from '@/mocks/secretary/appointments';
+import { fetchAppointmentsMock } from '@/mocks/secretary/appointments';
 
 const appointments = ref<Appointment[]>([]);
 
@@ -47,28 +47,12 @@ onMounted(async () => {
   appointments.value = await fetchAppointmentsMock();
 });
 
-function formatDate(datetime: string): string {
-  return new Date(datetime).toLocaleDateString();
-}
-
-function formatTime(datetime: string): string {
-  return new Date(datetime).toLocaleTimeString([], {
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-}
-
-/**
- * Acepta cualquier valor de Appointment['status'], incluyendo "programada".
- */
-function statusBadge(status: Appointment['status']): string {
+function statusBadge(status: Appointment['estado']): string {
   switch (status) {
-    case 'programada':
-      return 'badge bg-info text-white';
-    case 'confirmada':
-      return 'badge bg-success';
     case 'pendiente':
       return 'badge bg-warning text-dark';
+    case 'confirmada':
+      return 'badge bg-success';
     case 'cancelada':
       return 'badge bg-danger';
     default:
