@@ -1,93 +1,49 @@
 // src/mocks/secretary/appointments.ts
 
-/**
- * Estados posibles de una cita.
- */
-export type AppointmentStatus =
-  | 'programada'
-  | 'confirmada'
-  | 'pendiente'
-  | 'cancelada'
+import type { Appointment } from '../../mocks/api';
 
 /**
- * Representa una cita de paciente gestionada por el secretario.
+ * Lista simulada de citas médicas para pruebas en el sistema.
  */
-export interface Appointment {
-  id: number
-  patientId: number
-  studentId: number
-  datetime: string       // ISO timestamp o 'YYYY-MM-DDTHH:mm'
-  status: AppointmentStatus
-  notes?: string
-}
-
-/**
- * Base de datos en memoria para las citas.
- */
-const appointmentsDB: Appointment[] = [
+export const sampleAppointments: Appointment[] = [
   {
     id: 1,
+    studentId: 2,
     patientId: 101,
-    studentId: 201,
-    datetime: '2025-07-28T09:00',
-    status: 'programada',
-    notes: 'Revisión inicial'
+    datetime: '2025-07-20T08:30:00Z',
+    status: 'pendiente',
+    notes: 'Primera evaluación general del paciente'
   },
   {
     id: 2,
+    studentId: 2,
     patientId: 102,
-    studentId: 202,
-    datetime: '2025-07-28T10:30',
+    datetime: '2025-07-21T10:00:00Z',
     status: 'confirmada',
-    notes: 'Limpieza dental'
+    notes: 'Control de ortodoncia'
   },
   {
     id: 3,
+    studentId: 3,
     patientId: 103,
-    studentId: 203,
-    datetime: '2025-07-29T14:00',
+    datetime: '2025-07-22T14:00:00Z',
+    status: 'cancelada',
+    notes: 'Paciente no asistió a la cita'
+  },
+  {
+    id: 4,
+    studentId: 4,
+    patientId: 104,
+    datetime: '2025-07-23T09:45:00Z',
     status: 'pendiente',
-    notes: ''
+    notes: 'Evaluación para tratamiento de endodoncia'
+  },
+  {
+    id: 5,
+    studentId: 3,
+    patientId: 105,
+    datetime: '2025-07-24T11:15:00Z',
+    status: 'confirmada',
+    notes: 'Revisión post-tratamiento'
   }
-]
-
-/** Simula latencia de red */
-function delay(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms))
-}
-
-/**
- * Devuelve todas las citas programadas.
- */
-export async function fetchAppointmentsMock(): Promise<Appointment[]> {
-  await delay(200)
-  // Retornamos copias para evitar mutaciones externas
-  return appointmentsDB.map(a => ({ ...a }))
-}
-
-/**
- * Crea o actualiza una cita.
- */
-export async function saveAppointmentMock(
-  appt: Appointment
-): Promise<Appointment> {
-  await delay(200)
-  const idx = appointmentsDB.findIndex(a => a.id === appt.id)
-  if (idx >= 0) {
-    appointmentsDB[idx] = { ...appt }
-  } else {
-    const nextId = Math.max(0, ...appointmentsDB.map(a => a.id)) + 1
-    appt.id = nextId
-    appointmentsDB.push({ ...appt })
-  }
-  return { ...appt }
-}
-
-/**
- * Elimina una cita por su ID.
- */
-export async function deleteAppointmentMock(id: number): Promise<void> {
-  await delay(200)
-  const idx = appointmentsDB.findIndex(a => a.id === id)
-  if (idx >= 0) appointmentsDB.splice(idx, 1)
-}
+];

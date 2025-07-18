@@ -1,8 +1,9 @@
 // src/store/secretary.ts
-import { defineStore } from 'pinia'
-import type { PatientAssignment } from '../mocks/secretary/patientAssignments'
-import type { Appointment } from '../mocks/secretary/appointments'
-import type { Patient } from '../mocks/secretary/patients'
+
+import { defineStore } from 'pinia';
+import type { PatientAssignment } from '../mocks/api';
+import type { Appointment } from '../mocks/api';
+import type { Patient } from '../mocks/api';
 
 import {
   fetchPatientAssignmentsMock,
@@ -14,139 +15,130 @@ import {
   fetchPatientsMock,
   savePatientMock,
   deletePatientMock
-} from '../mocks/api'
+} from '../mocks/api';
 
 export const useSecretaryStore = defineStore('secretary', {
   state: () => ({
+    patients: [] as Patient[],
     patientAssignments: [] as PatientAssignment[],
     appointments: [] as Appointment[],
-    patients: [] as Patient[],
     loading: false,
-    error: '' as string | null
+    error: '' as string
   }),
 
   actions: {
-    // ---------------------------
-    // 1. GESTIÓN DE PACIENTES
-    // ---------------------------
+    // -----------------------------
+    // PACIENTES
+    // -----------------------------
     async loadPatients() {
-      this.loading = true
+      this.loading = true;
       try {
-        this.patients = await fetchPatientsMock()
-        this.error = null
-      } catch (e) {
-        this.error = 'Error al cargar pacientes'
+        this.patients = await fetchPatientsMock();
+      } catch (err: any) {
+        this.error = err.message;
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
 
     async savePatient(p: Patient) {
-      this.loading = true
+      this.loading = true;
       try {
-        await savePatientMock(p)
-        await this.loadPatients()
-        this.error = null
-      } catch (e) {
-        this.error = 'Error al guardar paciente'
+        await savePatientMock(p);
+        await this.loadPatients();
+      } catch (err: any) {
+        this.error = err.message;
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
 
     async deletePatient(id: number) {
-      this.loading = true
+      this.loading = true;
       try {
-        await deletePatientMock(id)
-        await this.loadPatients()
-        this.error = null
-      } catch (e) {
-        this.error = 'Error al eliminar paciente'
+        await deletePatientMock(id);
+        await this.loadPatients();
+      } catch (err: any) {
+        this.error = err.message;
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
 
-    // ---------------------------
-    // 2. ASIGNACIÓN DE PACIENTES
-    // ---------------------------
+    // -----------------------------
+    // ASIGNACIÓN DE PACIENTES
+    // -----------------------------
     async loadPatientAssignments() {
-      this.loading = true
+      this.loading = true;
       try {
-        this.patientAssignments = await fetchPatientAssignmentsMock()
-        this.error = null
-      } catch (e) {
-        this.error = 'Error al cargar asignaciones'
+        this.patientAssignments = await fetchPatientAssignmentsMock();
+      } catch (err: any) {
+        this.error = err.message;
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
 
-    async savePatientAssignment(a: Partial<PatientAssignment> & { studentId: number; patientId: number }) {
-      this.loading = true
+    async savePatientAssignment(a: PatientAssignment) {
+      this.loading = true;
       try {
-        await savePatientAssignmentMock(a)
-        await this.loadPatientAssignments()
-        this.error = null
-      } catch (e) {
-        this.error = 'Error al guardar asignación'
+        await savePatientAssignmentMock(a);
+        await this.loadPatientAssignments();
+      } catch (err: any) {
+        this.error = err.message;
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
 
     async deletePatientAssignment(id: number) {
-      this.loading = true
+      this.loading = true;
       try {
-        await deletePatientAssignmentMock(id)
-        await this.loadPatientAssignments()
-        this.error = null
-      } catch (e) {
-        this.error = 'Error al eliminar asignación'
+        await deletePatientAssignmentMock(id);
+        await this.loadPatientAssignments();
+      } catch (err: any) {
+        this.error = err.message;
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
 
-    // ---------------------------
-    // 3. GESTIÓN DE CITAS
-    // ---------------------------
+    // -----------------------------
+    // CITAS MÉDICAS
+    // -----------------------------
     async loadAppointments() {
-      this.loading = true
+      this.loading = true;
       try {
-        this.appointments = await fetchAppointmentsMock()
-        this.error = null
-      } catch (e) {
-        this.error = 'Error al cargar citas'
+        this.appointments = await fetchAppointmentsMock();
+      } catch (err: any) {
+        this.error = err.message;
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
 
-    async saveAppointment(a: Partial<Appointment> & { patientId: number; studentId: number; datetime: string; status: string }) {
-      this.loading = true
+    async saveAppointment(a: Appointment) {
+      this.loading = true;
       try {
-        await saveAppointmentMock(a)
-        await this.loadAppointments()
-        this.error = null
-      } catch (e) {
-        this.error = 'Error al guardar cita'
+        await saveAppointmentMock(a);
+        await this.loadAppointments();
+      } catch (err: any) {
+        this.error = err.message;
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
 
     async deleteAppointment(id: number) {
-      this.loading = true
+      this.loading = true;
       try {
-        await deleteAppointmentMock(id)
-        await this.loadAppointments()
-        this.error = null
-      } catch (e) {
-        this.error = 'Error al eliminar cita'
+        await deleteAppointmentMock(id);
+        await this.loadAppointments();
+      } catch (err: any) {
+        this.error = err.message;
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     }
   }
-})
+});

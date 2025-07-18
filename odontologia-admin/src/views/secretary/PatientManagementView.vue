@@ -26,10 +26,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+/**
+ * Página: Gestión de Pacientes
+ */
+import { ref, onMounted, computed } from 'vue';
 import PatientList from '@/components/secretary/PatientList.vue';
 import PatientForm from '@/components/secretary/PatientForm.vue';
-import { useSecretaryStore } from '../../stores/secretaryStore';
+import { useSecretaryStore } from '../../store/secretary';
 
 const secretary = useSecretaryStore();
 const tab = ref<'list' | 'form'>('list');

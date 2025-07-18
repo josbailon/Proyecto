@@ -1,121 +1,132 @@
-<!-- Página: Gestión de Pacientes - Componente: Formulario de Pacientes -->
+<!-- Página: Gestión de Pacientes -->
 <template>
-  <form
-    @submit.prevent="onSubmit"
-    :class="{ 'needs-validation': true, 'was-validated': submitted }"
-    novalidate
-    class="patient-form"
-  >
-    <h3 class="mb-4">{{ editMode ? 'Editar Paciente' : 'Nuevo Paciente' }}</h3>
+  <form @submit.prevent="submitForm" class="patient-form">
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label>Nombre completo</label>
+        <input v-model="form.nombre" type="text" class="form-control" required />
+      </div>
+      <div class="col-md-6 mb-3">
+        <label>Cédula</label>
+        <input v-model="form.cedula" type="text" class="form-control" required />
+      </div>
+      <div class="col-md-6 mb-3">
+        <label>Cantón</label>
+        <input v-model="form.canton" type="text" class="form-control" />
+      </div>
+      <div class="col-md-6 mb-3">
+        <label>Parroquia</label>
+        <input v-model="form.parroquia" type="text" class="form-control" />
+      </div>
+      <div class="col-md-6 mb-3">
+        <label>Contacto</label>
+        <input v-model="form.contacto" type="text" class="form-control" required />
+      </div>
+      <div class="col-md-6 mb-3">
+        <label>Teléfono</label>
+        <input v-model="form.telefono" type="text" class="form-control" />
+      </div>
+      <div class="col-md-6 mb-3">
+        <label>Tipo de sangre</label>
+        <input v-model="form.tipoSangre" type="text" class="form-control" />
+      </div>
 
-    <div class="mb-3">
-      <label for="nombre" class="form-label">Nombre y Apellidos</label>
-      <input
-        id="nombre"
-        v-model="form.nombre"
-        type="text"
-        class="form-control"
-        required
-      />
-      <div class="invalid-feedback">Este campo es obligatorio.</div>
+      <!-- Condiciones -->
+      <div class="col-md-6 mb-3">
+        <label>Condiciones</label>
+        <input
+          v-model="form.condicionesString"
+          type="text"
+          class="form-control"
+          placeholder="Ej: diabetes, hipertensión"
+        />
+      </div>
+      <div class="col-md-6 mb-3">
+        <label>Enfermedades</label>
+        <input
+          v-model="form.enfermedadesString"
+          type="text"
+          class="form-control"
+          placeholder="Separadas por coma"
+        />
+      </div>
+      <div class="col-md-6 mb-3">
+        <label>Medicamentos</label>
+        <input
+          v-model="form.medicamentosString"
+          type="text"
+          class="form-control"
+          placeholder="Separados por coma"
+        />
+      </div>
+      <div class="col-md-6 mb-3">
+        <label>Alergias</label>
+        <input
+          v-model="form.alergiasString"
+          type="text"
+          class="form-control"
+          placeholder="Separadas por coma"
+        />
+      </div>
     </div>
 
-    <div class="mb-3">
-      <label for="cedula" class="form-label">Cédula de Identidad</label>
-      <input
-        id="cedula"
-        v-model="form.cedula"
-        type="text"
-        class="form-control"
-        pattern="\\d{10}"
-        required
-      />
-      <div class="invalid-feedback">Ingrese una cédula válida de 10 dígitos.</div>
-    </div>
-
-    <div class="mb-3">
-      <label for="canton" class="form-label">Cantón de Residencia</label>
-      <input
-        id="canton"
-        v-model="form.canton"
-        type="text"
-        class="form-control"
-        required
-      />
-      <div class="invalid-feedback">Este campo es obligatorio.</div>
-    </div>
-
-    <div class="mb-3">
-      <label for="contacto" class="form-label">Contacto (Teléfono o Email)</label>
-      <input
-        id="contacto"
-        v-model="form.contacto"
-        type="text"
-        class="form-control"
-        required
-      />
-      <div class="invalid-feedback">Ingrese un contacto válido.</div>
-    </div>
-
-    <div class="d-flex justify-content-end gap-2 mt-4">
-      <button
-        type="button"
-        class="btn btn-outline-secondary"
-        @click="$emit('cancel')"
-      >
-        Cancelar
-      </button>
-      <button type="submit" class="btn btn-primary">
-        {{ editMode ? 'Guardar Cambios' : 'Crear Paciente' }}
-      </button>
+    <div class="d-flex justify-content-end gap-2 mt-3">
+      <button type="submit" class="btn btn-success">Guardar</button>
+      <button type="button" class="btn btn-secondary" @click="$emit('cancel')">Cancelar</button>
     </div>
   </form>
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, watch } from 'vue';
-
-interface Patient {
-  id: number;
-  nombre: string;
-  cedula: string;
-  canton: string;
-  contacto: string;
-}
+import { reactive, watch, toRefs } from 'vue';
 
 const props = defineProps<{
-  modelValue: Partial<Patient>;
+  modelValue: any;
   editMode: boolean;
 }>();
+const emit = defineEmits(['save', 'cancel']);
 
-const emit = defineEmits<{
-  (e: 'save', value: Patient): void;
-  (e: 'cancel'): void;
-}>();
-
-const submitted = ref(false);
-const form = reactive<Partial<Patient>>({ ...props.modelValue });
-
-watch(() => props.modelValue, nv => {
-  Object.assign(form, nv);
+const form = reactive({
+  id: undefined,
+  nombre: '',
+  cedula: '',
+  canton: '',
+  parroquia: '',
+  contacto: '',
+  telefono: '',
+  tipoSangre: '',
+  condicionesString: '',
+  enfermedadesString: '',
+  medicamentosString: '',
+  alergiasString: '',
 });
 
-function onSubmit() {
-  submitted.value = true;
-  const formEl = document.querySelector('.patient-form') as HTMLFormElement;
-  if (!formEl.checkValidity()) return;
+watch(
+  () => props.modelValue,
+  (val) => {
+    Object.assign(form, val, {
+      condicionesString: (val?.condiciones || []).join(', '),
+      enfermedadesString: (val?.enfermedades || []).join(', '),
+      medicamentosString: (val?.medicamentos || []).join(', '),
+      alergiasString: (val?.alergias || []).join(', '),
+    });
+  },
+  { immediate: true }
+);
 
-  const patient: Patient = {
-    id: form.id ?? Date.now(),
-    nombre: form.nombre!,
-    cedula: form.cedula!,
-    canton: form.canton!,
-    contacto: form.contacto!
+function submitForm() {
+  const payload = {
+    ...form,
+    condiciones: form.condicionesString.split(',').map(s => s.trim()).filter(Boolean),
+    enfermedades: form.enfermedadesString.split(',').map(s => s.trim()).filter(Boolean),
+    medicamentos: form.medicamentosString.split(',').map(s => s.trim()).filter(Boolean),
+    alergias: form.alergiasString.split(',').map(s => s.trim()).filter(Boolean),
+    createdAt: props.modelValue?.createdAt || new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   };
 
-  emit('save', patient);
+  emit('save', payload);
 }
 </script>
 
-<!-- Estilos para la página: Gestión de Pacientes -->
 <style scoped src="@/assets/css/pages/secretary/PatientForm.css"></style>

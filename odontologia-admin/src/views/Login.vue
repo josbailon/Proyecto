@@ -52,7 +52,7 @@ async function onSubmit() {
     switch (user.role) {
       case 'admin': router.push({ name: 'HomeAdmin' }); break
       case 'profesor': router.push({ name: 'ProfessorDashboard' }); break
-      case 'secretario': router.push({ name: 'SecretaryDashboard' }); break
+case 'secretario': router.push({ name: 'PatientManagement' }); break
       case 'estudiante': router.push({ name: 'StudentDashboard' }); break
       default: router.push({ name: 'Login' })
     }

@@ -1,80 +1,82 @@
 // src/mocks/secretary/patients.ts
 
+
 export interface Patient {
   id: number;
   nombre: string;
   cedula: string;
   canton: string;
+  parroquia?: string;
   contacto: string;
+  telefono?: string;
   enfermedades?: string[];
   medicamentos?: string[];
   alergias?: string[];
   tipoSangre?: string;
-  condiciones?: string[]; // Ej: ['diabetes', 'hipertensión']
+  condiciones?: string[];
   createdAt: string;
   updatedAt: string;
 }
 
-// Base de datos en memoria
-let patientsDB: Patient[] = [
+export const mockPatients: Patient[] = [
   {
-    id: 1,
-    nombre: "Carlos Mendoza",
-    cedula: "1304567890",
-    canton: "Portoviejo",
-    contacto: "0987654321",
-    enfermedades: ["asma"],
-    medicamentos: ["salbutamol"],
-    alergias: ["penicilina"],
-    tipoSangre: "O+",
-    condiciones: ["diabetes"],
-    createdAt: "2025-07-01",
-    updatedAt: "2025-07-01",
+    id: 101,
+    nombre: 'Carlos Zambrano',
+    cedula: '1301234567',
+    canton: 'Manta',
+    parroquia: 'Tarqui',
+    contacto: 'carlos.zambrano@gmail.com',
+    telefono: '0991122334',
+    enfermedades: ['diabetes'],
+    medicamentos: ['metformina'],
+    alergias: ['penicilina'],
+    tipoSangre: 'O+',
+    condiciones: ['diabetes'],
+    createdAt: '2025-07-01T10:00:00Z',
+    updatedAt: '2025-07-05T08:30:00Z',
   },
   {
-    id: 2,
-    nombre: "Laura Vásquez",
-    cedula: "1301122334",
-    canton: "Manta",
-    contacto: "laura@gmail.com",
+    id: 102,
+    nombre: 'María Cedeño',
+    cedula: '1301987654',
+    canton: 'Portoviejo',
+    contacto: 'maria.cedeno@hotmail.com',
+    telefono: '0987654321',
+    enfermedades: ['hipertensión'],
+    medicamentos: ['enalapril'],
+    alergias: [],
+    tipoSangre: 'A+',
+    condiciones: ['hipertensión'],
+    createdAt: '2025-06-28T14:20:00Z',
+    updatedAt: '2025-07-02T09:00:00Z',
+  },
+  {
+    id: 103,
+    nombre: 'Luis Mendoza',
+    cedula: '1310456789',
+    canton: 'Jaramijó',
+    contacto: 'luis.mendoza@yahoo.com',
     enfermedades: [],
     medicamentos: [],
-    alergias: [],
-    tipoSangre: "A-",
+    alergias: ['aspirina'],
+    tipoSangre: 'B-',
     condiciones: [],
-    createdAt: "2025-07-02",
-    updatedAt: "2025-07-02",
+    createdAt: '2025-07-10T11:15:00Z',
+    updatedAt: '2025-07-12T16:40:00Z',
   },
-];
-
-// Simula latencia de red
-function delay(ms = 300): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-// Fetch all patients
-export async function fetchPatientsMock(): Promise<Patient[]> {
-  await delay();
-  return patientsDB.map(p => ({ ...p }));
-}
-
-// Save (create or update) patient
-export async function savePatientMock(patient: Patient): Promise<Patient> {
-  await delay();
-  const idx = patientsDB.findIndex(p => p.id === patient.id);
-  if (idx >= 0) {
-    patientsDB[idx] = { ...patient, updatedAt: new Date().toISOString() };
-  } else {
-    patient.id = Math.max(0, ...patientsDB.map(p => p.id)) + 1;
-    patient.createdAt = new Date().toISOString();
-    patient.updatedAt = patient.createdAt;
-    patientsDB.push(patient);
+  {
+    id: 104,
+    nombre: 'Ana Moreira',
+    cedula: '1309876543',
+    canton: 'Montecristi',
+    parroquia: 'Aníbal San Andrés',
+    contacto: 'ana.moreira@uleam.edu.ec',
+    enfermedades: ['asma'],
+    medicamentos: ['salbutamol'],
+    alergias: ['polvo', 'moho'],
+    tipoSangre: 'AB+',
+    condiciones: ['asma'],
+    createdAt: '2025-07-03T13:45:00Z',
+    updatedAt: '2025-07-13T08:10:00Z',
   }
-  return { ...patient };
-}
-
-// Delete a patient by ID
-export async function deletePatientMock(id: number): Promise<void> {
-  await delay();
-  patientsDB = patientsDB.filter(p => p.id !== id);
-}
+];

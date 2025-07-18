@@ -427,9 +427,10 @@ export interface PatientAssignment {
   id: number;
   studentId: number;
   patientId: number;
+  assignedAt: string; // obligatorio
   notes?: string;
-  assignedAt?: string;
 }
+
 
 let patientAssignments: PatientAssignment[] = [];
 
@@ -500,4 +501,46 @@ export async function saveAppointmentMock(a: Appointment): Promise<Appointment> 
 export async function deleteAppointmentMock(id: number): Promise<void> {
   await delay();
   appointments = appointments.filter(a => a.id !== id);
+}
+// ---------------------------------------------
+// Secretario: Gestión de Pacientes
+// ---------------------------------------------
+export interface Patient {
+  id: number;
+  nombre: string;
+  cedula: string;
+  canton: string;
+  contacto: string;
+  enfermedades?: string[];
+  medicamentos?: string[];
+  alergias?: string[];
+  tipoSangre?: string;
+  condiciones?: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+let patients: Patient[] = [];
+
+export async function fetchPatientsMock(): Promise<Patient[]> {
+  await delay();
+  return patients.map(p => ({ ...p }));
+}
+
+export async function savePatientMock(p: Patient): Promise<Patient> {
+  await delay();
+  if (p.id) {
+    const idx = patients.findIndex(x => x.id === p.id);
+    if (idx >= 0) patients[idx] = { ...p };
+  } else {
+    const newId = patients.length ? Math.max(...patients.map(p => p.id)) + 1 : 1;
+    p.id = newId;
+    patients.push({ ...p });
+  }
+  return { ...p };
+}
+
+export async function deletePatientMock(id: number): Promise<void> {
+  await delay();
+  patients = patients.filter(p => p.id !== id);
 }

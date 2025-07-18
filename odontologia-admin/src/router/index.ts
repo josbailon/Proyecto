@@ -1,4 +1,5 @@
 // src/router/index.ts
+
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import type { Role } from '../mocks/api'
 
@@ -9,12 +10,12 @@ import SecretaryLayout from '@/components/layouts/SecretaryLayout.vue'
 import StudentLayout   from '@/components/layouts/StudentLayout.vue'
 
 // Lazy-loaded Views
-const Login                 = () => import('@/views/Login.vue')
+const Login = () => import('@/views/Login.vue')
 
 // Admin
-const HomeAdmin             = () => import('@/views/admin/HomeAdmin.vue')
-const AdminUsers            = () => import('@/views/admin/AdminUsers.vue')
-const AdminSettings         = () => import('@/views/admin/AdminSettings.vue')
+const HomeAdmin      = () => import('@/views/admin/HomeAdmin.vue')
+const AdminUsers     = () => import('@/views/admin/AdminUsers.vue')
+const AdminSettings  = () => import('@/views/admin/AdminSettings.vue')
 
 // Professor
 const ProfessorDashboard    = () => import('@/views/professor/ProfessorDashboardView.vue')
@@ -23,19 +24,21 @@ const ProfessorProfile      = () => import('@/views/professor/ProfileView.vue')
 const StudentProgress       = () => import('@/views/professor/StudentProgressView.vue')
 
 // Secretary
-const SecretaryDashboard    = () => import('@/views/secretary/SecretaryDashboardView.vue')
-const PatientAssignment     = () => import('@/views/secretary/PatientAssignmentView.vue')
-const WeeklySchedule        = () => import('@/views/secretary/WeeklyScheduleView.vue')
+const SecretaryDashboard   = () => import('@/views/secretary/SecretaryDashboardView.vue')
+const PatientAssignment    = () => import('@/views/secretary/PatientAssignmentView.vue')
+const WeeklySchedule       = () => import('@/views/secretary/WeeklyScheduleView.vue')
+const PatientManagement    = () => import('@/views/secretary/PatientManagementView.vue') // NUEVA
 
 // Student
-const StudentDashboard      = () => import('@/views/student/DashboardView.vue')
-const ClinicalHistory       = () => import('@/views/student/ClinicalHistoryView.vue')
-const ClinicalCases         = () => import('@/views/student/ClinicalCasesView.vue')
-const AssignmentsView       = () => import('@/views/student/AssignmentsView.vue')
-const CommunicationView     = () => import('@/views/student/CommunicationView.vue')
-const OdontogramView        = () => import('@/views/student/OdontogramView.vue')
-const StudentResources      = () => import('@/views/student/ResourcesView.vue')
+const StudentDashboard  = () => import('@/views/student/DashboardView.vue')
+const ClinicalHistory   = () => import('@/views/student/ClinicalHistoryView.vue')
+const ClinicalCases     = () => import('@/views/student/ClinicalCasesView.vue')
+const AssignmentsView   = () => import('@/views/student/AssignmentsView.vue')
+const CommunicationView = () => import('@/views/student/CommunicationView.vue')
+const OdontogramView    = () => import('@/views/student/OdontogramView.vue')
+const StudentResources  = () => import('@/views/student/ResourcesView.vue')
 
+// Rutas
 const routes: RouteRecordRaw[] = [
   { path: '/', redirect: '/login' },
 
@@ -48,8 +51,8 @@ const routes: RouteRecordRaw[] = [
     component: AdminLayout,
     meta: { requiresAuth: true, roles: ['admin'] as Role[] },
     children: [
-      { path: '',       name: 'HomeAdmin',     component: HomeAdmin },
-      { path: 'users',  name: 'AdminUsers',    component: AdminUsers },
+      { path: '', name: 'HomeAdmin', component: HomeAdmin },
+      { path: 'users', name: 'AdminUsers', component: AdminUsers },
       { path: 'settings', name: 'AdminSettings', component: AdminSettings }
     ]
   },
@@ -60,10 +63,10 @@ const routes: RouteRecordRaw[] = [
     component: ProfessorLayout,
     meta: { requiresAuth: true, roles: ['profesor'] as Role[] },
     children: [
-      { path: '',           name: 'ProfessorDashboard',   component: ProfessorDashboard },
+      { path: '', name: 'ProfessorDashboard', component: ProfessorDashboard },
       { path: 'assignments', name: 'ProfessorAssignments', component: AssignmentsManagement },
-      { path: 'profile',     name: 'ProfessorProfile',     component: ProfessorProfile },
-      { path: 'progress',    name: 'StudentProgress',      component: StudentProgress }
+      { path: 'profile', name: 'ProfessorProfile', component: ProfessorProfile },
+      { path: 'progress', name: 'StudentProgress', component: StudentProgress }
     ]
   },
 
@@ -73,9 +76,10 @@ const routes: RouteRecordRaw[] = [
     component: SecretaryLayout,
     meta: { requiresAuth: true, roles: ['secretario'] as Role[] },
     children: [
-      { path: '',         name: 'SecretaryDashboard', component: SecretaryDashboard },
-      { path: 'patients', name: 'PatientAssignment',  component: PatientAssignment },
-      { path: 'schedule', name: 'WeeklySchedule',     component: WeeklySchedule }
+      { path: '', name: 'SecretaryDashboard', component: SecretaryDashboard },
+      { path: 'patients', name: 'PatientAssignment', component: PatientAssignment },
+      { path: 'schedule', name: 'WeeklySchedule', component: WeeklySchedule },
+      { path: 'management', name: 'PatientManagement', component: PatientManagement } // NUEVA PÁGINA
     ]
   },
 
@@ -85,13 +89,13 @@ const routes: RouteRecordRaw[] = [
     component: StudentLayout,
     meta: { requiresAuth: true, roles: ['estudiante'] as Role[] },
     children: [
-      { path: '',             name: 'StudentDashboard', component: StudentDashboard },
-      { path: 'history',      name: 'ClinicalHistory',  component: ClinicalHistory },
-      { path: 'cases',        name: 'ClinicalCases',    component: ClinicalCases },
-      { path: 'assignments',  name: 'Assignments',      component: AssignmentsView },
-      { path: 'communication', name: 'Communication',    component: CommunicationView },
-      { path: 'resources',    name: 'StudentResources', component: StudentResources },
-      { path: 'odontogram',   name: 'Odontogram',       component: OdontogramView }
+      { path: '', name: 'StudentDashboard', component: StudentDashboard },
+      { path: 'history', name: 'ClinicalHistory', component: ClinicalHistory },
+      { path: 'cases', name: 'ClinicalCases', component: ClinicalCases },
+      { path: 'assignments', name: 'Assignments', component: AssignmentsView },
+      { path: 'communication', name: 'Communication', component: CommunicationView },
+      { path: 'resources', name: 'StudentResources', component: StudentResources },
+      { path: 'odontogram', name: 'Odontogram', component: OdontogramView }
     ]
   },
 
@@ -99,12 +103,14 @@ const routes: RouteRecordRaw[] = [
   { path: '/:pathMatch(.*)*', redirect: '/login' }
 ]
 
+// Router
 const router = createRouter({
   history: createWebHistory(),
   routes,
   scrollBehavior: () => ({ left: 0, top: 0 })
 })
 
+// Protección de rutas por autenticación y rol
 router.beforeEach((to, _from, next) => {
   const raw = localStorage.getItem('user')
   const user: { role: Role } | null = raw ? JSON.parse(raw) : null
@@ -114,6 +120,7 @@ router.beforeEach((to, _from, next) => {
     const allowed = (to.meta.roles as Role[]) || []
     if (!allowed.includes(user.role)) return next({ name: 'Login' })
   }
+
   next()
 })
 
