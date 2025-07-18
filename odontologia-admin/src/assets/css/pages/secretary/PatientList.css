@@ -1,27 +1,30 @@
-/* Página: Gestión de Pacientes – Estilos PatientList.vue */
+/* src/assets/css/pages/secretary/PatientList.css */
 
 .patient-list {
   background-color: #ffffff;
-  padding: 1rem;
   border-radius: 0.5rem;
+  padding: 1rem;
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
 }
 
-.patient-list h3 {
-  font-weight: 600;
-  color: var(--color-primary, #153b50);
+.patient-list table {
+  width: 100%;
+  border-collapse: collapse;
 }
 
-.patient-list .form-control {
-  max-width: 300px;
+.patient-list th {
+  background-color: #e0f2f1;
+  color: #004d40;
+  padding: 0.75rem;
+  text-align: left;
 }
 
-.patient-list .table th,
-.patient-list .table td {
-  vertical-align: middle;
+.patient-list td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #e0e0e0;
 }
 
 .patient-list .btn {
-  padding: 0.3rem 0.6rem;
-  font-size: 0.875rem;
+  font-size: 0.85rem;
+  padding: 0.25rem 0.5rem;
 }

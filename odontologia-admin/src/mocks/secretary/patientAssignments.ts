@@ -1,81 +1,43 @@
 // src/mocks/secretary/patientAssignments.ts
-
-/**
- * Representa la asignación de un paciente a un estudiante
- */
 export interface PatientAssignment {
-  /** Identificador único de la asignación */
   id: number;
-  /** ID del estudiante al que se asigna el paciente */
-  studentId: number;
-  /** ID del paciente asignado */
-  patientId: number;
-  /** Fecha y hora de la asignación en formato ISO8601 (YYYY-MM-DDThh:mm) */
-  assignedAt: string;
-  /** Notas o comentarios adicionales */
-  notes?: string;
+  pacienteId: number;
+  estudianteId: number;
+  fechaAsignacion: string;
+  notas?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
-// Simulamos una base de datos en memoria
-const _assignmentsDB: PatientAssignment[] = [
+export const mockPatientAssignments: PatientAssignment[] = [
   {
     id: 1,
-    studentId: 101,
-    patientId: 201,
-    assignedAt: '2025-07-15T09:30',
-    notes: 'Revisión inicial odontológica.'
-  },
-  {
-    id: 2,
-    studentId: 102,
-    patientId: 202,
-    assignedAt: '2025-07-15T11:00',
-    notes: ''
-  },
-  // …otros registros de ejemplo…
+    pacienteId: 1,
+    estudianteId: 2,
+    fechaAsignacion: '2025-07-18',
+    notas: 'Paciente asignado para caso clínico 1',
+    createdAt: '2025-07-18',
+    updatedAt: '2025-07-18',
+  }
 ];
 
-/** Retardo auxiliar para simular latencia */
-function delay(ms: number) {
-  return new Promise<void>(resolve => setTimeout(resolve, ms));
-}
-
-/**
- * Devuelve todas las asignaciones actuales.
- */
 export async function fetchPatientAssignmentsMock(): Promise<PatientAssignment[]> {
-  await delay(200);
-  // Devolvemos copias para evitar mutaciones exteriores
-  return _assignmentsDB.map(a => ({ ...a }));
+  await new Promise(resolve => setTimeout(resolve, 200));
+  return mockPatientAssignments;
 }
 
-/**
- * Crea o actualiza una asignación.
- */
-export async function savePatientAssignmentMock(
-  assignment: PatientAssignment
-): Promise<PatientAssignment> {
-  await delay(200);
-  const idx = _assignmentsDB.findIndex(a => a.id === assignment.id);
-  if (idx >= 0) {
-    // Actualizar existente
-    _assignmentsDB[idx] = { ...assignment };
+export async function savePatientAssignmentMock(a: PatientAssignment): Promise<void> {
+  const index = mockPatientAssignments.findIndex(pa => pa.id === a.id);
+  if (index >= 0) {
+    mockPatientAssignments[index] = a;
   } else {
-    // Asignar nuevo ID incremental
-    const nextId = Math.max(0, ..._assignmentsDB.map(a => a.id)) + 1;
-    _assignmentsDB.push({ ...assignment, id: nextId });
-    assignment.id = nextId;
+    mockPatientAssignments.push({ ...a, id: Date.now() });
   }
-  return { ...assignment };
 }
 
-/**
- * Elimina una asignación por su ID.
- */
 export async function deletePatientAssignmentMock(id: number): Promise<void> {
-  await delay(200);
-  const idx = _assignmentsDB.findIndex(a => a.id === id);
-  if (idx >= 0) {
-    _assignmentsDB.splice(idx, 1);
+  const index = mockPatientAssignments.findIndex(a => a.id === id);
+  if (index >= 0) {
+    mockPatientAssignments.splice(index, 1);
   }
 }

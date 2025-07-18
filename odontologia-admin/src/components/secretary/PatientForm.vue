@@ -1,4 +1,4 @@
-<!-- Página: Gestión de Pacientes -->
+<!-- src/components/secretary/PatientForm.vue -->
 <template>
   <form @submit.prevent="submitForm" class="patient-form">
     <div class="row">
@@ -31,42 +31,21 @@
         <input v-model="form.tipoSangre" type="text" class="form-control" />
       </div>
 
-      <!-- Condiciones -->
       <div class="col-md-6 mb-3">
         <label>Condiciones</label>
-        <input
-          v-model="form.condicionesString"
-          type="text"
-          class="form-control"
-          placeholder="Ej: diabetes, hipertensión"
-        />
+        <input v-model="form.condicionesString" type="text" class="form-control" placeholder="Ej: diabetes, hipertensión" />
       </div>
       <div class="col-md-6 mb-3">
         <label>Enfermedades</label>
-        <input
-          v-model="form.enfermedadesString"
-          type="text"
-          class="form-control"
-          placeholder="Separadas por coma"
-        />
+        <input v-model="form.enfermedadesString" type="text" class="form-control" placeholder="Separadas por coma" />
       </div>
       <div class="col-md-6 mb-3">
         <label>Medicamentos</label>
-        <input
-          v-model="form.medicamentosString"
-          type="text"
-          class="form-control"
-          placeholder="Separados por coma"
-        />
+        <input v-model="form.medicamentosString" type="text" class="form-control" placeholder="Separados por coma" />
       </div>
       <div class="col-md-6 mb-3">
         <label>Alergias</label>
-        <input
-          v-model="form.alergiasString"
-          type="text"
-          class="form-control"
-          placeholder="Separadas por coma"
-        />
+        <input v-model="form.alergiasString" type="text" class="form-control" placeholder="Separadas por coma" />
       </div>
     </div>
 
@@ -78,13 +57,14 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, watch, toRefs } from 'vue';
+import { reactive, watch } from 'vue'
 
 const props = defineProps<{
   modelValue: any;
   editMode: boolean;
-}>();
-const emit = defineEmits(['save', 'cancel']);
+}>()
+
+const emit = defineEmits(['save', 'cancel'])
 
 const form = reactive({
   id: undefined,
@@ -99,20 +79,16 @@ const form = reactive({
   enfermedadesString: '',
   medicamentosString: '',
   alergiasString: '',
-});
+})
 
-watch(
-  () => props.modelValue,
-  (val) => {
-    Object.assign(form, val, {
-      condicionesString: (val?.condiciones || []).join(', '),
-      enfermedadesString: (val?.enfermedades || []).join(', '),
-      medicamentosString: (val?.medicamentos || []).join(', '),
-      alergiasString: (val?.alergias || []).join(', '),
-    });
-  },
-  { immediate: true }
-);
+watch(() => props.modelValue, val => {
+  Object.assign(form, val, {
+    condicionesString: (val?.condiciones || []).join(', '),
+    enfermedadesString: (val?.enfermedades || []).join(', '),
+    medicamentosString: (val?.medicamentos || []).join(', '),
+    alergiasString: (val?.alergias || []).join(', ')
+  })
+}, { immediate: true })
 
 function submitForm() {
   const payload = {
@@ -123,9 +99,9 @@ function submitForm() {
     alergias: form.alergiasString.split(',').map(s => s.trim()).filter(Boolean),
     createdAt: props.modelValue?.createdAt || new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-  };
+  }
 
-  emit('save', payload);
+  emit('save', payload)
 }
 </script>
 

@@ -1,144 +1,123 @@
 // src/store/secretary.ts
-
 import { defineStore } from 'pinia';
-import type { PatientAssignment } from '../mocks/api';
-import type { Appointment } from '../mocks/api';
-import type { Patient } from '../mocks/api';
-
+import { ref } from 'vue';
 import {
-  fetchPatientAssignmentsMock,
-  savePatientAssignmentMock,
-  deletePatientAssignmentMock,
+  fetchPatientsMock,
+  savePatientMock,
+  deletePatientMock,
   fetchAppointmentsMock,
   saveAppointmentMock,
   deleteAppointmentMock,
-  fetchPatientsMock,
-  savePatientMock,
-  deletePatientMock
-} from '../mocks/api';
+  fetchStudentsByCourseMock,
+  fetchHistoriesMock,
+  saveHistoryMock
+} from '@/mocks/api';
 
-export const useSecretaryStore = defineStore('secretary', {
-  state: () => ({
-    patients: [] as Patient[],
-    patientAssignments: [] as PatientAssignment[],
-    appointments: [] as Appointment[],
-    loading: false,
-    error: '' as string
-  }),
+import type {
+  Patient,
+  Appointment,
+  StudentInfo,
+  ClinicalHistory
+} from '@/mocks/api';
 
-  actions: {
-    // -----------------------------
-    // PACIENTES
-    // -----------------------------
-    async loadPatients() {
-      this.loading = true;
-      try {
-        this.patients = await fetchPatientsMock();
-      } catch (err: any) {
-        this.error = err.message;
-      } finally {
-        this.loading = false;
-      }
-    },
+export const useSecretaryStore = defineStore('secretary', () => {
+  // ----------------------------
+  // Estado: pacientes
+  // ----------------------------
+  const patients = ref<Patient[]>([]);
 
-    async savePatient(p: Patient) {
-      this.loading = true;
-      try {
-        await savePatientMock(p);
-        await this.loadPatients();
-      } catch (err: any) {
-        this.error = err.message;
-      } finally {
-        this.loading = false;
-      }
-    },
+  async function loadPatients() {
+    patients.value = await fetchPatientsMock();
+  }
 
-    async deletePatient(id: number) {
-      this.loading = true;
-      try {
-        await deletePatientMock(id);
-        await this.loadPatients();
-      } catch (err: any) {
-        this.error = err.message;
-      } finally {
-        this.loading = false;
-      }
-    },
-
-    // -----------------------------
-    // ASIGNACIÓN DE PACIENTES
-    // -----------------------------
-    async loadPatientAssignments() {
-      this.loading = true;
-      try {
-        this.patientAssignments = await fetchPatientAssignmentsMock();
-      } catch (err: any) {
-        this.error = err.message;
-      } finally {
-        this.loading = false;
-      }
-    },
-
-    async savePatientAssignment(a: PatientAssignment) {
-      this.loading = true;
-      try {
-        await savePatientAssignmentMock(a);
-        await this.loadPatientAssignments();
-      } catch (err: any) {
-        this.error = err.message;
-      } finally {
-        this.loading = false;
-      }
-    },
-
-    async deletePatientAssignment(id: number) {
-      this.loading = true;
-      try {
-        await deletePatientAssignmentMock(id);
-        await this.loadPatientAssignments();
-      } catch (err: any) {
-        this.error = err.message;
-      } finally {
-        this.loading = false;
-      }
-    },
-
-    // -----------------------------
-    // CITAS MÉDICAS
-    // -----------------------------
-    async loadAppointments() {
-      this.loading = true;
-      try {
-        this.appointments = await fetchAppointmentsMock();
-      } catch (err: any) {
-        this.error = err.message;
-      } finally {
-        this.loading = false;
-      }
-    },
-
-    async saveAppointment(a: Appointment) {
-      this.loading = true;
-      try {
-        await saveAppointmentMock(a);
-        await this.loadAppointments();
-      } catch (err: any) {
-        this.error = err.message;
-      } finally {
-        this.loading = false;
-      }
-    },
-
-    async deleteAppointment(id: number) {
-      this.loading = true;
-      try {
-        await deleteAppointmentMock(id);
-        await this.loadAppointments();
-      } catch (err: any) {
-        this.error = err.message;
-      } finally {
-        this.loading = false;
-      }
+  async function savePatient(p: Patient) {
+    const saved = await savePatientMock(p);
+    const index = patients.value.findIndex(x => x.id === saved.id);
+    if (index >= 0) {
+      patients.value[index] = saved;
+    } else {
+      patients.value.push(saved);
     }
   }
+
+  async function deletePatient(id: number) {
+    await deletePatientMock(id);
+    patients.value = patients.value.filter(p => p.id !== id);
+  }
+
+  // ----------------------------
+  // Estado: citas
+  // ----------------------------
+  const appointments = ref<Appointment[]>([]);
+
+  async function loadAppointments() {
+    appointments.value = await fetchAppointmentsMock();
+  }
+
+  async function addAppointment(a: Appointment) {
+    const saved = await saveAppointmentMock(a);
+    const index = appointments.value.findIndex(x => x.id === saved.id);
+    if (index >= 0) {
+      appointments.value[index] = saved;
+    } else {
+      appointments.value.push(saved);
+    }
+  }
+
+  async function deleteAppointment(id: number) {
+    await deleteAppointmentMock(id);
+    appointments.value = appointments.value.filter(a => a.id !== id);
+  }
+
+  // ----------------------------
+  // Estado: estudiantes
+  // ----------------------------
+  const students = ref<StudentInfo[]>([]);
+
+  async function loadStudents(course: string = 'Odontología') {
+    students.value = await fetchStudentsByCourseMock(course);
+  }
+
+  // ----------------------------
+  // Estado: historias médicas (cuestionario)
+  // ----------------------------
+  const medicalHistories = ref<ClinicalHistory[]>([]);
+
+  async function loadMedicalHistories() {
+    medicalHistories.value = await fetchHistoriesMock();
+  }
+
+  async function addMedicalHistory(history: ClinicalHistory) {
+    const saved = await saveHistoryMock(history);
+    medicalHistories.value.push(saved);
+  }
+
+  // ----------------------------
+  // Carga completa
+  // ----------------------------
+  async function loadAllData() {
+    await Promise.all([
+      loadPatients(),
+      loadAppointments(),
+      loadStudents(),
+      loadMedicalHistories()
+    ]);
+  }
+
+  return {
+    patients,
+    appointments,
+    students,
+    medicalHistories,
+    loadPatients,
+    savePatient,
+    deletePatient,
+    loadAppointments,
+    addAppointment,
+    deleteAppointment,
+    loadStudents,
+    loadMedicalHistories,
+    addMedicalHistory,
+    loadAllData
+  };
 });

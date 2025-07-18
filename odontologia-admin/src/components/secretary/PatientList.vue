@@ -1,4 +1,4 @@
-<!-- Página: Gestión de Pacientes -->
+<!-- src/components/secretary/PatientList.vue -->
 <template>
   <div class="patient-list">
     <table class="table table-hover">
@@ -33,8 +33,8 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{ patients: any[] }>();
-defineEmits(['edit']);
+defineProps<{ patients: any[] }>()
+defineEmits(['edit'])
 </script>
 
 <style scoped src="@/assets/css/pages/secretary/PatientList.css"></style>

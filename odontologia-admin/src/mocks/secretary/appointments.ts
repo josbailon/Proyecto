@@ -1,49 +1,49 @@
 // src/mocks/secretary/appointments.ts
 
-import type { Appointment } from '../../mocks/api';
+export interface Appointment {
+  id: number;
+  pacienteId: number;
+  estudianteId: number;
+  fecha: string; // formato ISO: '2025-07-18T10:30'
+  hora: string;  // formato 'HH:mm'
+  notas?: string;
+  estado: 'pendiente' | 'confirmada' | 'cancelada';
+  createdAt: string;
+  updatedAt: string;
+}
 
-/**
- * Lista simulada de citas médicas para pruebas en el sistema.
- */
-export const sampleAppointments: Appointment[] = [
+export const appointments: Appointment[] = [
   {
     id: 1,
-    studentId: 2,
-    patientId: 101,
-    datetime: '2025-07-20T08:30:00Z',
-    status: 'pendiente',
-    notes: 'Primera evaluación general del paciente'
+    pacienteId: 101,
+    estudianteId: 201,
+    fecha: '2025-07-20',
+    hora: '10:00',
+    notas: 'Primera consulta de evaluación.',
+    estado: 'pendiente',
+    createdAt: '2025-07-15T09:00:00',
+    updatedAt: '2025-07-15T09:00:00',
   },
   {
     id: 2,
-    studentId: 2,
-    patientId: 102,
-    datetime: '2025-07-21T10:00:00Z',
-    status: 'confirmada',
-    notes: 'Control de ortodoncia'
+    pacienteId: 102,
+    estudianteId: 202,
+    fecha: '2025-07-21',
+    hora: '14:30',
+    notas: 'Seguimiento de tratamiento de ortodoncia.',
+    estado: 'confirmada',
+    createdAt: '2025-07-15T09:30:00',
+    updatedAt: '2025-07-16T10:15:00',
   },
   {
     id: 3,
-    studentId: 3,
-    patientId: 103,
-    datetime: '2025-07-22T14:00:00Z',
-    status: 'cancelada',
-    notes: 'Paciente no asistió a la cita'
-  },
-  {
-    id: 4,
-    studentId: 4,
-    patientId: 104,
-    datetime: '2025-07-23T09:45:00Z',
-    status: 'pendiente',
-    notes: 'Evaluación para tratamiento de endodoncia'
-  },
-  {
-    id: 5,
-    studentId: 3,
-    patientId: 105,
-    datetime: '2025-07-24T11:15:00Z',
-    status: 'confirmada',
-    notes: 'Revisión post-tratamiento'
+    pacienteId: 103,
+    estudianteId: 203,
+    fecha: '2025-07-22',
+    hora: '09:00',
+    notas: 'Consulta cancelada por el paciente.',
+    estado: 'cancelada',
+    createdAt: '2025-07-15T10:00:00',
+    updatedAt: '2025-07-17T08:00:00',
   }
-];
+]
