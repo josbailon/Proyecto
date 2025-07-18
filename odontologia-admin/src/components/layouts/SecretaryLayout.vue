@@ -49,6 +49,12 @@ const menuItems = [
     label: 'Agenda Semanal',
     icon: 'fas fa-calendar-alt',
     to: '/secretary/schedule'
+  },
+  {
+    name: 'MedicalScreening',
+    label: 'Cuestionario Médico',
+    icon: 'fas fa-notes-medical',
+    to: '/secretary/screening'
   }
 ]
 </script>

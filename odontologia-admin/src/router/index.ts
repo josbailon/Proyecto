@@ -31,7 +31,8 @@ const StudentProgress       = () => import('@/views/professor/StudentProgressVie
 const SecretaryDashboard   = () => import('@/views/secretary/SecretaryDashboardView.vue')
 const PatientAssignment    = () => import('@/views/secretary/PatientAssignmentView.vue')
 const WeeklySchedule       = () => import('@/views/secretary/WeeklyScheduleView.vue')
-const PatientManagement    = () => import('@/views/secretary/PatientManagementView.vue') // NUEVO
+const PatientManagement    = () => import('@/views/secretary/PatientManagementView.vue')
+const MedicalScreening     = () => import('@/views/secretary/MedicalScreeningView.vue') // ✅ CORREGIDO
 
 // 👨‍🎓 Estudiante
 const StudentDashboard  = () => import('@/views/student/DashboardView.vue')
@@ -45,6 +46,7 @@ const StudentResources  = () => import('@/views/student/ResourcesView.vue')
 // -------------------------
 // Definición de rutas
 // -------------------------
+
 const routes: RouteRecordRaw[] = [
   { path: '/', redirect: '/login' },
 
@@ -76,7 +78,7 @@ const routes: RouteRecordRaw[] = [
     ]
   },
 
-  // Secretario
+  // Secretaría
   {
     path: '/secretary',
     component: SecretaryLayout,
@@ -85,7 +87,8 @@ const routes: RouteRecordRaw[] = [
       { path: '', name: 'SecretaryDashboard', component: SecretaryDashboard },
       { path: 'patients', name: 'PatientAssignment', component: PatientAssignment },
       { path: 'schedule', name: 'WeeklySchedule', component: WeeklySchedule },
-      { path: 'management', name: 'PatientManagement', component: PatientManagement }
+      { path: 'management', name: 'PatientManagement', component: PatientManagement },
+      { path: 'screening', name: 'MedicalScreening', component: MedicalScreening }, // ✅ Vista correcta
     ]
   },
 
@@ -112,6 +115,7 @@ const routes: RouteRecordRaw[] = [
 // -------------------------
 // Instancia del router
 // -------------------------
+
 const router = createRouter({
   history: createWebHistory(),
   routes,
@@ -121,6 +125,7 @@ const router = createRouter({
 // -------------------------
 // Protección por autenticación y rol
 // -------------------------
+
 router.beforeEach((to, _from, next) => {
   const raw = localStorage.getItem('user')
   const user: { role: Role } | null = raw ? JSON.parse(raw) : null

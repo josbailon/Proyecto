@@ -1,7 +1,8 @@
 <template>
-  <div class="medical-form">
+  <section class="medical-screening container">
     <h2>Cuestionario de Tamizaje Médico</h2>
-    <form @submit.prevent="submitForm">
+    <form @submit.prevent="submitForm" class="form-container">
+      <!-- Paciente -->
       <div class="form-group">
         <label for="paciente">Paciente:</label>
         <select v-model="form.patientId" required>
@@ -12,36 +13,45 @@
         </select>
       </div>
 
+      <!-- Enfermedades -->
       <div class="form-group">
         <label>Enfermedades:</label>
-        <input v-model="enfermedad" @keyup.enter.prevent="addEnfermedad" placeholder="Presione Enter para agregar" />
+        <div class="input-inline">
+          <input v-model="enfermedad" @keyup.enter.prevent="addEnfermedad" placeholder="Presione Enter para agregar" />
+        </div>
         <ul>
           <li v-for="(item, index) in form.enfermedades" :key="index">
-            {{ item }} <button @click.prevent="removeEnfermedad(index)">✖</button>
+            {{ item }}
+            <button type="button" @click="removeEnfermedad(index)">✖</button>
           </li>
         </ul>
       </div>
 
+      <!-- Medicamentos -->
       <div class="form-group">
         <label>Medicamentos:</label>
         <input v-model="medicamento" @keyup.enter.prevent="addMedicamento" placeholder="Presione Enter para agregar" />
         <ul>
           <li v-for="(item, index) in form.medicamentos" :key="index">
-            {{ item }} <button @click.prevent="removeMedicamento(index)">✖</button>
+            {{ item }}
+            <button type="button" @click="removeMedicamento(index)">✖</button>
           </li>
         </ul>
       </div>
 
+      <!-- Alergias -->
       <div class="form-group">
         <label>Alergias:</label>
         <input v-model="alergia" @keyup.enter.prevent="addAlergia" placeholder="Presione Enter para agregar" />
         <ul>
           <li v-for="(item, index) in form.alergias" :key="index">
-            {{ item }} <button @click.prevent="removeAlergia(index)">✖</button>
+            {{ item }}
+            <button type="button" @click="removeAlergia(index)">✖</button>
           </li>
         </ul>
       </div>
 
+      <!-- Tipo de Sangre -->
       <div class="form-group">
         <label>Tipo de Sangre:</label>
         <select v-model="form.tipoSangre" required>
@@ -57,19 +67,24 @@
         </select>
       </div>
 
+      <!-- Condiciones Sistémicas -->
       <div class="form-group">
         <label>Condiciones Sistémicas:</label>
         <input v-model="condicion" @keyup.enter.prevent="addCondicion" placeholder="Presione Enter para agregar" />
         <ul>
           <li v-for="(item, index) in form.condiciones" :key="index">
-            {{ item }} <button @click.prevent="removeCondicion(index)">✖</button>
+            {{ item }}
+            <button type="button" @click="removeCondicion(index)">✖</button>
           </li>
         </ul>
       </div>
 
-      <button type="submit">Guardar Historia Médica</button>
+      <!-- Botón de guardar -->
+      <div class="form-actions">
+        <button type="submit">💾 Guardar Historia Médica</button>
+      </div>
     </form>
-  </div>
+  </section>
 </template>
 
 <script lang="ts" setup>
@@ -97,10 +112,10 @@ const medicamento = ref('');
 const alergia = ref('');
 const condicion = ref('');
 
-// Métodos para añadir y eliminar elementos
+// Métodos para añadir y eliminar
 function addEnfermedad() {
-  if (enfermedad.value) {
-    form.value.enfermedades.push(enfermedad.value);
+  if (enfermedad.value.trim()) {
+    form.value.enfermedades.push(enfermedad.value.trim());
     enfermedad.value = '';
   }
 }
@@ -109,8 +124,8 @@ function removeEnfermedad(index: number) {
 }
 
 function addMedicamento() {
-  if (medicamento.value) {
-    form.value.medicamentos.push(medicamento.value);
+  if (medicamento.value.trim()) {
+    form.value.medicamentos.push(medicamento.value.trim());
     medicamento.value = '';
   }
 }
@@ -119,8 +134,8 @@ function removeMedicamento(index: number) {
 }
 
 function addAlergia() {
-  if (alergia.value) {
-    form.value.alergias.push(alergia.value);
+  if (alergia.value.trim()) {
+    form.value.alergias.push(alergia.value.trim());
     alergia.value = '';
   }
 }
@@ -129,8 +144,8 @@ function removeAlergia(index: number) {
 }
 
 function addCondicion() {
-  if (condicion.value) {
-    form.value.condiciones.push(condicion.value);
+  if (condicion.value.trim()) {
+    form.value.condiciones.push(condicion.value.trim());
     condicion.value = '';
   }
 }
@@ -143,7 +158,7 @@ function submitForm() {
   form.value.createdAt = new Date().toISOString();
   form.value.updatedAt = new Date().toISOString();
   secretary.addOrUpdateHistory({ ...form.value });
-  alert('Historia médica registrada correctamente');
+  alert('✅ Historia médica registrada correctamente');
   resetForm();
 }
 
@@ -163,53 +178,59 @@ function resetForm() {
 </script>
 
 <style scoped>
-.medical-form {
-  max-width: 600px;
+.medical-screening {
+  max-width: 700px;
   margin: auto;
-  background: #ffffff;z
-  padding: 1.5rem;
-  border-radius: 8px;
+  background: #fff;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
-
 h2 {
   text-align: center;
   margin-bottom: 1.5rem;
+  color: #2c3e50;
 }
-
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
 .form-group {
-  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
 }
-
-label {
-  font-weight: bold;
-  display: block;
-  margin-bottom: 0.5rem;
-}
-
-input,
-select,
-textarea {
-  width: 100%;
-  padding: 0.5rem;
-  border-radius: 4px;
+input, select, textarea {
+  padding: 0.6rem;
+  border-radius: 6px;
   border: 1px solid #ccc;
 }
-
 ul {
-  padding-left: 1rem;
+  margin-top: 0.5rem;
+  padding-left: 1.2rem;
 }
-
 ul li {
-  list-style: disc;
+  list-style-type: disc;
   margin-bottom: 0.3rem;
 }
-
-button {
+ul li button {
+  margin-left: 0.5rem;
+  background-color: transparent;
+  border: none;
+  color: #d9534f;
+  cursor: pointer;
+}
+button[type="submit"] {
+  align-self: center;
+  padding: 0.7rem 1.5rem;
   background-color: #007bff;
   color: white;
-  padding: 0.6rem 1rem;
+  font-weight: bold;
   border: none;
-  border-radius: 5px;
+  border-radius: 6px;
   cursor: pointer;
+}
+button[type="submit"]:hover {
+  background-color: #0056b3;
 }
 </style>
