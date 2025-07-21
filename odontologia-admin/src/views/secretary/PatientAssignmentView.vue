@@ -1,3 +1,4 @@
+<!-- odontologia-admin/src/views/secretary/PatientAssignmentView.vue -->
 <template>
   <section class="patient-assignment container py-4">
     <h2>Asignación de Pacientes</h2>

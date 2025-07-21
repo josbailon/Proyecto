@@ -1,3 +1,4 @@
+<!--src/components/secretary/WeeklyScheduleTable.vue-->
 <template>
   <div class="weekly-schedule-table">
     <h2>Agenda Semanal</h2>

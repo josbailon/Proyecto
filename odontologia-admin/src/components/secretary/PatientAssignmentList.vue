@@ -1,3 +1,4 @@
+<!--src/components/secretary/PatientAssignmentList.vue-->
 <template>
   <div class="assignment-list">
     <h2>Listado de Asignaciones</h2>

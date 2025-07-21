@@ -1,3 +1,4 @@
+// odontologia-admin/src/mocks/secretary/patientAssignments.ts
 export interface PatientAssignment {
   id: number;
   pacienteId: number;

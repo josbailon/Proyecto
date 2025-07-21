@@ -1,3 +1,4 @@
+// odontologia-admin/src/mocks/secretary/medicalHistories.ts
 export interface MedicalHistory {
   id: number;
   patientId: number;

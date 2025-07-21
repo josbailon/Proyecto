@@ -1,3 +1,4 @@
+<!--src/components/layouts/SecretaryLayout.vue-->
 <template>
   <div class="secretary-layout d-flex">
     <!-- Sidebar con props -->

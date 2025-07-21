@@ -1,3 +1,4 @@
+<!-- odontologia-admin/src/views/secretary/PatientManagementView.vue -->
 <template>
   <div class="patient-management-view">
     <div class="tabs">

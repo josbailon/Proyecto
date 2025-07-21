@@ -1,3 +1,4 @@
+// odontologia-admin/src/store/secretary.ts
 import { defineStore } from 'pinia';
 
 // Mocks y tipos

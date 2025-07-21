@@ -1,3 +1,4 @@
+<!--src/components/secretary/AppointmentForm.vue-->
 <template>
   <div class="appointment-form">
     <h2>Agendar Cita</h2>

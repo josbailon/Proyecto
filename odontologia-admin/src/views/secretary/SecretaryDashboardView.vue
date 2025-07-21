@@ -1,4 +1,4 @@
-<!-- SecretaryDashboardView.vue -->
+<!--src/views/secretary/SecretaryDashboardView.vue-->
 <template>
   <div class="secretary-dashboard-view">
     <SecretaryDashboard />
