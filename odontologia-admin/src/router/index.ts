@@ -28,6 +28,7 @@ const ProfessorProfile      = () => import('@/views/professor/ProfileView.vue')
 const StudentProgress       = () => import('@/views/professor/StudentProgressView.vue')
 
 // ✍️ Secretaría
+const AffiliationView       = () => import('@/views/secretary/AffiliationView.vue')
 const SecretaryDashboard   = () => import('@/views/secretary/SecretaryDashboardView.vue')
 const PatientAssignment    = () => import('@/views/secretary/PatientAssignmentView.vue')
 const WeeklySchedule       = () => import('@/views/secretary/WeeklyScheduleView.vue')
@@ -89,6 +90,7 @@ const routes: RouteRecordRaw[] = [
       { path: 'schedule', name: 'WeeklySchedule', component: WeeklySchedule },
       { path: 'management', name: 'PatientManagement', component: PatientManagement },
       { path: 'screening', name: 'MedicalScreening', component: MedicalScreening }, // ✅ Vista correcta
+      { path: 'affiliations', name: 'Affiliation', component: AffiliationView }
     ]
   },
 

@@ -56,7 +56,8 @@ const menuItems = [
     label: 'Cuestionario Médico',
     icon: 'fas fa-notes-medical',
     to: '/secretary/screening'
-  }
+  },
+   { name: 'Affiliation',          label: 'Afiliación',       icon: 'fas fa-id-card',      to: { name: 'Affiliation' } }
 ]
 </script>
 
