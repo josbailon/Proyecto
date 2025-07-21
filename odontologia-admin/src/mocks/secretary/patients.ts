@@ -1,9 +1,12 @@
 // src/mocks/secretary/patients.ts
 
+// --------------------------------------------------
+// Tipos y datos de pacientes (incluye afiliación)
+// --------------------------------------------------
 export interface Patient {
   id: number;
   nombre: string;
-  fechaNacimiento?: string; // ← AGREGADO
+  fechaNacimiento?: string;
   edad?: number;
   genero?: 'M' | 'F';
   cedula: string;
@@ -16,16 +19,26 @@ export interface Patient {
   alergias?: string[];
   tipoSangre?: string;
   condiciones?: string[];
+  // Datos de afiliación
+  numAfiliado?: string;
+  planAfiliacion?: string;
+  fechaInicioAfiliacion?: string;
+  fechaFinAfiliacion?: string;
+  // Tiempos de creación/actualización
   createdAt: string;
   updatedAt: string;
 }
 
-
+// --------------------------------------------------
+// Datos simulados iniciales
+// --------------------------------------------------
 export const mockPatients: Patient[] = [
   {
     id: 1,
     nombre: 'Carlos Martínez',
-    fechaNacimiento: '1990-05-15', // ← AGREGADO
+    fechaNacimiento: '1990-05-15',
+    edad: 35,
+    genero: 'M',
     cedula: '1304523123',
     canton: 'Manta',
     parroquia: 'Tarqui',
@@ -36,32 +49,53 @@ export const mockPatients: Patient[] = [
     alergias: ['Penicilina'],
     tipoSangre: 'O+',
     condiciones: ['Hipertensión'],
-    createdAt: '2025-07-01',
-    updatedAt: '2025-07-10',
+    numAfiliado: 'AF-2025001',
+    planAfiliacion: 'Plan Oro',
+    fechaInicioAfiliacion: '2024-01-01',
+    fechaFinAfiliacion: '2025-12-31',
+    createdAt: '2025-07-01T10:00:00Z',
+    updatedAt: '2025-07-10T12:00:00Z',
   }
-];
+]
 
-
-// Simula una llamada asíncrona para obtener pacientes
+// --------------------------------------------------
+// Funciones mock asíncronas
+// --------------------------------------------------
 export async function fetchPatientsMock(): Promise<Patient[]> {
-  await new Promise(resolve => setTimeout(resolve, 200));
-  return mockPatients;
+  // Simula latencia
+  await new Promise(resolve => setTimeout(resolve, 200))
+  return mockPatients
 }
 
-// Guarda (crea o edita) un paciente
-export async function savePatientMock(newPatient: Patient): Promise<void> {
-  const index = mockPatients.findIndex(p => p.id === newPatient.id);
-  if (index >= 0) {
-    mockPatients[index] = newPatient;
+export async function savePatientMock(newPatient: Patient): Promise<Patient> {
+  await new Promise(resolve => setTimeout(resolve, 200))
+  const now = new Date().toISOString()
+  const idx = mockPatients.findIndex(p => p.id === newPatient.id)
+
+  if (idx >= 0) {
+    // Actualiza paciente existente
+    mockPatients[idx] = { ...newPatient, updatedAt: now }
+    return mockPatients[idx]
   } else {
-    mockPatients.push({ ...newPatient, id: Date.now() });
+    // Crea nuevo paciente
+    const newId = mockPatients.length
+      ? Math.max(...mockPatients.map(p => p.id)) + 1
+      : 1
+    const patientToAdd: Patient = {
+      ...newPatient,
+      id: newId,
+      createdAt: newPatient.createdAt ?? now,
+      updatedAt: newPatient.updatedAt ?? now
+    }
+    mockPatients.push(patientToAdd)
+    return patientToAdd
   }
 }
 
-// Elimina un paciente por ID
 export async function deletePatientMock(id: number): Promise<void> {
-  const index = mockPatients.findIndex(p => p.id === id);
-  if (index >= 0) {
-    mockPatients.splice(index, 1);
+  await new Promise(resolve => setTimeout(resolve, 200))
+  const idx = mockPatients.findIndex(p => p.id === id)
+  if (idx >= 0) {
+    mockPatients.splice(idx, 1)
   }
 }

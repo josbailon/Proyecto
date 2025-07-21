@@ -1,215 +1,305 @@
-<!-- odontologia-admin/src/views/secretary/PatientAssignmentView.vue -->
+<!-- src/views/secretary/PatientAssignmentView.vue -->
 <template>
   <section class="patient-assignment container py-4">
-    <h2>Asignación de Pacientes</h2>
+    <h1 class="mb-4">Asignación de Pacientes</h1>
 
-    <div class="tabs-container">
-      <button :class="{ active: tab === 'list' }" @click="tab = 'list'">Listado</button>
-      <button :class="{ active: tab === 'form' }" @click="prepareNew">Nueva/Editar</button>
-    </div>
+    <!-- Pestañas -->
+    <ul class="nav nav-tabs mb-4">
+      <li class="nav-item">
+        <button
+          class="nav-link"
+          :class="{ active: tab === 'list' }"
+          @click="switchTab('list')"
+        >
+          Listado
+        </button>
+      </li>
+      <li class="nav-item">
+        <button
+          class="nav-link"
+          :class="{ active: tab === 'form' }"
+          @click="prepareForm()"
+        >
+          {{ editMode ? 'Editar Asignación' : 'Nueva Asignación' }}
+        </button>
+      </li>
+    </ul>
 
-    <div v-if="tab === 'list'" class="list-section">
-      <div class="filters">
-        <label>
-          Estado:
-          <select v-model="filterEstado">
-            <option value="Todas">Todas</option>
+    <!-- LISTADO -->
+    <div v-if="tab === 'list'">
+      <!-- Filtros -->
+      <div class="row g-3 mb-3">
+        <div class="col-md-4">
+          <label class="form-label">Estado</label>
+          <select class="form-select" v-model="filterEstado">
+            <option value="">Todos</option>
             <option value="asignado">Asignado</option>
             <option value="cancelado">Cancelado</option>
             <option value="finalizado">Finalizado</option>
           </select>
-        </label>
-        <label>
-          Estudiante ID:
-          <select v-model="filterEstudianteId">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Estudiante ID</label>
+          <select class="form-select" v-model.number="filterEstudianteId">
             <option :value="null">Todos</option>
             <option v-for="id in estudianteIds" :key="id" :value="id">
               {{ id }}
             </option>
           </select>
-        </label>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Buscar (notas)</label>
+          <input
+            type="text"
+            class="form-control"
+            v-model="searchText"
+            placeholder="Texto libre..."
+          />
+        </div>
       </div>
 
-      <table class="table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Estudiante</th>
-            <th>Paciente</th>
-            <th>Fecha</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="a in filteredAssignments" :key="a.id">
-            <td>{{ a.id }}</td>
-            <td>{{ a.estudianteId }}</td>
-            <td>{{ a.pacienteId }}</td>
-            <td>{{ a.fechaAsignacion }}</td>
-            <td>{{ a.estado }}</td>
-            <td>
-              <button @click="onEdit(a)">✏️</button>
-              <button class="btn-danger" @click="onDelete(a.id)">🗑️</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <!-- Tabla -->
+      <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle">
+          <thead class="table-dark">
+            <tr>
+              <th>ID</th>
+              <th>Estudiante</th>
+              <th>Paciente</th>
+              <th>Fecha</th>
+              <th>Estado</th>
+              <th>Notas</th>
+              <th class="text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="a in filteredAssignments" :key="a.id">
+              <td>{{ a.id }}</td>
+              <td>{{ a.estudianteId }}</td>
+              <td>{{ a.pacienteId }}</td>
+              <td>{{ a.fechaAsignacion }}</td>
+              <td>
+                <span :class="statusBadge(a.estado)">
+                  {{ a.estado }}
+                </span>
+              </td>
+              <td>{{ a.notas || '—' }}</td>
+              <td class="text-center">
+                <button
+                  class="btn btn-sm btn-primary me-1"
+                  @click="onEdit(a)"
+                  title="Editar"
+                >
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button
+                  class="btn btn-sm btn-danger"
+                  @click="onDelete(a.id)"
+                  title="Eliminar"
+                >
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+            <tr v-if="!filteredAssignments.length">
+              <td colspan="7" class="text-center text-muted py-4">
+                No hay asignaciones que mostrar.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
-    <div v-else class="form-section">
-      <form @submit.prevent="onSave">
-        <label>
-          Estudiante ID:
-          <input type="number" v-model="form.estudianteId" required />
-        </label>
-        <label>
-          Paciente ID:
-          <input type="number" v-model="form.pacienteId" required />
-        </label>
-        <label>
-          Fecha:
-          <input type="date" v-model="form.fechaAsignacion" required />
-        </label>
-        <label>
-          Estado:
-          <select v-model="form.estado" required>
-            <option value="asignado">asignado</option>
-            <option value="cancelado">cancelado</option>
-            <option value="finalizado">finalizado</option>
-          </select>
-        </label>
-        <label>
-          Notas:
-          <textarea v-model="form.notas"></textarea>
-        </label>
-        <div class="form-actions">
-          <button type="submit">{{ editMode ? 'Actualizar' : 'Guardar' }}</button>
-          <button type="button" @click="tab = 'list'">Cancelar</button>
+    <!-- FORMULARIO -->
+    <div v-else class="tab-content">
+      <div class="card mx-auto" style="max-width:600px;">
+        <div class="card-header">
+          {{ editMode ? 'Editar Asignación' : 'Registrar Asignación' }}
         </div>
-      </form>
+        <div class="card-body">
+          <form @submit.prevent="onSave" class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Estudiante ID</label>
+              <input
+                type="number"
+                class="form-control"
+                v-model.number="form.estudianteId"
+                required
+              />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Paciente ID</label>
+              <input
+                type="number"
+                class="form-control"
+                v-model.number="form.pacienteId"
+                required
+              />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Fecha</label>
+              <input
+                type="date"
+                class="form-control"
+                v-model="form.fechaAsignacion"
+                required
+              />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Estado</label>
+              <select class="form-select" v-model="form.estado" required>
+                <option value="asignado">Asignado</option>
+                <option value="cancelado">Cancelado</option>
+                <option value="finalizado">Finalizado</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Notas</label>
+              <textarea
+                class="form-control"
+                v-model="form.notas"
+                rows="2"
+              ></textarea>
+            </div>
+            <div class="col-12 d-flex justify-content-end mt-3">
+              <button
+                type="button"
+                class="btn btn-secondary me-2"
+                @click="switchTab('list')"
+              >
+                Cancelar
+              </button>
+              <button type="submit" class="btn btn-success">
+                {{ editMode ? 'Actualizar' : 'Guardar' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   </section>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import {
-  fetchPatientAssignmentsMock,
-  addPatientAssignmentMock,
-  updatePatientAssignmentMock,
-  deletePatientAssignmentMock
-} from '@/mocks/secretary/patientAssignments'
+import { useSecretaryStore } from '@/store/secretary'
+import type { PatientAssignment } from '@/mocks/secretary/patientAssignments'
 
-// local state
-const tab = ref('list')
-const assignments = ref([])
-const form = ref({})
+const store = useSecretaryStore()
+const tab = ref<'list' | 'form'>('list')
 const editMode = ref(false)
+const searchText = ref('')
+const filterEstado = ref<string>('')
+const filterEstudianteId = ref<number|null>(null)
 
-const filterEstado = ref('Todas')
-const filterEstudianteId = ref(null)
-
-const estudianteIds = computed(() => {
-  const ids = assignments.value.map(a => a.estudianteId)
-  return Array.from(new Set(ids))
+// Modelo del formulario
+const form = ref<Partial<PatientAssignment>>({
+  estudianteId: undefined,
+  pacienteId: undefined,
+  fechaAsignacion: '',
+  estado: 'asignado',
+  notas: ''
 })
 
-// load data
-async function load() {
-  assignments.value = await fetchPatientAssignmentsMock()
+// Carga inicial
+onMounted(async () => {
+  await Promise.all([ store.loadAssignments(), store.loadPatients() ])
+})
+
+// Cambiar pestaña
+function switchTab(t: 'list' | 'form') {
+  tab.value = t
 }
-onMounted(load)
 
-// list filtering
-const filteredAssignments = computed(() =>
-  assignments.value.filter(a =>
-    (filterEstado.value === 'Todas' || a.estado === filterEstado.value) &&
-    (filterEstudianteId.value === null || a.estudianteId === filterEstudianteId.value)
-  )
-)
-
-// actions
-function prepareNew() {
-  form.value = {}
+// Preparar formulario nuevo
+function prepareForm() {
   editMode.value = false
-  tab.value = 'form'
-}
-
-function onEdit(a) {
-  form.value = { ...a }
-  editMode.value = true
-  tab.value = 'form'
-}
-
-async function onSave() {
-  if (editMode.value) {
-    await updatePatientAssignmentMock(form.value)
-  } else {
-    await addPatientAssignmentMock({
-      ...form.value,
-      id: Date.now(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    })
+  form.value = {
+    estudianteId: undefined,
+    pacienteId: undefined,
+    fechaAsignacion: '',
+    estado: 'asignado',
+    notas: ''
   }
-  await load()
-  tab.value = 'list'
+  tab.value = 'form'
 }
 
-async function onDelete(id) {
-  if (confirm('¿Está seguro de eliminar esta asignación?')) {
-    await deletePatientAssignmentMock(id)
-    await load()
+// Editar existente
+function onEdit(a: PatientAssignment) {
+  editMode.value = true
+  form.value = { ...a }
+  tab.value = 'form'
+}
+
+// Eliminar
+async function onDelete(id: number) {
+  if (!confirm('¿Eliminar esta asignación?')) return
+  await store.removeAssignment(id)
+}
+
+// Guardar o actualizar
+async function onSave() {
+  const payload: PatientAssignment = {
+    id: form.value.id || Date.now(),
+    estudianteId: form.value.estudianteId!,
+    pacienteId: form.value.pacienteId!,
+    fechaAsignacion: form.value.fechaAsignacion!,
+    estado: form.value.estado as any,
+    notas: form.value.notas,
+    createdAt: (form.value.createdAt as string) || new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  }
+  await store.addOrUpdateAssignment(payload)
+  await store.loadAssignments()
+  switchTab('list')
+}
+
+// Filtrado lista
+const estudianteIds = computed(() => {
+  const ids = store.assignments.map(a => a.estudianteId)
+  return Array.from(new Set(ids))
+})
+const filteredAssignments = computed(() => {
+  return store.assignments.filter(a => {
+    const byEstado = filterEstado.value ? a.estado === filterEstado.value : true
+    const byEst = filterEstudianteId.value != null
+      ? a.estudianteId === filterEstudianteId.value
+      : true
+    const bySearch = searchText.value
+      ? (a.notas || '').toLowerCase().includes(searchText.value.toLowerCase())
+      : true
+    return byEstado && byEst && bySearch
+  })
+})
+
+// Badge de estado
+function statusBadge(status: string) {
+  switch (status) {
+    case 'asignado':   return 'badge bg-success'
+    case 'cancelado':  return 'badge bg-warning text-dark'
+    case 'finalizado': return 'badge bg-secondary'
+    default:           return 'badge bg-light text-dark'
   }
 }
 </script>
 
 <style scoped>
-.patient-assignment {
-  max-width: 800px;
-  margin: auto;
-  padding: 1rem;
+.patient-assignment h1 {
+  color: #153b50;
 }
-.tabs-container button {
-  margin-right: 0.5rem;
-  padding: 0.5rem 1rem;
-  border: none;
-  background: #ddd;
-}
-.tabs-container button.active {
-  background: #aaa;
-  color: white;
-}
-.filters {
-  margin-bottom: 1rem;
-  display: flex;
-  gap: 1rem;
-}
-.table {
-  width: 100%;
-  border-collapse: collapse;
-}
-.table th, .table td {
-  border: 1px solid #ccc;
-  padding: 0.5rem;
-}
-.btn-danger {
-  background: #d9534f;
-  color: #fff;
-  border: none;
-  padding: 0.3rem 0.6rem;
+.nav-tabs .nav-link {
   cursor: pointer;
 }
-.form-section form {
-  display: grid;
-  gap: 0.8rem;
+.nav-tabs .nav-link.active {
+  background-color: #0d6efd;
+  color: #fff;
 }
-.form-actions {
-  margin-top: 1rem;
+.tab-content {
+  animation: fadeIn .3s ease-in-out;
 }
-.form-actions button {
-  margin-right: 0.5rem;
-  padding: 0.5rem 1rem;
+@keyframes fadeIn {
+  from { opacity: 0 }
+  to   { opacity: 1 }
 }
 </style>
