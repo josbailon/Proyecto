@@ -3,14 +3,14 @@
 // --------------------------------------------------
 // Utility: simulación de latencia en las llamadas
 // --------------------------------------------------
-export function delay(ms = 300): Promise<void> {
+export function delay(ms: number = 300): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 // --------------------------------------------------
 // Tipos compartidos
 // --------------------------------------------------
-export type Role = 'admin' | 'estudiante' | 'profesor' | 'secretario';
+export type Role = 'admin' | 'estudiante' | 'profesor' | 'secretario' | 'paciente';
 
 export interface User {
   id: number;
@@ -20,16 +20,18 @@ export interface User {
   role: Role;
   especialidad?: string;   // solo para profes y estudiantes
   historial?: string;      // solo para pacientes, si se modelan
+  activo: boolean;         // indica si la cuenta está activa
 }
 
 // --------------------------------------------------
 // Datos iniciales: usuarios
 // --------------------------------------------------
 export const initialUsers: User[] = [
-  { id: 1, nombre: 'Admin Uno',         email: 'admin@uleam.com',      password: 'admin123',     role: 'admin'      },
-  { id: 2, nombre: 'Estudiante Pérez',  email: 'estudiante@uleam.com', password: 'est123',       role: 'estudiante', especialidad: 'Ortodoncia' },
-  { id: 3, nombre: 'Profesor López',    email: 'profesor@uleam.com',   password: 'prof123',      role: 'profesor',  especialidad: 'Endodoncia'  },
-  { id: 4, nombre: 'Secretario Cruz',   email: 'secretario@uleam.com', password: 'sec123',       role: 'secretario' },
+  { id: 1, nombre: 'Admin Uno',         email: 'admin@uleam.com',      password: 'admin123',     role: 'admin',     activo: true },
+  { id: 2, nombre: 'Estudiante Pérez',  email: 'estudiante@uleam.com', password: 'est123',       role: 'estudiante', especialidad: 'Ortodoncia', activo: true },
+  { id: 3, nombre: 'Profesor López',    email: 'profesor@uleam.com',   password: 'prof123',      role: 'profesor',  especialidad: 'Endodoncia', activo: true },
+  { id: 4, nombre: 'Secretario Cruz',   email: 'secretario@uleam.com', password: 'sec123',       role: 'secretario', activo: true },
+  { id: 5, nombre: 'Paciente Ruiz',     email: 'paciente@uleam.com',   password: 'pac123',       role: 'paciente',  historial: 'Sin antecedentes relevantes', activo: true }
 ];
 
 // --------------------------------------------------
@@ -63,9 +65,7 @@ export async function saveUserMock(user: User): Promise<User> {
   if (idx >= 0) {
     initialUsers[idx] = { ...user };
   } else {
-    const newId = initialUsers.length
-      ? Math.max(...initialUsers.map(u => u.id)) + 1
-      : 1;
+    const newId = initialUsers.length ? Math.max(...initialUsers.map(u => u.id)) + 1 : 1;
     user.id = newId;
     initialUsers.push({ ...user });
   }
@@ -212,9 +212,9 @@ export async function deleteAssignmentMock(id: number): Promise<void> {
 export interface Message {
   id: number;
   from: string;
-  to: string;
-  content: string;
-  timestamp: string;
+ 	to: string;
+ 	content: string;
+ 	timestamp: string;
 }
 
 let messages: Message[] = [];
@@ -228,13 +228,8 @@ export async function fetchMessagesMock(withUser: string): Promise<Message[]> {
 /** Envía un mensaje nuevo */
 export async function sendMessageMock(msg: Omit<Message, 'id' | 'timestamp'>): Promise<void> {
   await delay();
-  messages.push({
-    ...msg,
-    id: messages.length + 1,
-    timestamp: new Date().toISOString()
-  });
+  messages.push({ ...msg, id: messages.length + 1, timestamp: new Date().toISOString() });
 }
-
 // --------------------------------------------------
 // 6) Estudiante: Odontograma
 // --------------------------------------------------
@@ -427,10 +422,9 @@ export interface PatientAssignment {
   id: number;
   studentId: number;
   patientId: number;
-  assignedAt: string; // obligatorio
+  assignedAt: string;
   notes?: string;
 }
-
 
 let patientAssignments: PatientAssignment[] = [];
 
@@ -471,7 +465,7 @@ export interface Appointment {
   id: number;
   studentId: number;
   patientId: number;
-  datetime: string;        // ISO string
+  datetime: string; // ISO
   status: AppointmentStatus;
   notes?: string;
 }
@@ -502,9 +496,11 @@ export async function deleteAppointmentMock(id: number): Promise<void> {
   await delay();
   appointments = appointments.filter(a => a.id !== id);
 }
-// ---------------------------------------------
-// Secretario: Gestión de Pacientes
-// ---------------------------------------------
+
+// --------------------------------------------------
+// 12) Secretario: Gestión de Pacientes
+// --------------------------------------------------
+
 export interface Patient {
   id: number;
   nombre: string;
@@ -522,24 +518,35 @@ export interface Patient {
 
 let patients: Patient[] = [];
 
+/** Recupera todos los pacientes */
 export async function fetchPatientsMock(): Promise<Patient[]> {
   await delay();
   return patients.map(p => ({ ...p }));
 }
 
+/** Crea o actualiza un paciente */
 export async function savePatientMock(p: Patient): Promise<Patient> {
   await delay();
+  const now = new Date().toISOString();
   if (p.id) {
     const idx = patients.findIndex(x => x.id === p.id);
-    if (idx >= 0) patients[idx] = { ...p };
-  } else {
-    const newId = patients.length ? Math.max(...patients.map(p => p.id)) + 1 : 1;
-    p.id = newId;
-    patients.push({ ...p });
+    if (idx >= 0) {
+      patients[idx] = { ...p, updatedAt: now };
+      return { ...patients[idx] };
+    }
   }
-  return { ...p };
+  const newId = patients.length ? Math.max(...patients.map(x => x.id)) + 1 : 1;
+  const newPatient: Patient = {
+    ...p,
+    id: newId,
+    createdAt: now,
+    updatedAt: now
+  };
+  patients.push(newPatient);
+  return { ...newPatient };
 }
 
+/** Elimina un paciente */
 export async function deletePatientMock(id: number): Promise<void> {
   await delay();
   patients = patients.filter(p => p.id !== id);

@@ -1,16 +1,17 @@
+<!-- Ruta: /admin/users  - Archivo: src/views/admin/AdminUsers.vue -->
 <template>
   <div class="admin-users container-fluid py-4">
     <!-- Toolbar -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
       <h1 class="h3 text-primary">
-        <i class="fas fa-users me-2"></i> Gestión de Usuarios
+        Gestión de Usuarios
       </h1>
-      <div class="d-flex">
+      <div class="d-flex align-items-center">
         <input
           v-model="filter"
           type="text"
           class="form-control me-2"
-          placeholder="🔍 Buscar..."
+          placeholder="Buscar..."
           aria-label="Buscar usuarios"
         />
         <button
@@ -18,7 +19,7 @@
           @click="openModal()"
           aria-label="Añadir usuario"
         >
-          <i class="fas fa-plus me-1"></i> Añadir
+          Añadir usuario
         </button>
       </div>
     </div>
@@ -35,18 +36,23 @@
 
     <!-- Tabla de usuarios -->
     <div v-if="!loading" class="table-responsive">
-      <table class="table table-striped table-hover align-middle">
-        <thead class="table-dark">
+      <table class="table table-hover shadow-sm">
+        <thead class="table-light">
           <tr>
             <th>ID</th>
             <th>Nombre</th>
             <th>Email</th>
             <th>Rol</th>
+            <th>Activo</th>
             <th class="text-center">Acciones</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="u in filteredUsers" :key="u.id">
+          <tr
+            v-for="u in filteredUsers"
+            :key="u.id"
+            :class="{ 'table-secondary': !u.activo }"
+          >
             <td>{{ u.id }}</td>
             <td>{{ u.nombre }}</td>
             <td>{{ u.email }}</td>
@@ -55,25 +61,30 @@
                 {{ u.role }}
               </span>
             </td>
+            <td>{{ u.activo ? 'Sí' : 'No' }}</td>
             <td class="text-center">
               <button
-                class="btn btn-sm btn-primary me-1"
+                class="btn btn-sm btn-primary me-2"
                 @click="openModal(u)"
-                title="Editar"
               >
-                <i class="fas fa-edit"></i>
+                Editar
+              </button>
+              <button
+                class="btn btn-sm btn-warning me-2"
+                @click="onToggleActive(u)"
+              >
+                {{ u.activo ? 'Desactivar' : 'Activar' }}
               </button>
               <button
                 class="btn btn-sm btn-danger"
                 @click="onDelete(u.id)"
-                title="Eliminar"
               >
-                <i class="fas fa-trash"></i>
+                Eliminar
               </button>
             </td>
           </tr>
           <tr v-if="!filteredUsers.length">
-            <td colspan="5" class="text-center text-muted py-4">
+            <td colspan="6" class="text-center text-muted py-4">
               No se encontraron usuarios.
             </td>
           </tr>
@@ -95,94 +106,24 @@
       >
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content shadow">
-            <div class="modal-header">
+            <div class="modal-header bg-primary text-white">
               <h5 class="modal-title">
                 {{ editingUser.id ? 'Editar Usuario' : 'Nuevo Usuario' }}
               </h5>
               <button
                 type="button"
-                class="btn-close"
+                class="btn-close btn-close-white"
                 @click="closeModal"
                 aria-label="Cerrar"
               ></button>
             </div>
             <div class="modal-body">
-              <form @submit.prevent="handleSave">
-                <div class="mb-3">
-                  <label class="form-label">Nombre</label>
-                  <input
-                    v-model="editingUser.nombre"
-                    type="text"
-                    class="form-control"
-                    required
-                  />
-                </div>
-                <div class="mb-3">
-                  <label class="form-label">Email</label>
-                  <input
-                    v-model="editingUser.email"
-                    type="email"
-                    class="form-control"
-                    required
-                  />
-                </div>
-                <div class="mb-3">
-                  <label class="form-label">Rol</label>
-                  <select
-                    v-model="editingUser.role"
-                    class="form-select"
-                    required
-                  >
-                    <option disabled value="">Selecciona un rol</option>
-                    <option v-for="r in roles" :key="r" :value="r">
-                      {{ r }}
-                    </option>
-                  </select>
-                </div>
-                <div
-                  class="mb-3"
-                  v-if="['profesor', 'estudiante'].includes(editingUser.role)"
-                >
-                  <label class="form-label">Especialidad</label>
-                  <input
-                    v-model="editingUser.especialidad"
-                    type="text"
-                    class="form-control"
-                  />
-                </div>
-                <div
-                  class="mb-3"
-                  v-if="editingUser.role === 'estudiante'"
-                >
-                  <label class="form-label">Historial</label>
-                  <textarea
-                    v-model="editingUser.historial"
-                    class="form-control"
-                    rows="2"
-                  ></textarea>
-                </div>
-                <div class="d-flex justify-content-end mt-3">
-                  <button
-                    type="button"
-                    class="btn btn-secondary me-2"
-                    @click="closeModal"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="submit"
-                    class="btn btn-primary"
-                    :disabled="loading"
-                  >
-                    <span v-if="!loading">
-                      {{ editingUser.id ? 'Guardar' : 'Crear' }}
-                    </span>
-                    <span v-else>
-                      <i class="fas fa-spinner fa-spin"></i> Guardando...
-                    </span>
-                  </button>
-                </div>
-              </form>
+              <UserForm
+                :modelValue="editingUser"
+                :editMode="!!editingUser.id"
+                @save="handleSave"
+                @cancel="closeModal"
+              />
             </div>
           </div>
         </div>
@@ -193,13 +134,25 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import UserForm from '@/components/admin/UserForm.vue'
+import type { User, Role } from '@/mocks/api'
 import {
   fetchUsersMock,
-  deleteUserMock,
   saveUserMock,
-  type User,
-  type Role
-} from '../../mocks/api'
+  deleteUserMock,
+} from '@/mocks/api'
+
+// Interfaz para datos del formulario
+interface FormUser {
+  id?: number
+  nombre: string
+  email: string
+  role: Role
+  especialidad?: string
+  historial?: string
+  activo: boolean
+  password?: string
+}
 
 // Estados
 const users = ref<User[]>([])
@@ -207,34 +160,23 @@ const loading = ref(false)
 const error = ref('')
 const filter = ref('')
 const isModalOpen = ref(false)
+const editingUser = ref<Partial<FormUser>>({})
 
-// Modelo del formulario
-const editingUser = ref<Partial<User> & { role: Role }>({
-  id: 0,
-  nombre: '',
-  email: '',
-  password: '',
-  role: 'estudiante'
-})
-
-const roles: Role[] = ['admin', 'profesor', 'estudiante', 'secretario']
-
-// Cargar datos iniciales
+// Carga inicial de usuarios
 onMounted(loadUsers)
-
 async function loadUsers() {
   loading.value = true
   error.value = ''
   try {
     users.value = await fetchUsersMock()
-  } catch (err: unknown) {
-    error.value = (err as { message?: string }).message || 'Error al cargar usuarios'
+  } catch (err: any) {
+    error.value = err.message || 'Error al cargar usuarios'
   } finally {
     loading.value = false
   }
 }
 
-// Computed de filtrado
+// Filtrado por nombre o email
 const filteredUsers = computed(() =>
   users.value.filter(u =>
     u.nombre.toLowerCase().includes(filter.value.toLowerCase()) ||
@@ -242,18 +184,11 @@ const filteredUsers = computed(() =>
   )
 )
 
-// Abrir modal
+// Abrir modal en modo creación o edición
 function openModal(user?: User) {
-  if (user) {
-    editingUser.value = { ...user }
-  } else {
-    editingUser.value = {
-      nombre: '',
-      email: '',
-      password: '',
-      role: 'estudiante'
-    }
-  }
+  editingUser.value = user
+    ? { ...user }
+    : { nombre: '', email: '', role: 'estudiante', activo: true }
   isModalOpen.value = true
 }
 
@@ -262,23 +197,22 @@ function closeModal() {
   isModalOpen.value = false
 }
 
-// Guardar
-async function handleSave() {
+// Guardar usuario (crear o actualizar)
+async function handleSave(data: FormUser) {
+  isModalOpen.value = false
   loading.value = true
   error.value = ''
   try {
-    const u = editingUser.value as User
-    await saveUserMock(u)
+    await saveUserMock(data as User)
     await loadUsers()
-    closeModal()
-  } catch (err: unknown) {
-    error.value = (err as { message?: string }).message || 'Error al guardar usuario'
+  } catch (err: any) {
+    error.value = err.message || 'Error al guardar usuario'
   } finally {
     loading.value = false
   }
 }
 
-// Eliminar
+// Eliminar usuario
 async function onDelete(id: number) {
   if (!confirm('¿Eliminar este usuario?')) return
   loading.value = true
@@ -286,20 +220,35 @@ async function onDelete(id: number) {
   try {
     await deleteUserMock(id)
     await loadUsers()
-  } catch (err: unknown) {
-    error.value = (err as { message?: string }).message || 'Error al eliminar usuario'
+  } catch (err: any) {
+    error.value = err.message || 'Error al eliminar usuario'
   } finally {
     loading.value = false
   }
 }
 
-// Clase dinámica para los badges
+// Alternar activo/inactivo
+async function onToggleActive(u: User) {
+  loading.value = true
+  error.value = ''
+  try {
+    await saveUserMock({ ...u, activo: !u.activo })
+    await loadUsers()
+  } catch (err: any) {
+    error.value = err.message || 'Error al actualizar estado'
+  } finally {
+    loading.value = false
+  }
+}
+
+// Clases para badges de rol
 function roleBadgeClass(role: Role) {
   return {
     'badge bg-danger': role === 'admin',
     'badge bg-success': role === 'profesor',
     'badge bg-info text-dark': role === 'estudiante',
-    'badge bg-warning text-dark': role === 'secretario'
+    'badge bg-warning text-dark': role === 'secretario',
+    'badge bg-secondary text-white': role === 'paciente',
   }
 }
 </script>

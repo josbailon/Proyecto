@@ -3,6 +3,9 @@
 export interface Patient {
   id: number;
   nombre: string;
+  fechaNacimiento?: string; // ← AGREGADO
+  edad?: number;
+  genero?: 'M' | 'F';
   cedula: string;
   canton: string;
   parroquia?: string;
@@ -17,10 +20,12 @@ export interface Patient {
   updatedAt: string;
 }
 
+
 export const mockPatients: Patient[] = [
   {
     id: 1,
     nombre: 'Carlos Martínez',
+    fechaNacimiento: '1990-05-15', // ← AGREGADO
     cedula: '1304523123',
     canton: 'Manta',
     parroquia: 'Tarqui',
@@ -35,6 +40,7 @@ export const mockPatients: Patient[] = [
     updatedAt: '2025-07-10',
   }
 ];
+
 
 // Simula una llamada asíncrona para obtener pacientes
 export async function fetchPatientsMock(): Promise<Patient[]> {
