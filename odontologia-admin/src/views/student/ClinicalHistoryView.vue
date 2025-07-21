@@ -1,3 +1,4 @@
+<!-- odontologia-admin/src/views/student/ClinicalHistoryView.vue -->
 <template>
   <div class="container-fluid py-4 bg-light min-vh-100">
     <!-- HEADER -->

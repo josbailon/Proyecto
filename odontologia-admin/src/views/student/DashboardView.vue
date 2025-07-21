@@ -1,3 +1,4 @@
+<!-- odontologia-admin/src/views/student/DashboardView.vue -->
 <template>
   <div class="dashboard-container">
     <!-- Título y estadísticas -->

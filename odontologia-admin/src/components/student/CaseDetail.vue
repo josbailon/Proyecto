@@ -1,100 +1,242 @@
 <!-- src/components/student/CaseDetail.vue -->
 <template>
-  <div class="ccv-modal">
-    <div class="ccv-modal__header">
-      <h3>
-        Caso #{{ caseData.id }} - {{ caseData.patientName }}
-      </h3>
-      <button @click="$emit('close')" class="ccv-modal__close">×</button>
+  <div class="case-detail">
+    <!-- Header -->
+    <div class="cd-header">
+      <h3>{{ caseData.title }} — {{ caseData.patientName }}</h3>
+      <span class="badge" :class="statusClass(caseData.status)">
+        {{ statusLabel(caseData.status) }}
+      </span>
     </div>
 
-    <div class="ccv-modal__body">
-      <h4>Descripción</h4>
-      <p><strong>Motivo de consulta:</strong> {{ caseData.reason }}</p>
+    <!-- Información Básica -->
+    <div class="cd-section">
+      <h4>Información general</h4>
+      <p><strong>Motivo:</strong> {{ caseData.reason }}</p>
       <p><strong>Síntomas:</strong> {{ caseData.symptoms }}</p>
-      <p><strong>Notas:</strong> {{ caseData.notes || '–' }}</p>
+      <p v-if="caseData.notes"><strong>Notas:</strong> {{ caseData.notes }}</p>
+    </div>
 
-      <h4>Tratamientos</h4>
+    <!-- Preguntas Generales -->
+    <div class="cd-section">
+      <h4>Preguntas generales</h4>
       <ul>
-        <li v-for="p in caseData.procedures" :key="p.code">
-          <strong>{{ p.code }}</strong> - {{ p.description }} ({{ p.teeth }})
+        <li v-for="q in caseData.generalQuestions" :key="q.id">
+          <strong>{{ q.label }}:</strong>
+          <span v-if="q.answer">
+            {{ q.answer }}
+            <em :class="q.approved ? 'approved' : 'pending'">
+              ({{ q.approved ? 'Aprobada' : 'Pendiente' }})
+            </em>
+          </span>
+          <span v-else class="text-muted">— sin responder</span>
         </li>
       </ul>
+    </div>
 
+    <!-- Preguntas de Especialidad -->
+    <div v-if="caseData.specialistQuestions.length" class="cd-section">
+      <h4>Preguntas de {{ caseData.specialist }}</h4>
+      <ul>
+        <li v-for="q in caseData.specialistQuestions" :key="q.id">
+          <strong>{{ q.label }}:</strong>
+          <span v-if="q.answer">
+            {{ q.answer }}
+            <em :class="q.approved ? 'approved' : 'pending'">
+              ({{ q.approved ? 'Aprobada' : 'Pendiente' }})
+            </em>
+          </span>
+          <span v-else class="text-muted">— sin responder</span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Procedimientos -->
+    <div class="cd-section">
+      <h4>Procedimientos</h4>
+      <ul>
+        <li v-for="p in caseData.procedures" :key="p.code">
+          <strong>{{ p.code }}</strong>
+          <span v-if="p.teeth">— Diente(s): {{ p.teeth }}</span>
+          : {{ p.description }}
+        </li>
+      </ul>
+    </div>
+
+    <!-- Prescripciones -->
+    <div class="cd-section">
       <h4>Prescripciones</h4>
       <ul>
         <li v-for="r in caseData.prescriptions" :key="r.id">
-          {{ r.drug }} - {{ r.dose }}
-        </li>
-      </ul>
-
-      <h4>Citas</h4>
-      <ul>
-        <li v-for="a in caseData.appointments" :key="a.id">
-          {{ a.date }} - {{ a.status }}
-        </li>
-      </ul>
-
-      <h4>Comentarios</h4>
-      <ul>
-        <li v-for="c in caseData.comments" :key="c.at">
-          <small>{{ c.by }} ({{ c.at }})</small>: {{ c.text }}
+          {{ r.drug }} — {{ r.dose }}
         </li>
       </ul>
     </div>
 
-    <div class="ccv-modal__footer">
-      <button class="btn btn-secondary" @click="$emit('close')">
-        Cerrar
-      </button>
+    <!-- Citas -->
+    <div class="cd-section">
+      <h4>Citas</h4>
+      <ul>
+        <li v-for="a in caseData.appointments" :key="a.id">
+          {{ formatDate(a.date) }} — {{ a.status }}
+          <span v-if="a.notes">({{ a.notes }})</span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Comentarios -->
+    <div class="cd-section">
+      <h4>Comentarios</h4>
+      <ul>
+        <li v-for="c in caseData.comments" :key="c.at + c.by">
+          <small>{{ c.by }} ({{ formatDate(c.at) }}):</small> {{ c.text }}
+        </li>
+      </ul>
+    </div>
+
+    <!-- Odontograma -->
+    <div class="cd-section">
+      <h4>Odontograma</h4>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Diente</th>
+            <th>Estado</th>
+            <th>Anotaciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="o in caseData.odontogram" :key="o.tooth">
+            <td>{{ o.tooth }}</td>
+            <td>{{ o.status }}</td>
+            <td>{{ o.annotations || '—' }}</td>
+          </tr>
+          <tr v-if="!caseData.odontogram.length">
+            <td colspan="3" class="text-center text-muted">No hay datos</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Periodontograma -->
+    <div class="cd-section">
+      <h4>Periodontograma</h4>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Diente</th>
+            <th>Profundidad (mm)</th>
+            <th>Nivel inserción (mm)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="p in caseData.periodontogram" :key="p.tooth">
+            <td>{{ p.tooth }}</td>
+            <td>{{ p.probingDepth }}</td>
+            <td>{{ p.attachmentLevel }}</td>
+          </tr>
+          <tr v-if="!caseData.periodontogram.length">
+            <td colspan="3" class="text-center text-muted">No hay datos</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { ClinicalCase } from '../../mocks/student/clinicalCases'
+import type { ClinicalCase } from '@/mocks/student/clinicalCases'
 
-defineProps<{
-  caseData: ClinicalCase
-}>()
+// Extraemos directamente la prop que vamos a usar
+const { caseData } = defineProps<{ caseData: ClinicalCase }>()
+
+/** Helper para formato legible */
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleString('es-ES', {
+    day: '2-digit', month: 'short', year: 'numeric',
+    hour: '2-digit', minute: '2-digit'
+  })
+}
+
+function statusLabel(s: ClinicalCase['status']) {
+  return {
+    pendiente_general: 'Pendiente (General)',
+    pendiente_especialidad: 'Pendiente (Especialidad)',
+    aprobado: 'Aprobado',
+    completado: 'Completado'
+  }[s]
+}
+
+function statusClass(s: ClinicalCase['status']) {
+  return {
+    pendiente_general: 'badge-warning',
+    pendiente_especialidad: 'badge-info',
+    aprobado: 'badge-success',
+    completado: 'badge-primary'
+  }[s]
+}
 </script>
 
 <style scoped>
-.ccv-modal {
-  position: fixed;
-  top: 10%;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #fff;
+.case-detail {
+  border: 1px solid #ddd;
+  border-radius: 6px;
   padding: 1rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  max-width: 600px;
-  width: 90%;
-  z-index: 2000;
+  background: #fff;
 }
-
-.ccv-modal__header {
+.cd-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #ddd;
+  margin-bottom: 1rem;
   padding-bottom: 0.5rem;
+  border-bottom: 1px solid #eee;
 }
-
-.ccv-modal__close {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
+.cd-section {
+  margin-bottom: 1.5rem;
 }
-
-.ccv-modal__body {
-  margin-top: 1rem;
+.approved {
+  color: #198754;
+  font-style: italic;
 }
-
-.ccv-modal__footer {
-  text-align: right;
-  margin-top: 1rem;
+.pending {
+  color: #ffc107;
+  font-style: italic;
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.table th,
+.table td {
+  border: 1px solid #dee2e6;
+  padding: 0.5rem;
+}
+.badge-warning {
+  background-color: #ffc107;
+  color: #212529;
+  padding: 0.25em 0.5em;
+  border-radius: 0.25rem;
+}
+.badge-info {
+  background-color: #0dcaf0;
+  color: #212529;
+  padding: 0.25em 0.5em;
+  border-radius: 0.25rem;
+}
+.badge-success {
+  background-color: #198754;
+  color: #fff;
+  padding: 0.25em 0.5em;
+  border-radius: 0.25rem;
+}
+.badge-primary {
+  background-color: #0d6efd;
+  color: #fff;
+  padding: 0.25em 0.5em;
+  border-radius: 0.25rem;
+}
+.text-muted {
+  color: #6c757d;
 }
 </style>

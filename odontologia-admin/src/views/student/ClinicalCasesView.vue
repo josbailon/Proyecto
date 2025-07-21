@@ -1,4 +1,3 @@
-<!-- src/views/student/ClinicalCasesView.vue -->
 <template>
   <div class="ccv">
     <!-- Header -->
@@ -13,8 +12,8 @@
     </div>
 
     <!-- Lista de casos -->
-    <div v-if="clinicalCases.length" class="ccv-grid">
-      <div v-for="c in clinicalCases" :key="c.id" class="ccv-card">
+    <div v-if="cases.length" class="ccv-grid">
+      <div v-for="c in cases" :key="c.id" class="ccv-card">
         <div class="ccv-card__body">
           <div class="ccv-card__header">
             <h2>#{{ c.id }} - {{ c.patientName }}</h2>
@@ -23,7 +22,7 @@
             </span>
           </div>
           <p><strong>Motivo:</strong> {{ c.reason }}</p>
-          <p><strong>Creado:</strong> {{ c.createdAt }}</p>
+          <p><strong>Creado:</strong> {{ new Date(c.createdAt).toLocaleString() }}</p>
 
           <div class="ccv-card__actions">
             <button class="ccv-btn ccv-btn--small" @click="openCase(c, 'desc')">
@@ -46,7 +45,7 @@
       <p>No hay casos clínicos registrados.</p>
     </div>
 
-    <!-- MODAL DE DETALLE -->
+    <!-- Detalle de caso -->
     <CaseDetail
       v-if="selectedCase"
       :case-data="selectedCase"
@@ -54,23 +53,31 @@
       @close="closeModal"
     />
 
-    <!-- MODAL DE CREACIÓN -->
-    <div class="ccv-modal-backdrop" v-if="showCreateModal" @click.self="closeCreateModal"></div>
+    <!-- Modal de creación/edición -->
+    <div
+      class="ccv-modal-backdrop"
+      v-if="showCreateModal"
+      @click.self="closeCreateModal"
+    ></div>
     <div class="ccv-modal" v-if="showCreateModal">
       <div class="ccv-modal__header">
-        <h3>Nuevo Caso Clínico</h3>
+        <h3>{{ editMode ? 'Editar Caso Clínico' : 'Nuevo Caso Clínico' }}</h3>
         <button class="ccv-modal__close" @click="closeCreateModal">&times;</button>
       </div>
       <div class="ccv-modal__body">
-        <form @submit.prevent="saveNewCase">
-          <div class="form-group">
-            <label>Título</label>
-            <input v-model="newCase.title" type="text" class="form-control" required />
+        <form @submit.prevent="saveCase">
+          <!-- Datos básicos -->
+          <div class="form-group mb-2">
+            <label>Paciente</label>
+            <input v-model="form.patientName" type="text" class="form-control" required />
           </div>
-          <div class="form-group">
+          <div class="form-group mb-2">
+            <label>Título</label>
+            <input v-model="form.title" type="text" class="form-control" required />
+          </div>
+          <div class="form-group mb-2">
             <label>Etapa</label>
-            <select v-model="newCase.stage" class="form-control" required>
-              <option disabled value="">Selecciona...</option>
+            <select v-model="form.stage" class="form-select" required>
               <option value="presentacion">Presentación</option>
               <option value="diagnostico">Diagnóstico</option>
               <option value="plan">Plan de Tratamiento</option>
@@ -78,67 +85,60 @@
               <option value="seguimiento">Seguimiento</option>
             </select>
           </div>
-          <div class="form-group">
-            <label>Nombre del Paciente</label>
-            <input v-model="newCase.patientName" type="text" class="form-control" required />
+          <div class="form-group mb-2">
+            <label>Motivo</label>
+            <input v-model="form.reason" type="text" class="form-control" required />
           </div>
-          <div class="form-group">
-            <label>Motivo de Consulta</label>
-            <input v-model="newCase.reason" type="text" class="form-control" required />
-          </div>
-          <div class="form-group">
+          <div class="form-group mb-2">
             <label>Síntomas</label>
-            <textarea v-model="newCase.symptoms" class="form-control"></textarea>
-          </div>
-          <div class="form-group">
-            <label>Descripción</label>
-            <textarea v-model="newCase.description" class="form-control" rows="2"></textarea>
-          </div>
-          <div class="form-group">
-            <label>Notas</label>
-            <textarea v-model="newCase.notes" class="form-control"></textarea>
+            <textarea v-model="form.symptoms" class="form-control" rows="2"></textarea>
           </div>
 
           <!-- Procedimientos -->
-          <div class="form-group">
+          <div class="form-group mb-2">
             <label>Procedimientos</label>
             <button type="button" @click="addProcedure" class="btn btn-sm btn-success mb-2">
               + Añadir Procedimiento
             </button>
-            <div v-for="(proc, index) in newCase.procedures" :key="index" class="mb-2">
-              <input v-model="proc.code" placeholder="Código" class="form-control mb-1" />
-              <input v-model="proc.teeth" placeholder="Dientes" class="form-control mb-1" />
-              <input v-model="proc.description" placeholder="Descripción" class="form-control mb-1" />
+            <div v-for="(p, i) in form.procedures" :key="i" class="mb-2">
+              <input v-model="p.code" placeholder="Código" class="form-control mb-1" />
+              <input v-model="p.teeth" placeholder="Dientes" class="form-control mb-1" />
+              <input v-model="p.description" placeholder="Descripción" class="form-control mb-1" />
             </div>
           </div>
 
           <!-- Prescripciones -->
-          <div class="form-group">
+          <div class="form-group mb-2">
             <label>Prescripciones</label>
             <button type="button" @click="addPrescription" class="btn btn-sm btn-success mb-2">
               + Añadir Prescripción
             </button>
-            <div v-for="(rx, index) in newCase.prescriptions" :key="index" class="mb-2">
-              <input v-model="rx.drug" placeholder="Medicamento" class="form-control mb-1" />
-              <input v-model="rx.dose" placeholder="Dosis" class="form-control mb-1" />
+            <div v-for="(r, i) in form.prescriptions" :key="i" class="mb-2">
+              <input v-model="r.drug" placeholder="Medicamento" class="form-control mb-1" />
+              <input v-model="r.dose" placeholder="Dosis" class="form-control mb-1" />
             </div>
           </div>
 
           <!-- Citas -->
-          <div class="form-group">
+          <div class="form-group mb-2">
             <label>Citas</label>
             <button type="button" @click="addAppointment" class="btn btn-sm btn-success mb-2">
               + Añadir Cita
             </button>
-            <div v-for="(appt, index) in newCase.appointments" :key="index" class="mb-2">
-              <input v-model="appt.date" placeholder="Fecha y hora" class="form-control mb-1" />
-              <input v-model="appt.status" placeholder="Estado" class="form-control mb-1" />
+            <div v-for="(a, i) in form.appointments" :key="i" class="mb-2">
+              <input v-model="a.date" type="datetime-local" class="form-control mb-1" />
+              <select v-model="a.status" class="form-select mb-1">
+                <option value="pendiente">Pendiente</option>
+                <option value="confirmada">Confirmada</option>
+                <option value="cancelada">Cancelada</option>
+              </select>
+              <input v-model="a.notes" placeholder="Notas (opcional)" class="form-control" />
             </div>
           </div>
 
-          <!-- Botón guardar -->
-          <div class="text-end">
-            <button type="submit" class="btn btn-primary">Guardar Caso</button>
+          <!-- Guardar -->
+          <div class="text-end mt-3">
+            <button class="btn btn-primary">{{ editMode ? 'Actualizar' : 'Guardar' }}</button>
           </div>
         </form>
       </div>
@@ -149,95 +149,127 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import CaseDetail from '@/components/student/CaseDetail.vue'
-import { clinicalCases as initialCases, type ClinicalCase, type Status } from '../../mocks/student/clinicalCases'
+import {
+  fetchCasesMock,
+  saveCaseMock,
+  type ClinicalCase,
+  type ClinicalCaseStatus
+} from '@/mocks/student/clinicalCases'
 
-const clinicalCases = ref<ClinicalCase[]>([...initialCases])
+// Estado
+const cases = ref<ClinicalCase[]>([])
 const selectedCase = ref<ClinicalCase | null>(null)
-const activeTab = ref('desc')
+const activeTab = ref<'desc'|'treat'|'rx'|'appts'>('desc')
 const showCreateModal = ref(false)
+const editMode = ref(false)
 
-function openCase(c: ClinicalCase, tab: string) {
+// Formulario
+const form = ref<ClinicalCase>({
+  id: 0,
+  patientName: '',
+  title: '',
+  stage: 'presentacion',
+  reason: '',
+  symptoms: '',
+  notes: '',
+  specialist: '',
+  generalQuestions: [],
+  specialistQuestions: [],
+  procedures: [],
+  prescriptions: [],
+  appointments: [],
+  comments: [],
+  odontogram: [],
+  periodontogram: [],
+  status: 'pendiente_general',
+  createdAt: '',
+  updatedAt: ''
+})
+
+// Carga inicial
+async function loadCases() {
+  cases.value = await fetchCasesMock()
+}
+loadCases()
+
+// Abrir detalle
+function openCase(c: ClinicalCase, tab: typeof activeTab.value) {
   selectedCase.value = c
   activeTab.value = tab
 }
 function closeModal() {
   selectedCase.value = null
 }
+
+// Abrir modal creación/edición
 function openCreateModal() {
+  editMode.value = false
+  Object.assign(form.value, {
+    id: 0,
+    patientName: '',
+    title: '',
+    stage: 'presentacion',
+    reason: '',
+    symptoms: '',
+    notes: '',
+    specialist: '',
+    generalQuestions: [],
+    specialistQuestions: [],
+    procedures: [],
+    prescriptions: [],
+    appointments: [],
+    comments: [],
+    odontogram: [],
+    periodontogram: [],
+    status: 'pendiente_general',
+    createdAt: '',
+    updatedAt: ''
+  })
   showCreateModal.value = true
 }
 function closeCreateModal() {
   showCreateModal.value = false
 }
 
-const newCase = ref<ClinicalCase>({
-  id: 0,
-  title: '',
-  stage: '',
-  patientName: '',
-  reason: '',
-  symptoms: '',
-  description: '',
-  notes: '',
-  createdAt: new Date().toISOString().split('T')[0],
-  status: 'Pendiente',
-  procedures: [],
-  prescriptions: [],
-  appointments: [],
-  comments: [],
-})
-
+// Helpers para agregar ítems
 function addProcedure() {
-  newCase.value.procedures.push({
-    code: '',
-    teeth: '',
-    description: '',
-    status: 'Pendiente'
-  })
+  form.value.procedures.push({ code: '', teeth: '', description: '' })
 }
 function addPrescription() {
-  newCase.value.prescriptions.push({
-    id: Date.now(),
-    drug: '',
-    dose: ''
-  })
+  form.value.prescriptions.push({ id: Date.now(), drug: '', dose: '' })
 }
 function addAppointment() {
-  newCase.value.appointments.push({
+  form.value.appointments.push({
     id: Date.now(),
     date: '',
-    status: ''
+    status: 'pendiente',
+    notes: ''
   })
 }
-function saveNewCase() {
-  const nextId = Math.max(...clinicalCases.value.map(c => c.id), 0) + 1
-  newCase.value.id = nextId
-  clinicalCases.value.push(JSON.parse(JSON.stringify(newCase.value)))
-  closeCreateModal()
-  newCase.value = {
-    id: 0,
-    title: '',
-    stage: '',
-    patientName: '',
-    reason: '',
-    symptoms: '',
-    description: '',
-    notes: '',
-    createdAt: new Date().toISOString().split('T')[0],
-    status: 'Pendiente',
-    procedures: [],
-    prescriptions: [],
-    appointments: [],
-    comments: [],
+
+// Guardar caso (crea o actualiza)
+async function saveCase() {
+  const now = new Date().toISOString()
+  if (form.value.id && form.value.id > 0) {
+    form.value.updatedAt = now
+  } else {
+    form.value.createdAt = now
+    form.value.updatedAt = now
   }
+  await saveCaseMock(form.value)
+  await loadCases()
+  showCreateModal.value = false
 }
-function badgeColor(status: Status) {
+
+// Mapea estado a clase CSS
+function badgeColor(status: ClinicalCaseStatus) {
   return {
-    Pendiente: 'ccv-badge--yellow',
-    Aprobado: 'ccv-badge--blue',
-    Completado: 'ccv-badge--green',
-  }[status]
+    pendiente_general: 'ccv-badge--yellow',
+    pendiente_especialidad: 'ccv-badge--blue',
+    aprobado: 'ccv-badge--green',
+    completado: 'ccv-badge--gray'
+  }[status]!
 }
 </script>
 
-<style src="@/assets/css/pages/student/ClinicalCases.css" scoped></style>
+<style scoped src="@/assets/css/pages/student/ClinicalCases.css"></style>

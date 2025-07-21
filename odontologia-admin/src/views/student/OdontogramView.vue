@@ -1,140 +1,141 @@
+<!-- src/views/student/OdontogramView.vue -->
 <template>
-  <div class="odontogram-view">
-    <h1>Odontograma</h1>
+  <div class="odontogram-view container py-4">
+    <header class="odontogram-header d-flex flex-wrap align-items-end mb-4">
+      <div class="me-auto mb-3">
+        <h1 class="mb-1">Odontograma</h1>
+        <label class="form-label">Paciente:</label>
+        <select v-model.number="selectedPatientId" class="form-select">
+          <option :value="0" disabled>-- Seleccione paciente --</option>
+          <option
+            v-for="p in students"
+            :key="p.id"
+            :value="p.id"
+          >
+            {{ p.name }}
+          </option>
+        </select>
+      </div>
 
-    <!-- Selección de paciente -->
-    <div class="section">
-      <label for="patientSelect">Seleccionar Paciente:</label>
-      <select
-        id="patientSelect"
-        v-model.number="selectedPatientId"
-      >
-        <option :value="0">-- Seleccionar --</option>
-        <option
-          v-for="p in patients"
-          :key="p.patientId"
-          :value="p.patientId"
-        >
-          {{ p.patientName }}
-        </option>
-      </select>
+      <div class="me-3 mb-3">
+        <label class="form-label">Dentición:</label>
+        <select v-model="mode" class="form-select">
+          <option value="Adulto">Adulto</option>
+          <option value="Infantil">Infantil</option>
+          <option value="Mixto">Mixto</option>
+        </select>
+      </div>
+
+      <div class="estado-selector mb-3">
+        <label class="form-label">Estado a aplicar:</label>
+        <div class="btn-group flex-wrap">
+          <button
+            v-for="s in statuses"
+            :key="s.value"
+            type="button"
+            class="btn status-btn"
+            :class="{ active: current === s.value }"
+            @click="current = s.value"
+          >
+            {{ s.label }}
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div v-if="!selectedPatientId" class="alert alert-warning">
+      Por favor, selecciona un paciente para mostrar su odontograma.
     </div>
 
-    <!-- Selección tipo odontograma -->
-    <div class="section" v-if="selectedPatient">
-      <label for="typeSelect">Tipo de Odontograma:</label>
-      <select
-        id="typeSelect"
-        v-model="selectedPatient.odontogramType"
+    <div
+      v-else
+      class="chart-grid"
+      :style="`grid-template-columns: repeat(${columns}, 1fr)`"
+    >
+      <div
+        v-for="tooth in teeth"
+        :key="tooth.id"
+        class="tooth"
+        :class="tooth.status.toLowerCase()"
+        @click="applyStatus(tooth)"
+        :title="`Diente ${tooth.id}: ${tooth.status}`"
       >
-        <option value="Adulto">Adulto</option>
-        <option value="Infantil">Infantil</option>
-        <option value="Mixto">Mixto</option>
-      </select>
-    </div>
-
-    <!-- Tabla -->
-    <div v-if="selectedPatient" class="odontogram-table">
-      <h2>Odontograma de {{ selectedPatient.patientName }}</h2>
-
-      <table>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Diente</th>
-            <th>Tipo</th>
-            <th>Estado</th>
-            <th>Daño</th>
-            <th>Tratamiento</th>
-            <th>Notas</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="t in selectedPatient.teeth" :key="t.id">
-            <td>{{ t.id }}</td>
-            <td>{{ t.name }}</td>
-            <td>{{ t.type }}</td>
-            <td>
-              <select v-model="t.status">
-                <option value="">-- Seleccionar --</option>
-                <option
-                  v-for="s in toothStatuses"
-                  :key="s"
-                  :value="s"
-                >
-                  {{ s || '-- Ninguno --' }}
-                </option>
-              </select>
-            </td>
-            <td>
-              <select v-model="t.damage">
-                <option value="">-- Seleccionar --</option>
-                <option
-                  v-for="d in damageOptions"
-                  :key="d"
-                  :value="d"
-                >
-                  {{ d }}
-                </option>
-              </select>
-            </td>
-            <td>
-              <select v-model="t.treatment">
-                <option value="">-- Seleccionar --</option>
-                <option
-                  v-for="tr in treatmentOptions"
-                  :key="tr"
-                  :value="tr"
-                >
-                  {{ tr || '-- Ninguno --' }}
-                </option>
-              </select>
-            </td>
-            <td>
-              <input
-                v-model="t.notes"
-                type="text"
-                placeholder="Notas..."
-              />
-            </td>
-          </tr>
-        </tbody>
-      </table>
+        {{ tooth.id }}
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import {
-  odontogramsMock,
-  type PatientOdontogram,
-  type ToothStatus,
-  damageOptions,
-  treatmentOptions
-} from '../../mocks/student/odontogram';
+import { ref, watch } from 'vue'
+import { useStudentStore } from '@/store/student'
 
-import { ref, computed } from 'vue';
+type Mode = 'Adulto' | 'Infantil' | 'Mixto'
+type Status = 'Libre' | 'Sano' | 'Caries' | 'Fractura' | 'Ausente' | 'Restaurado'
 
-// Listado de pacientes
-const patients = ref<PatientOdontogram[]>([...odontogramsMock]);
+interface Tooth { id: string; status: Status }
 
-// Id seleccionado
-const selectedPatientId = ref<number>(0);
+// Store de estudiantes (pacientes)
+const studentStore = useStudentStore()
+studentStore.loadAssignments() // si tu store carga pacientes ahí; o usa fetchPatientsMock
 
-// Paciente actual
-const selectedPatient = computed(() =>
-  patients.value.find(p => p.patientId === selectedPatientId.value) || null
-);
+// Lista de pacientes simulados para odontograma
+const students = ref<{ id: number; name: string }[]>([
+  { id: 1, name: 'María González' },
+  { id: 2, name: 'Carlos López' },
+  // …añade más o traelos del store
+])
 
-const toothStatuses: ToothStatus[] = [
-  '',
-  'Sano',
-  'Caries',
-  'Fractura',
-  'Ausente',
-  'Restaurado',
-  'Extracción indicada'
-];
+// Selección
+const selectedPatientId = ref<number>(0)
+const mode = ref<Mode>('Adulto')
+const current = ref<Status>('Libre')
+
+// Estados disponibles
+const statuses = [
+  { value: 'Libre',      label: 'Libre'      },
+  { value: 'Sano',       label: 'Sano'       },
+  { value: 'Caries',     label: 'Caries'     },
+  { value: 'Fractura',   label: 'Fractura'   },
+  { value: 'Ausente',    label: 'Ausente'    },
+  { value: 'Restaurado', label: 'Restaurado' },
+] as const
+
+// Matriz de dientes reactiva
+const teeth = ref<Tooth[]>([])
+
+// Columnas para la grilla
+const columns = ref<number>(16)
+
+// Función para (re)generar dientes según modo
+function generateTeeth() {
+  let list: Tooth[] = []
+  if (mode.value === 'Adulto' || mode.value === 'Mixto') {
+    // 32 adultos numerados 1–32
+    list = list.concat(
+      Array.from({ length: 32 }, (_, i) => ({ id: String(i + 1), status: 'Libre' as Status }))
+    )
+  }
+  if (mode.value === 'Infantil' || mode.value === 'Mixto') {
+    // 20 infantiles A–T
+    list = Array.from({ length: 20 }, (_, i) => ({ id: String.fromCharCode(65 + i), status: 'Libre' as Status })).concat(list)
+  }
+  teeth.value = list
+  columns.value = mode.value === 'Infantil' ? 10 : 16
+}
+
+// Al cambiar modo o paciente, reinicia odontograma
+watch([mode, selectedPatientId], () => {
+  generateTeeth()
+})
+
+// Aplica estado al diente clicado
+function applyStatus(tooth: Tooth) {
+  tooth.status = current.value
+}
+
+// Inicializa al montar
+generateTeeth()
 </script>
 
-<style src="../../assets/css/pages/student/OdontogramView.css" scoped></style>
+<style scoped src="@/assets/css/pages/student/OdontogramView.css" />
