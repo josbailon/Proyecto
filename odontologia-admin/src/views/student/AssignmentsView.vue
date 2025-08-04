@@ -1,108 +1,229 @@
 <!-- src/views/student/AssignmentsView.vue -->
 <template>
-  <div class="assignments">
-    <h1>Tareas del Estudiante</h1>
-    <p class="text-muted">Visualiza, entrega y sigue el progreso de tus tareas.</p>
+  <div class="assignments-view">
+    <div class="header">
+      <h1>Tareas Académicas</h1>
+      <p class="subtitle">Gestiona tus asignaciones y entregas</p>
+    </div>
 
-    <div class="assignments-grid">
+    <div v-if="error" class="alert alert-error">
+      {{ error }}
+    </div>
+
+    <div v-if="loading" class="loading-indicator">
+      <div class="spinner"></div>
+      <span>Cargando tareas...</span>
+    </div>
+
+    <div class="filters">
+      <select v-model="statusFilter" class="filter-select">
+        <option value="">Todas las tareas</option>
+        <option value="Pendiente">Pendientes</option>
+        <option value="En progreso">En progreso</option>
+        <option value="Completada">Completadas</option>
+      </select>
+      <input
+        v-model="searchQuery"
+        type="text"
+        placeholder="Buscar tareas..."
+        class="search-input"
+      />
+    </div>
+
+    <div class="assignments-container">
       <div
-        v-for="a in assignments"
-        :key="a.id"
+        v-for="assignment in filteredAssignments"
+        :key="assignment.id"
         class="assignment-card"
+        :class="{
+          'pending': assignment.status === 'Pendiente',
+          'in-progress': assignment.status === 'En progreso',
+          'completed': assignment.status === 'Completada'
+        }"
       >
-        <div class="card-header">
-          <h4>{{ a.title }}</h4>
-          <span :class="['badge', badgeClass(a.status)]">{{ a.status }}</span>
-        </div>
-        <p class="subject"><strong>Materia:</strong> {{ a.subject }}</p>
-        <p class="professor"><strong>Profesor:</strong> {{ a.professor }}</p>
-        <p class="desc">{{ a.description }}</p>
-        <p class="deadline"><strong>Fecha límite:</strong> {{ a.deadline }}</p>
-        
-        <div class="progress-bar-container">
-          <div class="progress-bar-fill" :style="{ width: a.progress + '%' }"></div>
-        </div>
-        <span class="progress-label">{{ a.progress }}%</span>
-
-        <div class="files" v-if="a.files.length">
-          <p class="mt-2 mb-1"><strong>Archivos entregados:</strong></p>
-          <ul>
-            <li v-for="(file, i) in a.files" :key="i">
-              <a :href="file" target="_blank">{{ file.split('/').pop() }}</a>
-            </li>
-          </ul>
+        <div class="assignment-header">
+          <h3>{{ assignment.title }}</h3>
+          <span class="status-badge">{{ assignment.status }}</span>
         </div>
 
-        <div class="actions mt-3">
-          <input
-            type="file"
-            ref="fileInput"
-            @change="onFileChange($event, a.id)"
-          />
-          <button
-            class="btn-submit"
-            @click="markInProgress(a.id)"
-            v-if="a.status === 'Pendiente'"
-          >
-            Empezar tarea
-          </button>
-          <button
-            class="btn-submit"
-            @click="markComplete(a.id)"
-            v-if="a.status === 'En progreso'"
-          >
-            Marcar como completada
-          </button>
+        <div class="assignment-body">
+          <p class="subject">{{ assignment.subject }}</p>
+          <p class="professor">Profesor: {{ assignment.professor }}</p>
+          <p class="deadline">
+            <i class="far fa-calendar-alt"></i>
+            Fecha límite: {{ formatDate(assignment.deadline) }}
+          </p>
+          <p class="description">{{ assignment.description }}</p>
+
+          <div class="progress-container">
+            <div class="progress-bar">
+              <div
+                class="progress-fill"
+                :style="{ width: `${assignment.progress}%` }"
+              ></div>
+            </div>
+            <span class="progress-text">{{ assignment.progress }}% completado</span>
+          </div>
+
+          <div v-if="assignment.files.length > 0" class="files-section">
+            <h4>Archivos entregados:</h4>
+            <ul class="files-list">
+              <li v-for="(file, index) in assignment.files" :key="index">
+                <a :href="file" target="_blank" class="file-link">
+                  <i class="far fa-file"></i> {{ getFileName(file) }}
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="assignment-actions">
+            <div class="file-upload">
+              <input
+                type="file"
+                :id="'file-input-' + assignment.id"
+                class="file-input"
+                @change="handleFileUpload($event, assignment.id)"
+              />
+              <label :for="'file-input-' + assignment.id" class="upload-btn">
+                <i class="fas fa-upload"></i> Subir archivo
+              </label>
+            </div>
+
+            <div class="status-actions">
+              <button
+                v-if="assignment.status === 'Pendiente'"
+                class="action-btn start-btn"
+                @click="updateAssignmentStatus(assignment.id, 'En progreso')"
+              >
+                <i class="fas fa-play"></i> Iniciar
+              </button>
+              <button
+                v-if="assignment.status === 'En progreso'"
+                class="action-btn complete-btn"
+                @click="updateAssignmentStatus(assignment.id, 'Completada')"
+              >
+                <i class="fas fa-check"></i> Completar
+              </button>
+            </div>
+          </div>
         </div>
+      </div>
+
+      <div v-if="filteredAssignments.length === 0" class="no-assignments">
+        <i class="far fa-folder-open"></i>
+        <p>No hay tareas que coincidan con los filtros</p>
       </div>
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
-import { ref } from 'vue';
-import { assignmentsMock, type Assignment } from '../../mocks/student/assignments';
+import { ref, computed, onMounted } from 'vue'
+import { useStudentStore } from '@/store/student'
+import type { AssignmentStatus } from '@/mocks/student/assignments'
 
-const assignments = ref<Assignment[]>([...assignmentsMock]);
+const studentStore = useStudentStore()
+const loading = ref(false)
+const error = ref<string | null>(null)
+const searchQuery = ref('')
+const statusFilter = ref<AssignmentStatus | ''>('')
 
-function badgeClass(status: string) {
-  return {
-    'badge-yellow': status === 'Pendiente',
-    'badge-blue': status === 'En progreso',
-    'badge-green': status === 'Completada'
-  };
+onMounted(async () => {
+  await loadAssignments()
+})
+
+async function loadAssignments() {
+  try {
+    loading.value = true
+    error.value = null
+    await studentStore.loadAssignments()
+  } catch (err) {
+    error.value = 'Error al cargar las tareas'
+    console.error(err)
+  } finally {
+    loading.value = false
+  }
 }
 
-function onFileChange(event: Event, id: number) {
-  const input = event.target as HTMLInputElement;
-  const file = input.files?.[0];
+const filteredAssignments = computed(() => {
+  return studentStore.assignments.filter(assignment => {
+    const matchesSearch = assignment.title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      assignment.subject.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      assignment.description.toLowerCase().includes(searchQuery.value.toLowerCase())
+    
+    const matchesStatus = !statusFilter.value || assignment.status === statusFilter.value
+    
+    return matchesSearch && matchesStatus
+  })
+})
+
+function formatDate(dateString: string) {
+  const options: Intl.DateTimeFormatOptions = { 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  }
+  return new Date(dateString).toLocaleDateString('es-ES', options)
+}
+
+function getFileName(filePath: string) {
+  return filePath.split('/').pop() || filePath
+}
+
+async function handleFileUpload(event: Event, assignmentId: number) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  
   if (file) {
-    const found = assignments.value.find(a => a.id === id);
-    if (found) {
-      found.files.push(`uploads/${file.name}`);
-      found.progress = 50;
-      found.status = 'En progreso';
-      alert(`Archivo "${file.name}" subido para la tarea "${found.title}"`);
+    try {
+      loading.value = true
+      error.value = null
+      // Usamos saveAssignmentMock para actualizar la tarea con el nuevo archivo
+      const assignment = studentStore.assignments.find(a => a.id === assignmentId)
+      if (assignment) {
+        const updatedAssignment = {
+          ...assignment,
+          files: [...assignment.files, `uploads/${file.name}`],
+          status: assignment.status === 'Pendiente' ? 'En progreso' : assignment.status,
+          progress: Math.min(assignment.progress + 25, 100)
+        }
+        await studentStore.saveAssignment(updatedAssignment)
+      }
+      input.value = '' // Reset input
+    } catch (err) {
+      error.value = 'Error al subir el archivo'
+      console.error(err)
+    } finally {
+      loading.value = false
     }
   }
 }
 
-function markInProgress(id: number) {
-  const found = assignments.value.find(a => a.id === id);
-  if (found) {
-    found.status = 'En progreso';
-    found.progress = 25;
-  }
-}
+async function updateAssignmentStatus(assignmentId: number, status: AssignmentStatus) {
+  try {
+    loading.value = true
+    error.value = null
+    // Buscamos la tarea y la actualizamos
+    const assignment = studentStore.assignments.find(a => a.id === assignmentId)
+    if (assignment) {
+      let progress = assignment.progress
+      if (status === 'Pendiente') progress = 0
+      else if (status === 'En progreso') progress = Math.max(50, progress)
+      else if (status === 'Completada') progress = 100
 
-function markComplete(id: number) {
-  const found = assignments.value.find(a => a.id === id);
-  if (found) {
-    found.status = 'Completada';
-    found.progress = 100;
-    alert(`¡Tarea "${found.title}" marcada como completada!`);
+      const updatedAssignment = {
+        ...assignment,
+        status,
+        progress
+      }
+      await studentStore.saveAssignment(updatedAssignment)
+    }
+  } catch (err) {
+    error.value = 'Error al actualizar el estado de la tarea'
+    console.error(err)
+  } finally {
+    loading.value = false
   }
 }
 </script>
 
-<style scoped src="@/assets/css/pages/student/Assignments.css"></style>
+<style src="@/assets/css/pages/student/AssignmentsView.css" scoped></style>

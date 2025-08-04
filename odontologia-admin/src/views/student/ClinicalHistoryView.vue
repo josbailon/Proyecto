@@ -1,213 +1,653 @@
-<!-- odontologia-admin/src/views/student/ClinicalHistoryView.vue -->
+<!-- src/views/student/ClinicalCasesView.vue -->
+
 <template>
-  <div class="container-fluid py-4 bg-light min-vh-100">
-    <!-- HEADER -->
-    <div class="mb-5">
-      <h1 class="fw-bold">Historia Clínica</h1>
-      <p class="text-muted">Accede y gestiona las historias clínicas de tus pacientes</p>
-      <div class="input-group w-75 w-md-50">
-        <input
-          v-model="searchTerm"
-          @keyup.enter="onSearch"
-          type="text"
-          class="form-control"
-          placeholder="Buscar paciente por nombre o cédula…"
-        />
+  <div class="clinical-history-view">
+    <!-- Header -->
+    <div class="history-header">
+      <div class="header-content">
+        <h1 class="page-title">
+          <i class="fas fa-file-medical me-3"></i>Historias Clínicas
+        </h1>
+        <p class="page-subtitle">Gestión integral de historias médicas dentales</p>
+      </div>
+      
+      <div class="header-actions">
+        <button class="btn btn-primary" @click="openNewPatientModal">
+          <i class="fas fa-plus-circle me-2"></i>Nuevo Paciente
+        </button>
       </div>
     </div>
 
-    <!-- TARJETAS -->
-    <div v-if="!filteredPatients.length" class="alert alert-warning">
-      No se encontraron pacientes.
+    <!-- Panel de búsqueda -->
+    <div class="search-panel">
+      <div class="search-container">
+        <div class="search-input-group">
+          <span class="search-icon">
+            <i class="fas fa-search"></i>
+          </span>
+          <input
+            v-model="searchTerm"
+            type="text"
+            class="form-control search-field"
+            placeholder="Buscar por nombre, cédula o teléfono..."
+          >
+          <button class="btn btn-clear" @click="clearSearch">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <div class="filter-group">
+          <select v-model="filterStatus" class="form-select filter-select">
+            <option value="">Todos los estados</option>
+            <option value="active">Activos</option>
+            <option value="inactive">Inactivos</option>
+          </select>
+          
+          <select v-model="filterLastVisit" class="form-select filter-select">
+            <option value="">Última visita</option>
+            <option value="week">Última semana</option>
+            <option value="month">Último mes</option>
+          </select>
+        </div>
+      </div>
     </div>
-    <div class="row gy-4">
-      <div
-        v-for="p in filteredPatients"
-        :key="p.id"
-        class="col-12 col-sm-6 col-lg-4"
-      >
-        <div class="card h-100 shadow-sm">
-          <div class="card-body d-flex">
-            <div
-              class="avatar rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3"
-            >
-              {{ p.name.charAt(0) }}
-            </div>
-            <div class="flex-grow-1">
-              <h5 class="card-title mb-1">{{ p.name }}</h5>
-              <small class="text-secondary">{{ p.age }} años</small>
-              <ul class="list-unstyled mt-3 mb-0 small text-secondary ps-0">
-                <li><strong>Cédula:</strong> {{ p.cedula }}</li>
-                <li><strong>Última visita:</strong> {{ p.lastVisit }}</li>
-                <li><strong>Tratamientos:</strong> {{ p.history.length }}</li>
-              </ul>
+
+    <!-- Contenido principal -->
+    <div class="main-content">
+      <!-- Estado de carga -->
+      <div v-if="loading" class="loading-state">
+        <div class="spinner"></div>
+        <p>Cargando historias clínicas...</p>
+      </div>
+
+      <!-- Estado vacío -->
+      <div v-else-if="!filteredPatients.length" class="empty-state">
+        <i class="fas fa-folder-open"></i>
+        <h4>No se encontraron pacientes</h4>
+        <p>Intenta ajustar tus criterios de búsqueda o agrega un nuevo paciente</p>
+        <button class="btn btn-primary" @click="openNewPatientModal">
+          <i class="fas fa-plus-circle me-2"></i>Agregar Paciente
+        </button>
+      </div>
+
+      <!-- Lista de pacientes -->
+      <div v-else class="patient-grid">
+        <div v-for="patient in filteredPatients" :key="patient.id" class="patient-card">
+          <div class="card-header">
+            <span class="status-badge" :class="getStatusClass(patient.status)">
+              {{ getStatusText(patient.status) }}
+            </span>
+            <div class="card-actions">
+              <button class="btn-action" @click="editPatient(patient)">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn-action" @click="confirmDelete(patient)">
+                <i class="fas fa-trash"></i>
+              </button>
             </div>
           </div>
-          <div class="card-footer bg-white border-0 d-flex justify-content-between align-items-center">
-            <span class="badge bg-success">Activo</span>
-            <button class="btn btn-link p-0" @click="openHistory(p)">
-              <i class="fas fa-eye"></i> Ver historia
+          
+          <div class="card-body">
+            <div class="patient-info">
+              <div class="patient-avatar">
+                {{ getInitials(patient.name) }}
+              </div>
+              <div class="patient-details">
+                <h3>{{ patient.name }}</h3>
+                <p>{{ patient.age }} años · {{ patient.gender }}</p>
+              </div>
+            </div>
+            
+            <div class="patient-meta">
+              <div class="meta-item">
+                <i class="fas fa-id-card"></i>
+                <span>{{ patient.identification }}</span>
+              </div>
+              <div class="meta-item">
+                <i class="fas fa-phone"></i>
+                <span>{{ patient.phone }}</span>
+              </div>
+              <div class="meta-item">
+                <i class="fas fa-calendar-day"></i>
+                <span>Últ. visita: {{ formatDate(patient.lastVisit) }}</span>
+              </div>
+            </div>
+            
+            <div class="patient-stats">
+              <div class="stat-item">
+                <span class="stat-value">{{ patient.treatments.length }}</span>
+                <span class="stat-label">Tratamientos</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-value">{{ patient.allergies.length }}</span>
+                <span class="stat-label">Alergias</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-value">{{ patient.medications.length }}</span>
+                <span class="stat-label">Medicamentos</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card-footer">
+            <button class="btn btn-view" @click="openPatientHistory(patient)">
+              <i class="fas fa-file-medical me-2"></i>Ver Historia
             </button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- MODAL BACKDROP -->
-    <div
-      v-if="selected"
-      class="modal-backdrop"
-      @click.self="closeModal"
-    ></div>
-
-    <!-- MODAL WINDOW -->
-    <div v-if="selected" class="modal-window">
-      <div class="modal-content">
-        <header class="modal-header">
-          <h5>Historia de {{ selected.name }}</h5>
-          <button class="btn-close" @click="closeModal">×</button>
-        </header>
-
-        <section class="modal-body">
-          <div class="row">
-            <div class="col">
-              <h6>Información Personal</h6>
-              <dl>
-                <dt>Nombre completo:</dt><dd>{{ selected.name }}</dd>
-                <dt>Edad:</dt><dd>{{ selected.age }} años</dd>
-                <dt>Cédula:</dt><dd>{{ selected.cedula }}</dd>
-                <dt>Teléfono:</dt><dd>{{ selected.phone }}</dd>
-              </dl>
-            </div>
-            <div class="col">
-              <h6>Información Médica</h6>
-              <dl>
-                <dt>Alergias:</dt><dd>{{ selected.allergies }}</dd>
-                <dt>Medicamentos:</dt><dd>{{ selected.medications }}</dd>
-                <dt>Condiciones:</dt><dd>{{ selected.conditions }}</dd>
-              </dl>
-            </div>
-          </div>
-
-          <div class="treatments">
-            <h6>Historial de Tratamientos</h6>
-            <ul class="treatments-list">
-              <li v-for="t in selected.history" :key="t.id">
-                <div class="title">{{ t.title }}</div>
-                <div class="description">{{ t.description }}</div>
-                <div class="details">Supervisor: {{ t.supervisor }}</div>
-                <span class="badge bg-secondary">{{ t.date }}</span>
-              </li>
-            </ul>
-          </div>
-        </section>
-
-        <footer class="modal-footer">
-          <button class="btn btn-success" @click="startTreatment">
-            <i class="fas fa-plus"></i> Iniciar caso clínico
+    <!-- Modal de Historia Clínica -->
+    <div v-if="selectedPatient" class="modal-overlay" @click.self="closeModal">
+      <div class="modal-container">
+        <div class="modal-header">
+          <h2>
+            <i class="fas fa-file-medical me-2"></i>
+            Historia Clínica de {{ selectedPatient.name }}
+          </h2>
+          <button class="btn-close" @click="closeModal">
+            <i class="fas fa-times"></i>
           </button>
-          <button class="btn btn-outline-secondary" @click="closeModal">
+        </div>
+        
+        <div class="modal-body">
+          <div class="patient-profile">
+            <div class="profile-avatar">
+              {{ getInitials(selectedPatient.name) }}
+            </div>
+            <div class="profile-info">
+              <h3>{{ selectedPatient.name }}</h3>
+              <p>{{ selectedPatient.age }} años · {{ selectedPatient.gender }}</p>
+              <p class="text-muted">
+                <i class="fas fa-calendar-plus me-2"></i>
+                Registrado el {{ formatDate(selectedPatient.createdAt) }}
+              </p>
+            </div>
+          </div>
+          
+          <div class="tabs">
+            <button 
+              class="tab-btn" 
+              :class="{ active: activeTab === 'general' }"
+              @click="activeTab = 'general'"
+            >
+              Información General
+            </button>
+            <button 
+              class="tab-btn" 
+              :class="{ active: activeTab === 'medical' }"
+              @click="activeTab = 'medical'"
+            >
+              Historial Médico
+            </button>
+            <button 
+              class="tab-btn" 
+              :class="{ active: activeTab === 'treatments' }"
+              @click="activeTab = 'treatments'"
+            >
+              Tratamientos
+            </button>
+          </div>
+          
+          <div class="tab-content">
+            <!-- Información General -->
+            <div v-if="activeTab === 'general'" class="general-info">
+              <div class="info-section">
+                <h4><i class="fas fa-info-circle me-2"></i>Datos Personales</h4>
+                <div class="info-grid">
+                  <div class="info-item">
+                    <label>Identificación:</label>
+                    <span>{{ selectedPatient.identification }}</span>
+                  </div>
+                  <div class="info-item">
+                    <label>Teléfono:</label>
+                    <span>{{ selectedPatient.phone }}</span>
+                  </div>
+                  <div class="info-item">
+                    <label>Email:</label>
+                    <span>{{ selectedPatient.email || 'No especificado' }}</span>
+                  </div>
+                  <div class="info-item">
+                    <label>Dirección:</label>
+                    <span>{{ selectedPatient.address || 'No especificada' }}</span>
+                  </div>
+                  <div class="info-item">
+                    <label>Ocupación:</label>
+                    <span>{{ selectedPatient.occupation || 'No especificada' }}</span>
+                  </div>
+                  <div class="info-item">
+                    <label>Tipo de Sangre:</label>
+                    <span>{{ selectedPatient.bloodType || 'No especificado' }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Historial Médico -->
+            <div v-if="activeTab === 'medical'" class="medical-info">
+              <div class="info-section">
+                <h4><i class="fas fa-allergies me-2"></i>Alergias</h4>
+                <div v-if="selectedPatient.allergies.length" class="info-list">
+                  <div v-for="(allergy, index) in selectedPatient.allergies" :key="index" class="info-item">
+                    <span>{{ allergy }}</span>
+                  </div>
+                </div>
+                <div v-else class="empty-info">
+                  No se han registrado alergias
+                </div>
+              </div>
+              
+              <div class="info-section">
+                <h4><i class="fas fa-pills me-2"></i>Medicamentos</h4>
+                <div v-if="selectedPatient.medications.length" class="info-list">
+                  <div v-for="(med, index) in selectedPatient.medications" :key="index" class="info-item">
+                    <span>{{ med }}</span>
+                  </div>
+                </div>
+                <div v-else class="empty-info">
+                  No se han registrado medicamentos
+                </div>
+              </div>
+              
+              <div class="info-section">
+                <h4><i class="fas fa-file-medical-alt me-2"></i>Condiciones Médicas</h4>
+                <div v-if="selectedPatient.conditions.length" class="info-list">
+                  <div v-for="(condition, index) in selectedPatient.conditions" :key="index" class="info-item">
+                    <span>{{ condition }}</span>
+                  </div>
+                </div>
+                <div v-else class="empty-info">
+                  No se han registrado condiciones médicas
+                </div>
+              </div>
+            </div>
+            
+            <!-- Tratamientos -->
+            <div v-if="activeTab === 'treatments'" class="treatments-info">
+              <div class="info-section">
+                <div class="treatment-list">
+                  <div v-for="treatment in selectedPatient.treatments" :key="treatment.id" class="treatment-item">
+                    <div class="treatment-header">
+                      <h5>{{ treatment.title }}</h5>
+                      <span class="treatment-date">{{ formatDate(treatment.date) }}</span>
+                    </div>
+                    <div class="treatment-body">
+                      <p>{{ treatment.description }}</p>
+                      <div class="treatment-meta">
+                        <span><i class="fas fa-user-md me-2"></i>{{ treatment.supervisor }}</span>
+                        <span v-if="treatment.notes"><i class="fas fa-sticky-note me-2"></i>{{ treatment.notes }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <button class="btn btn-secondary" @click="closeModal">
             Cerrar
           </button>
-        </footer>
+          <button class="btn btn-primary" @click="startNewTreatment">
+            <i class="fas fa-plus me-2"></i>Nuevo Tratamiento
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Nuevo Paciente -->
+    <div v-if="showNewPatientModal" class="modal-overlay" @click.self="closeNewPatientModal">
+      <div class="modal-container">
+        <div class="modal-header">
+          <h2><i class="fas fa-user-plus me-2"></i>Nuevo Paciente</h2>
+          <button class="btn-close" @click="closeNewPatientModal">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <div class="modal-body">
+          <form @submit.prevent="saveNewPatient">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Nombre Completo *</label>
+                <input v-model="newPatient.name" type="text" required>
+              </div>
+              
+              <div class="form-group">
+                <label>Identificación *</label>
+                <input v-model="newPatient.identification" type="text" required>
+              </div>
+              
+              <div class="form-group">
+                <label>Edad *</label>
+                <input v-model="newPatient.age" type="number" min="0" required>
+              </div>
+              
+              <div class="form-group">
+                <label>Género *</label>
+                <select v-model="newPatient.gender" required>
+                  <option value="">Seleccionar</option>
+                  <option value="Masculino">Masculino</option>
+                  <option value="Femenino">Femenino</option>
+                  <option value="Otro">Otro</option>
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label>Teléfono *</label>
+                <input v-model="newPatient.phone" type="tel" required>
+              </div>
+              
+              <div class="form-group">
+                <label>Email</label>
+                <input v-model="newPatient.email" type="email">
+              </div>
+              
+              <div class="form-group">
+                <label>Dirección</label>
+                <input v-model="newPatient.address" type="text">
+              </div>
+              
+              <div class="form-group">
+                <label>Tipo de Sangre</label>
+                <select v-model="newPatient.bloodType">
+                  <option value="">Desconocido</option>
+                  <option value="A+">A+</option>
+                  <option value="A-">A-</option>
+                  <option value="B+">B+</option>
+                  <option value="B-">B-</option>
+                  <option value="AB+">AB+</option>
+                  <option value="AB-">AB-</option>
+                  <option value="O+">O+</option>
+                  <option value="O-">O-</option>
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label>Ocupación</label>
+                <input v-model="newPatient.occupation" type="text">
+              </div>
+            </div>
+            
+            <div class="form-actions">
+              <button type="button" class="btn btn-outline" @click="closeNewPatientModal">
+                Cancelar
+              </button>
+              <button type="submit" class="btn btn-primary">
+                Guardar Paciente
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Confirmación -->
+    <div v-if="showConfirmModal" class="modal-overlay" @click.self="cancelDelete">
+      <div class="confirm-modal">
+        <div class="confirm-header">
+          <h3><i class="fas fa-exclamation-triangle me-2"></i>Confirmar Eliminación</h3>
+        </div>
+        
+        <div class="confirm-body">
+          <p>¿Estás seguro de eliminar el paciente <strong>{{ patientToDelete?.name }}</strong>?</p>
+          <p class="text-muted">Esta acción no se puede deshacer.</p>
+        </div>
+        
+        <div class="confirm-footer">
+          <button class="btn btn-outline" @click="cancelDelete">
+            Cancelar
+          </button>
+          <button class="btn btn-danger" @click="deletePatient">
+            Eliminar
+          </button>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, computed } from 'vue'
-
-interface Treatment {
-  id: number
-  title: string
-  description: string
-  date: string
-  supervisor: string
-}
-interface Patient {
-  id: number
-  name: string
-  age: number
-  cedula: string
-  lastVisit: string
-  phone: string
-  allergies: string
-  medications: string
-  conditions: string
-  history: Treatment[]
-}
-
-const searchTerm = ref('')
-const patients = ref<Patient[]>([
-  {
-    id: 1,
-    name: 'María González',
-    age: 35,
-    cedula: '1234567890',
-    lastVisit: '9 de enero de 2024',
-    phone: '0991234567',
-    allergies: 'Penicilina',
-    medications: 'Ibuprofeno 400 mg',
-    conditions: 'Hipertensión',
-    history: [
-      {
-        id: 1,
-        title: 'Limpieza dental',
-        description: 'Profilaxis completa con aplicación de flúor',
-        date: '9 de enero de 2024',
-        supervisor: 'Dr. García'
+<script>
+export default {
+  data() {
+    return {
+      loading: false,
+      searchTerm: '',
+      filterStatus: '',
+      filterLastVisit: '',
+      activeTab: 'general',
+      selectedPatient: null,
+      showNewPatientModal: false,
+      showConfirmModal: false,
+      patientToDelete: null,
+      newPatient: {
+        name: '',
+        identification: '',
+        age: '',
+        gender: '',
+        phone: '',
+        email: '',
+        address: '',
+        bloodType: '',
+        occupation: '',
+        allergies: [],
+        medications: [],
+        conditions: [],
+        treatments: []
       },
-      {
-        id: 2,
-        title: 'Obturación',
-        description: 'Restauración de caries en molar superior derecho',
-        date: '14 de diciembre de 2023',
-        supervisor: 'Dr. García'
-      }
-    ]
+      patients: [
+        {
+          id: 1,
+          name: 'María González Pérez',
+          age: 35,
+          gender: 'Femenino',
+          identification: '1234567890',
+          phone: '0991234567',
+          email: 'maria.gonzalez@example.com',
+          address: 'Av. Principal 123, Ciudad',
+          bloodType: 'A+',
+          occupation: 'Ingeniera',
+          status: 'active',
+          lastVisit: '2024-01-15',
+          createdAt: '2023-10-05',
+          allergies: ['Penicilina', 'Metronidazol'],
+          medications: ['Ibuprofeno 400mg'],
+          conditions: ['Hipertensión controlada'],
+          treatments: [
+            {
+              id: 1,
+              date: '2024-01-15',
+              title: 'Limpieza dental',
+              description: 'Profilaxis completa con aplicación de flúor',
+              supervisor: 'Dr. García',
+              notes: 'Encías levemente inflamadas en sector anterior'
+            },
+            {
+              id: 2,
+              date: '2023-12-14',
+              title: 'Obturación',
+              description: 'Restauración de caries en molar superior derecho',
+              supervisor: 'Dr. García',
+              notes: 'Paciente toleró bien el procedimiento'
+            }
+          ]
+        },
+        {
+          id: 2,
+          name: 'Carlos López Mendez',
+          age: 28,
+          gender: 'Masculino',
+          identification: '0987654321',
+          phone: '0997654321',
+          email: 'carlos.lopez@example.com',
+          bloodType: 'O+',
+          occupation: 'Arquitecto',
+          status: 'active',
+          lastVisit: '2024-01-10',
+          createdAt: '2023-11-15',
+          allergies: [],
+          medications: ['Metformina 500mg'],
+          conditions: ['Diabetes tipo II'],
+          treatments: [
+            {
+              id: 1,
+              date: '2024-01-10',
+              title: 'Ortodoncia',
+              description: 'Colocación de brackets metálicos',
+              supervisor: 'Dra. Pérez',
+              notes: 'Paciente tolera bien la aparatología'
+            }
+          ]
+        }
+      ]
+    }
   },
-  {
-    id: 2,
-    name: 'Carlos López',
-    age: 28,
-    cedula: '0987654321',
-    lastVisit: '7 de enero de 2024',
-    phone: '0997654321',
-    allergies: 'Ninguna',
-    medications: 'Ninguno',
-    conditions: 'Saludable',
-    history: [
-      {
-        id: 1,
-        title: 'Ortodoncia',
-        description: 'Colocación de brackets metálicos',
-        date: '7 de enero de 2024',
-        supervisor: 'Dra. Pérez'
+  computed: {
+    filteredPatients() {
+      let filtered = this.patients
+      
+      // Filtrar por término de búsqueda
+      if (this.searchTerm) {
+        const term = this.searchTerm.toLowerCase()
+        filtered = filtered.filter(p => 
+          p.name.toLowerCase().includes(term) ||
+          p.identification.includes(term) ||
+          p.phone.includes(term) ||
+          (p.email && p.email.toLowerCase().includes(term))
+        )
       }
-    ]
+      
+      // Filtrar por estado
+      if (this.filterStatus) {
+        filtered = filtered.filter(p => p.status === this.filterStatus)
+      }
+      
+      // Filtrar por última visita
+      if (this.filterLastVisit) {
+        const now = new Date()
+        filtered = filtered.filter(p => {
+          const lastVisit = new Date(p.lastVisit)
+          const diffTime = now.getTime() - lastVisit.getTime()
+          const diffDays = diffTime / (1000 * 60 * 60 * 24)
+          
+          switch (this.filterLastVisit) {
+            case 'week': return diffDays <= 7
+            case 'month': return diffDays <= 30
+            default: return true
+          }
+        })
+      }
+      
+      return filtered
+    }
+  },
+  methods: {
+    getInitials(name) {
+      return name.split(' ').map(n => n[0]).join('').toUpperCase()
+    },
+    getStatusText(status) {
+      const statusMap = {
+        active: 'Activo',
+        inactive: 'Inactivo'
+      }
+      return statusMap[status] || status
+    },
+    getStatusClass(status) {
+      const classMap = {
+        active: 'active',
+        inactive: 'inactive'
+      }
+      return classMap[status] || ''
+    },
+    formatDate(dateString) {
+      const options = { year: 'numeric', month: 'short', day: 'numeric' }
+      return new Date(dateString).toLocaleDateString('es-ES', options)
+    },
+    openPatientHistory(patient) {
+      this.selectedPatient = JSON.parse(JSON.stringify(patient))
+    },
+    closeModal() {
+      this.selectedPatient = null
+      this.activeTab = 'general'
+    },
+    openNewPatientModal() {
+      this.showNewPatientModal = true
+      this.resetNewPatientForm()
+    },
+    closeNewPatientModal() {
+      this.showNewPatientModal = false
+    },
+    saveNewPatient() {
+      const newId = Math.max(...this.patients.map(p => p.id)) + 1
+      const newPatient = {
+        id: newId,
+        ...this.newPatient,
+        status: 'active',
+        lastVisit: new Date().toISOString().split('T')[0],
+        createdAt: new Date().toISOString().split('T')[0],
+        allergies: [],
+        medications: [],
+        conditions: [],
+        treatments: []
+      }
+      
+      this.patients.push(newPatient)
+      this.showNewPatientModal = false
+      this.resetNewPatientForm()
+    },
+    resetNewPatientForm() {
+      this.newPatient = {
+        name: '',
+        identification: '',
+        age: '',
+        gender: '',
+        phone: '',
+        email: '',
+        address: '',
+        bloodType: '',
+        occupation: '',
+        allergies: [],
+        medications: [],
+        conditions: [],
+        treatments: []
+      }
+    },
+    editPatient(patient) {
+      this.selectedPatient = JSON.parse(JSON.stringify(patient))
+    },
+    confirmDelete(patient) {
+      this.patientToDelete = patient
+      this.showConfirmModal = true
+    },
+    cancelDelete() {
+      this.patientToDelete = null
+      this.showConfirmModal = false
+    },
+    deletePatient() {
+      if (this.patientToDelete) {
+        this.patients = this.patients.filter(p => p.id !== this.patientToDelete.id)
+        this.showConfirmModal = false
+        this.patientToDelete = null
+      }
+    },
+    startNewTreatment() {
+      alert(`Iniciando nuevo tratamiento para ${this.selectedPatient.name}`)
+    },
+    clearSearch() {
+      this.searchTerm = ''
+      this.filterStatus = ''
+      this.filterLastVisit = ''
+    }
+  },
+  mounted() {
+    // Simular carga de datos
+    this.loading = true
+    setTimeout(() => {
+      this.loading = false
+    }, 800)
   }
-])
-
-const filteredPatients = computed(() =>
-  patients.value.filter(p =>
-    p.name.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
-    p.cedula.includes(searchTerm.value)
-  )
-)
-
-const selected = ref<Patient | null>(null)
-function openHistory(p: Patient) {
-  selected.value = p
-}
-function closeModal() {
-  selected.value = null
-}
-function startTreatment() {
-  alert(`Iniciando tratamiento para ${selected.value?.name}`)
-}
-function onSearch() {
-  /* búsqueda reactiva */
 }
 </script>
 

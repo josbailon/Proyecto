@@ -1,19 +1,94 @@
-/* src/assets/css/globals/reset.css */
-/* Eric Meyer’s Reset v2.0 | 20110126 */
-html, body, div, span, applet, object, iframe,
-h1, h2, h3, h4, h5, h6, p, blockquote, pre,
-a, abbr, acronym, address, big, cite, code,
-del, dfn, em, img, ins, kbd, q, s, samp,
-small, strike, strong, sub, sup, tt, var,
-b, u, i, center,
-dl, dt, dd, ol, ul, li,
-fieldset, form, label, legend,
-table, caption, tbody, tfoot, thead, tr, th, td {
+/* src/assets/css/globals/reset.css - Modern CSS Reset */
+
+/* Box sizing rules */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Remove default margin, padding, border */
+html, body,
+blockquote, dl, dd, h1, h2, h3, h4, h5, h6, hr, p, pre,
+button, fieldset, input, legend, textarea,
+figure, main, nav, output, section, table, th, td, ul, ol, li {
   margin: 0;
   padding: 0;
   border: 0;
-  font-size: 100%;
-  font: inherit;
-  vertical-align: baseline;
 }
-/* more reset rules… */
+
+/* Set core body defaults */
+html {
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+  -moz-tab-size: 4;
+  tab-size: 4;
+}
+body {
+  min-height: 100vh;
+  text-rendering: optimizeSpeed;
+}
+
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, main, menu, nav, section, summary {
+  display: block;
+}
+
+/* Remove list styles on ul, ol elements */
+ul, ol {
+  list-style: none;
+}
+
+/* Remove default quotes */
+blockquote, q {
+  quotes: none;
+}
+blockquote::before, blockquote::after,
+q::before, q::after {
+  content: '';
+  content: none;
+}
+
+/* Remove default table spacing */
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+/* Remove default button/input styles */
+button, input, select, textarea {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  outline: none;
+}
+
+/* Remove default anchor styles */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Make images and media responsive */
+img, picture, video, canvas, svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Ensure hidden attribute works consistently */
+[hidden] {
+  display: none !important;
+}
+
+/* Remove animations/transitions for sensitive users (optional) */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,0 +1,250 @@
+/* Estilos base */
+.medical-interview-container {
+  font-family: 'Arial', sans-serif;
+  max-width: 1000px;
+  margin: 20px auto;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  background-color: #fff;
+}
+
+.header-section {
+  background-color: #2c3e50;
+  color: white;
+  padding: 20px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.8em;
+  text-align: center;
+}
+
+.patient-info {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+  font-size: 1.1em;
+}
+
+.section {
+  margin-bottom: 30px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+}
+
+.section h2 {
+  margin-top: 0;
+  color: #2c3e50;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 10px;
+}
+
+.subsection {
+  margin-bottom: 25px;
+  padding: 15px;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+}
+
+.subsection h3 {
+  margin-top: 0;
+  color: #34495e;
+}
+
+/* Elementos de formulario */
+.full-width-textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  resize: vertical;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.radio-group {
+  display: flex;
+  gap: 15px;
+}
+
+.radio-group label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: normal;
+  cursor: pointer;
+}
+
+/* Medicamentos */
+.medication-item {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  align-items: center;
+}
+
+.medication-item input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.btn-remove {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn-remove:hover {
+  background-color: #c0392b;
+}
+
+.btn-add {
+  background-color: #27ae60;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 15px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.3s;
+}
+
+.btn-add:hover {
+  background-color: #219653;
+}
+
+/* Alergias */
+.allergy-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.allergy-grid label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.other-allergy {
+  margin-top: 15px;
+}
+
+.other-allergy input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-top: 5px;
+}
+
+/* Embarazo */
+.pregnancy-details {
+  margin-top: 10px;
+  padding-left: 15px;
+  border-left: 3px solid #3498db;
+}
+
+/* Botones de acción */
+.action-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.btn-primary {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.3s;
+}
+
+.btn-primary:hover {
+  background-color: #2980b9;
+}
+
+.btn-secondary {
+  background-color: #95a5a6;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.3s;
+}
+
+.btn-secondary:hover {
+  background-color: #7f8c8d;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .allergy-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .patient-info {
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .section, .subsection {
+    padding: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .allergy-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .medical-interview-container {
+    padding: 10px;
+  }
+  
+  .title {
+    font-size: 1.5em;
+  }
+  
+  .radio-group {
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+  
+  .btn-primary, .btn-secondary {
+    width: 100%;
+  }
+}

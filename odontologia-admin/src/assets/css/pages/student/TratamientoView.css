@@ -1,0 +1,184 @@
+/* src/assets/css/pages/student/TratamientoView.css */
+.treatment-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #fff;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #007bff;
+}
+
+.header h1 {
+  color: #007bff;
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+}
+
+.patient-info {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  font-size: 1.1rem;
+}
+
+.section {
+  margin-bottom: 30px;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 5px;
+  border-left: 4px solid #007bff;
+}
+
+.section h2 {
+  color: #007bff;
+  font-size: 1.4rem;
+  margin-bottom: 20px;
+}
+
+.subsection {
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #e9ecef;
+  border-radius: 5px;
+}
+
+.subsection h3 {
+  font-size: 1.2rem;
+  color: #495057;
+  margin-bottom: 15px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  font-weight: 500;
+  color: #495057;
+  margin-bottom: 5px;
+  display: block;
+}
+
+.form-control {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+textarea.form-control {
+  min-height: 100px;
+}
+
+.checkbox-group {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.signature-pad {
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  background-color: #fff;
+  margin-bottom: 10px;
+}
+
+.signature-pad canvas {
+  display: block;
+  background-color: #fff;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 30px;
+}
+
+.btn {
+  padding: 10px 20px;
+  font-size: 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+  border: none;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+}
+
+.btn-success {
+  background-color: #28a745;
+  color: white;
+  border: none;
+}
+
+/* Botones de herramientas */
+.tool-buttons {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.btn-tool {
+  background: #e3f2fd;
+  color: #1565c0;
+  border: 1px solid #90caf9;
+  padding: 8px 15px;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+}
+
+.btn-tool:hover {
+  background: #bbdefb;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-tool i {
+  margin-right: 8px;
+}
+
+@media (max-width: 768px) {
+  .patient-info {
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+  }
+  
+  .checkbox-group {
+    grid-template-columns: 1fr;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+  
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .tool-buttons {
+    flex-direction: column;
+  }
+}

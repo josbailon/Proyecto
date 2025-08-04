@@ -2,8 +2,8 @@
 <template>
   <div class="student-layout">
     <Sidebar
-      title="DentApp"
-      subtitle="Panel Estudiante"
+      title="ULEAM"
+      subtitle="FACULTAD DE ODONTOLOGÍA"
       :logo-src="logoSrc"
       :items="navItems"
     />
@@ -31,7 +31,11 @@ const navItems: Array<{
   { name: 'Assignments',        label: 'Tareas',              icon: 'fas fa-tasks',           to: { name: 'Assignments' } },
   { name: 'Communication',      label: 'Mensajes',            icon: 'fas fa-envelope',        to: { name: 'Communication' } },
   { name: 'StudentResources',  label: 'Recursos',            icon: 'fas fa-book',            to: { name: 'StudentResources' } },
-  { name: 'Odontogram',         label: 'Odontograma',         icon: 'fas fa-tooth',           to: { name: 'Odontogram' } }
+  { name: 'Odontogram',         label: 'Odontograma',         icon: 'fas fa-tooth',           to: { name: 'Odontogram' } },
+  { name: 'DatosFiliacion',     label: 'Datos de Filiación',  icon: 'fas fa-address-card',    to: { name: 'DatosFiliacion' } },
+  { name: 'TopografiaMucosaOral', label: 'Topografía Mucosa Oral', icon: 'fas fa-map-marked-alt', to: { name: 'TopografiaMucosaOral' } },
+  { name: 'Preguntas',          label: 'Preguntas Frecuentes', icon: 'fas fa-question-circle', to: { name: 'Preguntas' } },
+  { name: 'Tratamiento',        label: 'Tratamiento',         icon: 'fas fa-stethoscope',     to: { name: 'Tratamiento' } }
 ]
 </script>
 

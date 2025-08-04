@@ -33,17 +33,20 @@ const SecretaryDashboard   = () => import('@/views/secretary/SecretaryDashboardV
 const PatientAssignment    = () => import('@/views/secretary/PatientAssignmentView.vue')
 const WeeklySchedule       = () => import('@/views/secretary/WeeklyScheduleView.vue')
 const PatientManagement    = () => import('@/views/secretary/PatientManagementView.vue')
-const MedicalScreening     = () => import('@/views/secretary/MedicalScreeningView.vue') // ✅ CORREGIDO
+const MedicalScreening     = () => import('@/views/secretary/MedicalScreeningView.vue') 
 
 // 👨‍🎓 Estudiante
-const StudentDashboard  = () => import('@/views/student/DashboardView.vue')
-const ClinicalHistory   = () => import('@/views/student/ClinicalHistoryView.vue')
-const ClinicalCases     = () => import('@/views/student/ClinicalCasesView.vue')
-const AssignmentsView   = () => import('@/views/student/AssignmentsView.vue')
-const CommunicationView = () => import('@/views/student/CommunicationView.vue')
-const OdontogramView    = () => import('@/views/student/OdontogramView.vue')
-const StudentResources  = () => import('@/views/student/ResourcesView.vue')
-
+const StudentDashboard    = () => import('@/views/student/DashboardView.vue')
+const ClinicalHistory     = () => import('@/views/student/ClinicalHistoryView.vue')
+const ClinicalCases       = () => import('@/views/student/ClinicalCasesView.vue')
+const AssignmentsView     = () => import('@/views/student/AssignmentsView.vue')
+const CommunicationView   = () => import('@/views/student/CommunicationView.vue')
+const OdontogramView      = () => import('@/views/student/OdontogramView.vue')
+const StudentResources    = () => import('@/views/student/ResourcesView.vue')
+const DatosFiliacionView = () => import('@/views/student/DatosFiliacionView.vue')
+const TopografiaMucosaOralView = () => import('@/views/student/TopografiaMucosaOralView.vue')
+const PreguntasView = () => import('@/views/student/PreguntasView.vue')
+const TratamientoView = () => import('@/views/student/TratamientoView.vue')
 // -------------------------
 // Definición de rutas
 // -------------------------
@@ -96,24 +99,28 @@ const routes: RouteRecordRaw[] = [
 
   // Estudiante
   {
-    path: '/student',
-    component: StudentLayout,
-    meta: { requiresAuth: true, roles: ['estudiante'] as Role[] },
-    children: [
-      { path: '', name: 'StudentDashboard', component: StudentDashboard },
-      { path: 'history', name: 'ClinicalHistory', component: ClinicalHistory },
-      { path: 'cases', name: 'ClinicalCases', component: ClinicalCases },
-      { path: 'assignments', name: 'Assignments', component: AssignmentsView },
-      { path: 'communication', name: 'Communication', component: CommunicationView },
-      { path: 'resources', name: 'StudentResources', component: StudentResources },
-      { path: 'odontogram', name: 'Odontogram', component: OdontogramView }
-    ]
-  },
+  path: '/student',
+  component: StudentLayout,
+  meta: { requiresAuth: true, roles: ['estudiante'] as Role[] },
+  children: [
+    { path: '', name: 'StudentDashboard', component: StudentDashboard },
+    { path: 'history', name: 'ClinicalHistory', component: ClinicalHistory },
+    { path: 'cases', name: 'ClinicalCases', component: ClinicalCases },
+    { path: 'assignments', name: 'Assignments', component: AssignmentsView },
+    { path: 'communication', name: 'Communication', component: CommunicationView },
+    { path: 'resources', name: 'StudentResources', component: StudentResources },
+    { path: 'odontogram', name: 'Odontogram', component: OdontogramView },
+    { path: 'datos-filiacion', name: 'DatosFiliacion', component: DatosFiliacionView },
+    { path: 'topografia-mucosa-oral', name: 'TopografiaMucosaOral', component: TopografiaMucosaOralView },
+    { path: 'preguntas', name: 'Preguntas', component: PreguntasView },
+    { path: 'tratamiento', name: 'Tratamiento', component: TratamientoView }
+  ]
+},
 
   // Ruta desconocida
   { path: '/:pathMatch(.*)*', redirect: '/login' }
 ]
-
+ 
 // -------------------------
 // Instancia del router
 // -------------------------
